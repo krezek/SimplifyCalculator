@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs
+/App/Debug
+/App/Release
+/App/x64
+/App/App.vcxproj.user
+/Debug
+/Release
+/x64
