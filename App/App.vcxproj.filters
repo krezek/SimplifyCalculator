@@ -15,35 +15,29 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="App.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
+    <Image Include="src\icon64.ico">
+      <Filter>Ressourcendateien</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App.cpp">
+    <ClCompile Include="src\main.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="App.rc">
-      <Filter>Ressourcendateien</Filter>
-    </ResourceCompile>
+    <ClInclude Include="src\platform.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
+    <Xml Include="src\res1.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\Resource.rc">
       <Filter>Ressourcendateien</Filter>
-    </Image>
-    <Image Include="App.ico">
-      <Filter>Ressourcendateien</Filter>
-    </Image>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
