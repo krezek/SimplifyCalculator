@@ -1,18 +1,11 @@
 #include "platform.h"
-#include "resource.h"
+#include "main_wnd.h"
 
 
 #ifdef _DEBUG
 #define SHOWCONSOLE
 void RedirectIOToConsole();
 #endif
-
-static TCHAR szWindowClass[] = _T("DesktopApp");
-static TCHAR szTitle[] = _T("Simplify Calculator");
-
-HWND _hWnd;
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
@@ -27,24 +20,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     RedirectIOToConsole();
 #endif
 
-    // Register the window class.
-
-    WNDCLASSEX wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = WindowProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = MAKEINTRESOURCE(IDR_POPUPMENU);
-    wcex.lpszClassName = szWindowClass;
-    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICON_64));
-
-    if (!RegisterClassEx(&wcex))
+    if (!MainWindow_RegisterClass())
     {
         MessageBox(NULL,
             _T("Call to RegisterClassEx failed!"),
@@ -54,19 +30,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
         return -1;
     }
 
-    _hWnd = CreateWindow(
-        szWindowClass,
-        szTitle,
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT,
-        800, 600,
-        NULL,
-        NULL,
-        hInstance,
-        NULL
-    );
+    BaseWindow* mainWindow = (BaseWindow*)MainWindow_init();
 
-    if (!_hWnd)
+    if (!mainWindow->_CreateFunc(mainWindow))
     {
         MessageBox(NULL,
             _T("Call to CreateWindow failed!"),
@@ -76,9 +42,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
         return -1;
     }
 
-    ShowWindow(_hWnd,
-        nCmdShow);
-    UpdateWindow(_hWnd);
+    mainWindow->_ShowFunc(mainWindow, nCmdShow);
+    mainWindow->_UpdateFunc(mainWindow);
 
     // Main message loop:
     MSG msg;
@@ -88,31 +53,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
         DispatchMessage(&msg);
     }
 
+    MainWindow_free((MainWindow*)mainWindow);
+
     return (int)msg.wParam;
-}
-
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
-    case WM_CREATE:
-        return 0;
-
-    case WM_COMMAND:
-        switch (LOWORD(wParam))
-        {
-        case ID_FILE_EXIT:
-            PostMessage(hWnd, WM_CLOSE, 0, 0);
-            break;
-        }
-        return 0;
-
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
-    }
-
-    return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 void RedirectIOToConsole()

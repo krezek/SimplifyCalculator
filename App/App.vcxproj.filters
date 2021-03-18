@@ -23,12 +23,24 @@
     <ClCompile Include="src\main.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\base_wnd.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main_wnd.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\platform.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\resource.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base_wnd.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\main_wnd.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
