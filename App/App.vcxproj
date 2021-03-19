@@ -25,10 +25,12 @@
     <ClCompile Include="src\base_wnd.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\main_wnd.c" />
+    <ClCompile Include="src\panel.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base_wnd.h" />
     <ClInclude Include="src\main_wnd.h" />
+    <ClInclude Include="src\panel.h" />
     <ClInclude Include="src\platform.h" />
     <ClInclude Include="src\resource.h" />
   </ItemGroup>

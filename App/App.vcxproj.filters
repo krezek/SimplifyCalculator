@@ -29,6 +29,9 @@
     <ClCompile Include="src\main_wnd.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\panel.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\platform.h">
@@ -41,6 +44,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\main_wnd.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\panel.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

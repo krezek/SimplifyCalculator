@@ -5,7 +5,7 @@
 static TCHAR szWindowClass[] = _T("DesktopApp");
 static TCHAR szTitle[] = _T("Simplify Calculator");
 
-LRESULT MainWindow_HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
+static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 ATOM MainWindow_RegisterClass()
 {
@@ -27,7 +27,7 @@ ATOM MainWindow_RegisterClass()
     return RegisterClassEx(&wcex);
 }
 
-BOOL MainWindow_Create(BaseWindow* _this)
+BOOL Create(BaseWindow* _this)
 {
     HWND hWnd = CreateWindow(
         szWindowClass,
@@ -53,21 +53,51 @@ MainWindow* MainWindow_init()
 
     BaseWindow_default((BaseWindow*)mw);
 
-    mw->_baseWindow._HandleMessageFunc = MainWindow_HandleMessage;
-    mw->_baseWindow._CreateFunc = MainWindow_Create;
+    mw->_baseWindow._HandleMessageFunc = HandleMessage;
+    mw->_baseWindow._CreateFunc = Create;
+
+    mw->_panel = Panel_init();
 
     return mw;
 }
 
 void MainWindow_free(MainWindow* mw)
 {
+    Panel_free(mw->_panel);
     free(mw);
 }
 
-LRESULT MainWindow_HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static void OnSize(MainWindow* mw)
 {
+}
+
+static void OnPaint(MainWindow* mw)
+{
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(mw->_baseWindow._hWnd, &ps);
+
+    FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW));
+
+    EndPaint(mw->_baseWindow._hWnd, &ps);
+}
+
+static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    MainWindow* mw = (MainWindow*)_this;
+
     switch (uMsg)
     {
+    case WM_PAINT:
+        OnPaint(mw);
+        return 0;
+
+    case WM_SIZE:
+        mw->_client_width = LOWORD(lParam);
+        mw->_client_height = HIWORD(lParam);
+
+        OnSize(mw);
+        return 0;
+
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;

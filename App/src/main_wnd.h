@@ -2,11 +2,14 @@
 #define _MAIN_WND_H_
 
 #include "base_wnd.h"
+#include "panel.h"
 
 typedef struct
 {
 	BaseWindow _baseWindow;
 
+	int _client_width, _client_height;
+	Panel* _panel;
 } MainWindow;
 
 ATOM MainWindow_RegisterClass();
