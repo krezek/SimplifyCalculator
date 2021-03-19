@@ -10,3 +10,5 @@
 /Debug
 /Release
 /x64
+/Renderer/x64/Debug
+/Renderer/Renderer.vcxproj.user

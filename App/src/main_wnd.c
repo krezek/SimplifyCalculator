@@ -78,6 +78,8 @@ static void OnPaint(MainWindow* mw)
 
     FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW));
 
+    mw->_panel->_DrawFunc(mw->_panel, hdc);
+
     EndPaint(mw->_baseWindow._hWnd, &ps);
 }
 
