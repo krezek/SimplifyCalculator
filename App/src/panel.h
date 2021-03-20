@@ -28,6 +28,8 @@ typedef struct _PanelLinkedList
 	PanelNode* _front;
 	PanelNode* _rear;
 
+	int _client_width, _client_height;
+
 	OnInitializeFunc _OnInitializeFunc;
 	DrawListFunc _DrawListFunc;
 } PanelLinkedList;

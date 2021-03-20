@@ -2,6 +2,8 @@
 
 #include "panel.h"
 
+static const int g_panel_margin_h = 10, g_panel_margin_v = 10;
+
 static void OnInitialze(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc);
 static void Draw(Panel* p, HDC hdc);
@@ -81,18 +83,24 @@ void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
 
 static void OnInitialze(PanelLinkedList* pll)
 {
-	Panel* p = Panel_init();
+	Panel* p1 = Panel_init();
+	p1->_height = 150;
+	PanelLinkedList_pushpack(pll, p1);
 
-	p->_x = 10;
-	p->_y = 10;
-	p->_width = 100;
-	p->_height = 50;
+	Panel* p2 = Panel_init();
+	p2->_height =175;
+	PanelLinkedList_pushpack(pll, p2);
 
-	PanelLinkedList_pushpack(pll, p);
+	Panel* p3 = Panel_init();
+	p3->_height = 250;
+	PanelLinkedList_pushpack(pll, p3);
 }
 
 static void DrawList(PanelLinkedList* pll, HDC hdc)
 {
+	int x = g_panel_margin_h;
+	int y = g_panel_margin_v;
+
 	if (pll)
 	{
 		if (pll->_front)
@@ -100,6 +108,12 @@ static void DrawList(PanelLinkedList* pll, HDC hdc)
 			PanelNode* pn = pll->_front;
 			while (pn)
 			{
+				pn->_panel->_x = x;
+				pn->_panel->_y = y;
+				pn->_panel->_width = pll->_client_width - g_panel_margin_h * 2;
+
+				y += pn->_panel->_height + g_panel_margin_v;
+
 				pn->_panel->_DrawFunc(pn->_panel, hdc);
 				pn = pn->_next;
 			}

@@ -72,8 +72,13 @@ static void OnCreate(MainWindow* mw)
     mw->_panels->_OnInitializeFunc(mw->_panels);
 }
 
-static void OnSize(MainWindow* mw)
+static void OnSize(MainWindow* mw, int width, int height)
 {
+    mw->_client_width = width;
+    mw->_client_height = height;
+
+    mw->_panels->_client_width = width;
+    mw->_panels->_client_height = height;
 }
 
 static void OnPaint(MainWindow* mw)
@@ -103,10 +108,7 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         return 0;
 
     case WM_SIZE:
-        mw->_client_width = LOWORD(lParam);
-        mw->_client_height = HIWORD(lParam);
-
-        OnSize(mw);
+        OnSize(mw, LOWORD(lParam), HIWORD(lParam));
         return 0;
 
     case WM_DESTROY:
