@@ -67,6 +67,11 @@ void MainWindow_free(MainWindow* mw)
     free(mw);
 }
 
+static void OnCreate(MainWindow* mw)
+{
+    mw->_panels->_OnInitializeFunc(mw->_panels);
+}
+
 static void OnSize(MainWindow* mw)
 {
 }
@@ -89,6 +94,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     switch (uMsg)
     {
+    case WM_CREATE:
+        OnCreate(mw);
+        return 0;
+
     case WM_PAINT:
         OnPaint(mw);
         return 0;
