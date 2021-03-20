@@ -56,14 +56,14 @@ MainWindow* MainWindow_init()
     mw->_baseWindow._HandleMessageFunc = HandleMessage;
     mw->_baseWindow._CreateFunc = Create;
 
-    mw->_panel = Panel_init();
+    mw->_panels = PanelLinkedList_init();
 
     return mw;
 }
 
 void MainWindow_free(MainWindow* mw)
 {
-    Panel_free(mw->_panel);
+    PanelLinkedList_free(mw->_panels);
     free(mw);
 }
 
@@ -78,7 +78,7 @@ static void OnPaint(MainWindow* mw)
 
     FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW));
 
-    mw->_panel->_DrawFunc(mw->_panel, hdc);
+    mw->_panels->_DrawListFunc(mw->_panels, hdc);
 
     EndPaint(mw->_baseWindow._hWnd, &ps);
 }

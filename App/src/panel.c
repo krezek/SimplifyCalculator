@@ -2,20 +2,93 @@
 
 #include "panel.h"
 
-static void Draw(Panel* p, HDC hdc)
+static void DrawList(PanelLinkedList* pll, HDC hdc);
+static void Draw(Panel* p, HDC hdc);
+
+PanelNode* PanelNode_init(Panel* p)
 {
-	p->_x = 10;
-	p->_y = 10;
-	p->_width = 100;
-	p->_height = 50;
+	PanelNode* pn = (PanelNode*)malloc(sizeof(PanelNode));
+	assert(pn);
 
-	RECT rc;
-	rc.left = p->_x;
-	rc.top = p->_y;
-	rc.right = rc.left + p->_width;
-	rc.bottom = rc.top + p->_height;
+	pn->_panel= p;
 
-	FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOWFRAME));
+	return pn;
+}
+
+void PanelNode_free(PanelNode* pn)
+{
+	if (pn->_panel)
+	{
+		Panel_free(pn->_panel);
+	}
+
+	free(pn);
+}
+
+PanelLinkedList* PanelLinkedList_init()
+{
+	PanelLinkedList* pll = (PanelLinkedList*)malloc(sizeof(PanelLinkedList));
+	assert(pll != NULL);
+
+	pll->_front = NULL;
+	pll->_rear = NULL;
+
+	pll->_DrawListFunc = DrawList;
+
+	return pll;
+}
+
+void PanelLinkedList_free(PanelLinkedList* pll)
+{
+	if (pll)
+	{
+		if (pll->_front)
+		{
+			while (pll->_front)
+			{
+				PanelNode* pn = pll->_front;
+				pll->_front = pll->_front->_next;
+
+				PanelNode_free(pn);
+			}
+
+			pll->_front = NULL;
+			pll->_rear = NULL;
+		}
+
+		free(pll);
+	}
+}
+
+void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
+{
+	if (pll->_rear == NULL)
+	{
+		assert(pll->_front == NULL);
+		pll->_front = pll->_rear = PanelNode_init(p);
+	}
+	else
+	{
+		PanelNode* pn = PanelNode_init(p);
+		pll->_rear->_next = pn;
+		pll->_rear = pn;
+	}
+}
+
+static void DrawList(PanelLinkedList* pll, HDC hdc)
+{
+	if (pll)
+	{
+		if (pll->_front)
+		{
+			PanelNode* pn = pll->_front;
+			while (pn)
+			{
+				pn->_panel->_DrawFunc(pn->_panel, hdc);
+				pn = pn->_next;
+			}
+		}
+	}
 }
 
 Panel* Panel_init()
@@ -32,3 +105,20 @@ void Panel_free(Panel* p)
 {
 	free(p);
 }
+
+static void Draw(Panel* p, HDC hdc)
+{
+	p->_x = 10;
+	p->_y = 10;
+	p->_width = 100;
+	p->_height = 50;
+
+	RECT rc;
+	rc.left = p->_x;
+	rc.top = p->_y;
+	rc.right = rc.left + p->_width;
+	rc.bottom = rc.top + p->_height;
+
+	FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOWFRAME));
+}
+

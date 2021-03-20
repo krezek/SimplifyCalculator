@@ -9,7 +9,7 @@ typedef struct
 	BaseWindow _baseWindow;
 
 	int _client_width, _client_height;
-	Panel* _panel;
+	PanelLinkedList* _panels;
 } MainWindow;
 
 ATOM MainWindow_RegisterClass();
