@@ -5,6 +5,8 @@
 static TCHAR szWindowClass[] = _T("DesktopApp");
 static TCHAR szTitle[] = _T("Simplify Calculator");
 
+static const int g_scrollbar_width = 20;
+
 static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 ATOM MainWindow_RegisterClass()
@@ -69,15 +71,56 @@ void MainWindow_free(MainWindow* mw)
 
 static void OnCreate(MainWindow* mw)
 {
+    mw->_hWndVScrollBar = CreateWindowEx(
+        0,
+        L"SCROLLBAR",
+        (PTSTR)NULL,
+        WS_CHILD | WS_VISIBLE | SBS_VERT,
+        0,
+        0,
+        0,
+        0,
+        mw->_baseWindow._hWnd,
+        (HMENU)NULL,
+        (HINSTANCE)GetWindowLongPtr(mw->_baseWindow._hWnd, GWLP_HINSTANCE),
+        (PVOID)NULL
+    );
+    assert(mw->_hWndVScrollBar != NULL);
+
+    mw->_hWndStatusBar = CreateWindowEx(
+        0,
+        STATUSCLASSNAME,
+        (PCTSTR)NULL,
+        SBARS_SIZEGRIP |
+        WS_CHILD | WS_VISIBLE,
+        0, 0, 0, 0,
+        mw->_baseWindow._hWnd,
+        (HMENU)IDC_STATUSBAR,
+        (HINSTANCE)GetWindowLongPtr(mw->_baseWindow._hWnd, GWLP_HINSTANCE),
+        NULL);
+    assert(mw->_hWndStatusBar != NULL);
+
     mw->_panels->_OnInitializeFunc(mw->_panels);
 }
 
 static void OnSize(MainWindow* mw, int width, int height)
 {
+    RECT statusBarRect;
+
     mw->_client_width = width;
     mw->_client_height = height;
 
-    mw->_panels->_client_width = width;
+    SendMessage(mw->_hWndStatusBar, WM_SIZE, 0, 0);
+    GetWindowRect(mw->_hWndStatusBar, &statusBarRect);
+
+    MoveWindow(mw->_hWndVScrollBar,
+        width - g_scrollbar_width,
+        0,
+        g_scrollbar_width,
+        height - (statusBarRect.bottom - statusBarRect.top),
+        TRUE);
+
+    mw->_panels->_client_width = width - g_scrollbar_width;
     mw->_panels->_client_height = height;
 }
 

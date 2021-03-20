@@ -7,6 +7,8 @@
 typedef struct
 {
 	BaseWindow _baseWindow;
+	HWND _hWndVScrollBar;
+	HWND _hWndStatusBar;
 
 	int _client_width, _client_height;
 	PanelLinkedList* _panels;
