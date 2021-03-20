@@ -6,6 +6,7 @@ static TCHAR szWindowClass[] = _T("DesktopApp");
 static TCHAR szTitle[] = _T("Simplify Calculator");
 
 static const int g_scrollbar_width = 20;
+static int g_statusbar_height;
 
 static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -55,6 +56,10 @@ MainWindow* MainWindow_init()
 
     BaseWindow_default((BaseWindow*)mw);
 
+    mw->_client_width = mw->_client_height = 0;
+    mw->_x_current_pos = mw->_y_current_pos = 0;
+    mw->_yMaxScroll = 0;
+
     mw->_baseWindow._HandleMessageFunc = HandleMessage;
     mw->_baseWindow._CreateFunc = Create;
 
@@ -103,6 +108,23 @@ static void OnCreate(MainWindow* mw)
     mw->_panels->_OnInitializeFunc(mw->_panels);
 }
 
+void SetScrollbarInfo(MainWindow* mw)
+{
+    SCROLLINFO si;
+
+    int v1 = mw->_y_current_pos;
+    int v2 = mw->_panels->_GetViewportHeightFunc(mw->_panels) - mw->_client_height - v1 + g_statusbar_height;
+    int v = v1 + (v2 > 0 ? v2 : 0);
+
+    mw->_yMaxScroll = v;
+    si.cbSize = sizeof(si);
+    si.fMask = SIF_RANGE | SIF_POS;
+    si.nMin = 0;
+    si.nMax = mw->_yMaxScroll;
+    si.nPos = mw->_y_current_pos;
+    SetScrollInfo(mw->_hWndVScrollBar, SB_CTL, &si, TRUE);
+}
+
 static void OnSize(MainWindow* mw, int width, int height)
 {
     RECT statusBarRect;
@@ -112,16 +134,92 @@ static void OnSize(MainWindow* mw, int width, int height)
 
     SendMessage(mw->_hWndStatusBar, WM_SIZE, 0, 0);
     GetWindowRect(mw->_hWndStatusBar, &statusBarRect);
+    g_statusbar_height = statusBarRect.bottom - statusBarRect.top;
 
     MoveWindow(mw->_hWndVScrollBar,
         width - g_scrollbar_width,
         0,
         g_scrollbar_width,
-        height - (statusBarRect.bottom - statusBarRect.top),
+        height - g_statusbar_height,
         TRUE);
 
     mw->_panels->_client_width = width - g_scrollbar_width;
     mw->_panels->_client_height = height;
+
+    SetScrollbarInfo(mw);
+}
+
+static void OnVScroll(MainWindow* mw, WPARAM wParam)
+{
+    int xDelta = 0;
+    int yNewPos;
+    int yDelta;
+
+    switch (LOWORD(wParam))
+    {
+    case SB_PAGEUP:
+        yNewPos = mw->_y_current_pos - 60;
+        break;
+
+    case SB_PAGEDOWN:
+        yNewPos = mw->_y_current_pos + 60;
+        break;
+
+    case SB_LINEUP:
+        yNewPos = mw->_y_current_pos - 20;
+        break;
+
+    case SB_LINEDOWN:
+        yNewPos = mw->_y_current_pos + 20;
+        break;
+
+    case SB_THUMBPOSITION:
+        yNewPos = HIWORD(wParam);
+        break;
+
+    default:
+        yNewPos = mw->_y_current_pos;
+    }
+
+    yNewPos = max(0, yNewPos);
+    yNewPos = min(mw->_yMaxScroll, yNewPos);
+
+    // If the current position does not change, do not scroll.
+    if (yNewPos == mw->_y_current_pos)
+        return;
+
+    // Determine the amount scrolled (in pixels). 
+    yDelta = yNewPos - mw->_y_current_pos;
+
+    // Reset the current scroll position. 
+    mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
+
+    RECT rc;
+    rc.left = 0;
+    rc.top = 0;
+    rc.right = mw->_client_width - g_scrollbar_width;
+    rc.bottom = mw->_client_height - g_statusbar_height;
+
+    ScrollWindowEx(mw->_baseWindow._hWnd, -xDelta, -yDelta, &rc,
+        &rc, (HRGN)NULL, (RECT*)NULL,
+        SW_INVALIDATE);
+    UpdateWindow(mw->_baseWindow._hWnd);
+
+    // Reset the scroll bar. 
+    SCROLLINFO si;
+    si.cbSize = sizeof(si);
+    si.fMask = SIF_POS;
+    si.nPos = mw->_y_current_pos;
+    SetScrollInfo(mw->_hWndVScrollBar, SB_CTL, &si, TRUE);
+}
+
+static void OnMouseWheel(MainWindow* mw, WPARAM wParam)
+{
+    int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+    if (zDelta < 0)
+        PostMessage(mw->_baseWindow._hWnd, WM_VSCROLL, MAKEWPARAM(SB_LINEDOWN, 0), 0);
+    else
+        PostMessage(mw->_baseWindow._hWnd, WM_VSCROLL, MAKEWPARAM(SB_LINEUP, 0), 0);
 }
 
 static void OnPaint(MainWindow* mw)
@@ -152,6 +250,14 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_SIZE:
         OnSize(mw, LOWORD(lParam), HIWORD(lParam));
+        return 0;
+
+    case WM_VSCROLL:
+        OnVScroll(mw, wParam);
+        return 0;
+
+    case WM_MOUSEWHEEL:
+        OnMouseWheel(mw, wParam);
         return 0;
 
     case WM_DESTROY:

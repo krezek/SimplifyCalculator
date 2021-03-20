@@ -5,6 +5,7 @@
 static const int g_panel_margin_h = 10, g_panel_margin_v = 10;
 
 static void OnInitialze(PanelLinkedList* pll);
+static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc);
 static void Draw(Panel* p, HDC hdc);
 
@@ -38,7 +39,11 @@ PanelLinkedList* PanelLinkedList_init()
 	pll->_front = NULL;
 	pll->_rear = NULL;
 
+	pll->_client_width = pll->_client_height = 0;
+	pll->_x_current_pos = pll->_y_current_pos = 0;
+
 	pll->_OnInitializeFunc = OnInitialze;
+	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_DrawListFunc = DrawList;
 
 	return pll;
@@ -96,10 +101,30 @@ static void OnInitialze(PanelLinkedList* pll)
 	PanelLinkedList_pushpack(pll, p3);
 }
 
+static int GetViewportHeight(PanelLinkedList* pll)
+{
+	int y = g_panel_margin_v;
+
+	if (pll)
+	{
+		if (pll->_front)
+		{
+			PanelNode* pn = pll->_front;
+			while (pn)
+			{
+				y += pn->_panel->_height + g_panel_margin_v;
+				pn = pn->_next;
+			}
+		}
+	}
+
+	return y;
+}
+
 static void DrawList(PanelLinkedList* pll, HDC hdc)
 {
 	int x = g_panel_margin_h;
-	int y = g_panel_margin_v;
+	int y = g_panel_margin_v - pll->_y_current_pos;
 
 	if (pll)
 	{

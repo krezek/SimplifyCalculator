@@ -11,6 +11,9 @@ typedef struct
 	HWND _hWndStatusBar;
 
 	int _client_width, _client_height;
+	int _x_current_pos, _y_current_pos;
+	int _yMaxScroll;
+
 	PanelLinkedList* _panels;
 } MainWindow;
 
