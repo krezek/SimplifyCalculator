@@ -117,6 +117,7 @@ static void OnCreate(MainWindow* mw)
         NULL);
     assert(mw->_hWndStatusBar != NULL);
 
+    mw->_panels->_hWndParent = mw->_baseWindow._hWnd;
     mw->_panels->_OnInitializeFunc(mw->_panels);
 }
 
@@ -157,6 +158,7 @@ static void OnSize(MainWindow* mw, int width, int height)
 
     mw->_panels->_client_width = width - g_scrollbar_width;
     mw->_panels->_client_height = height;
+    mw->_panels->_ParentSizeChangedFunc(mw->_panels);
 
     SetScrollbarInfo(mw);
 }

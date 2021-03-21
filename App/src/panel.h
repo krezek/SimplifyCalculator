@@ -7,12 +7,15 @@ typedef struct _Panel Panel;
 typedef struct _PanelLinkedList PanelLinkedList;
 
 typedef void (*OnInitializeFunc)(PanelLinkedList* pll);
+typedef void (*ParentSizeChangedFunc)(PanelLinkedList* pll);
 typedef int (*GetViewportHeightFunc)(PanelLinkedList* pll);
 typedef void (*DrawListFunc)(PanelLinkedList * pll, HDC hdc);
+typedef void (*CalcHeightFunc)(Panel* p);
 typedef void (*DrawFunc)(Panel* p, HDC hdc);
 
 typedef struct _Panel
 {
+	HWND _hWndParent;
 	int _x, _y, _width, _height;
 	
 	String* _cnt_str_in;
@@ -20,6 +23,7 @@ typedef struct _Panel
 	String* _str_in;
 	String* _str_out;
 
+	CalcHeightFunc _CalcHeightFunc;
 	DrawFunc _DrawFunc;
 } Panel;
 
@@ -36,10 +40,12 @@ typedef struct _PanelLinkedList
 	PanelNode* _front;
 	PanelNode* _rear;
 
+	HWND _hWndParent;
 	int _client_width, _client_height;
 	int _x_current_pos, _y_current_pos;
 
 	OnInitializeFunc _OnInitializeFunc;
+	ParentSizeChangedFunc _ParentSizeChangedFunc;
 	GetViewportHeightFunc _GetViewportHeightFunc;
 	DrawListFunc _DrawListFunc;
 } PanelLinkedList;
