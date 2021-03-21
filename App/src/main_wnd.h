@@ -9,6 +9,7 @@ typedef struct
 	BaseWindow _baseWindow;
 	HWND _hWndVScrollBar;
 	HWND _hWndStatusBar;
+	TEXTMETRIC _tmFixedFont;
 
 	int _client_width, _client_height;
 	int _x_current_pos, _y_current_pos;

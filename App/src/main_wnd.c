@@ -8,6 +8,7 @@ static TCHAR szTitle[] = _T("Simplify Calculator");
 static const int g_scrollbar_width = 20;
 static int g_statusbar_height;
 
+static const int g_font_size = 12;
 HFONT g_bold_font, g_math_font, g_fixed_font;
 TEXTMETRIC g_tmFixed;
 
@@ -81,12 +82,18 @@ static void OnCreate(MainWindow* mw)
 {
     // Create app fonts
     HDC hdc = GetDC(mw->_baseWindow._hWnd);
-    int lfHeight = -MulDiv(12, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+    int lfHeight = -MulDiv(g_font_size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
     ReleaseDC(mw->_baseWindow._hWnd, hdc);
 
     g_fixed_font = CreateFont(lfHeight, 0, 0, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Courier New");
     g_bold_font = CreateFont(lfHeight, 0, 0, 0, 700, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Courier New");
     g_math_font = CreateFont(lfHeight, 0, 0, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Cambria");
+
+    // Get TextMetrics for fixed font
+    hdc = GetDC(mw->_baseWindow._hWnd);
+    SelectObject(hdc, g_fixed_font);
+    GetTextMetrics(hdc, &g_tmFixed);
+    ReleaseDC(mw->_baseWindow._hWnd, hdc);
 
     mw->_hWndVScrollBar = CreateWindowEx(
         0,
@@ -236,6 +243,17 @@ static void OnMouseWheel(MainWindow* mw, WPARAM wParam)
         PostMessage(mw->_baseWindow._hWnd, WM_VSCROLL, MAKEWPARAM(SB_LINEUP, 0), 0);
 }
 
+static void OnFocus(MainWindow* mw)
+{
+    CreateCaret(mw->_baseWindow._hWnd, (HBITMAP)NULL, 2, g_tmFixed.tmHeight);
+    //mw->_panels->_current_panel->_ShowCaretFunc(mw->_panels->_current_panel);
+}
+
+static void OnKillFocus(MainWindow* mw)
+{
+    DestroyCaret();
+}
+
 static void OnPaint(MainWindow* mw)
 {
     PAINTSTRUCT ps;
@@ -281,6 +299,14 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_MOUSEWHEEL:
         OnMouseWheel(mw, wParam);
+        return 0;
+
+    case WM_SETFOCUS:
+        OnFocus(mw);
+        return 0;
+
+    case WM_KILLFOCUS:
+        OnKillFocus(mw);
         return 0;
 
     case WM_DESTROY:

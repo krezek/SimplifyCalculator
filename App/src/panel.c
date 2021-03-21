@@ -3,6 +3,7 @@
 #include "panel.h"
 
 extern HFONT g_bold_font, g_math_font, g_fixed_font;
+extern TEXTMETRIC g_tmFixed;
 
 static const int g_panel_margin_h = 10, g_panel_margin_v = 10;
 static const int g_content_margin_h = 10, g_content_margin_v = 10;
@@ -14,6 +15,7 @@ static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc);
 static void CalcHeight(Panel* p);
 static void Draw(Panel* p, HDC hdc);
+static void _ShowCaret(Panel* p);
 
 PanelNode* PanelNode_init(Panel* p, PanelNode* nxt, PanelNode* prv)
 {
@@ -115,10 +117,15 @@ static void OnInitialze(PanelLinkedList* pll)
 	String_cpy(p3->_str_in, L"Cos(x;2)+Sin(x;2)=1");
 	String_cpy(p3->_cnt_str_out, L"Value:");
 	PanelLinkedList_pushpack(pll, p3);
+
+	pll->_current_panel = p1;
 }
 
 static void ParentSizeChanged(PanelLinkedList* pll)
 {
+	int x = g_panel_margin_h;
+	int y = g_panel_margin_v - pll->_y_current_pos;
+
 	if (pll)
 	{
 		if (pll->_front)
@@ -126,8 +133,13 @@ static void ParentSizeChanged(PanelLinkedList* pll)
 			PanelNode* pn = pll->_front;
 			while (pn)
 			{
+				pn->_panel->_x = x;
+				pn->_panel->_y = y;
 				pn->_panel->_width = pll->_client_width - g_panel_margin_h * 2;
 				pn->_panel->_CalcHeightFunc(pn->_panel);
+
+				y += pn->_panel->_height + g_panel_margin_v;
+
 				pn = pn->_next;
 			}
 		}
@@ -156,9 +168,6 @@ static int GetViewportHeight(PanelLinkedList* pll)
 
 static void DrawList(PanelLinkedList* pll, HDC hdc)
 {
-	int x = g_panel_margin_h;
-	int y = g_panel_margin_v - pll->_y_current_pos;
-
 	if (pll)
 	{
 		if (pll->_front)
@@ -166,11 +175,6 @@ static void DrawList(PanelLinkedList* pll, HDC hdc)
 			PanelNode* pn = pll->_front;
 			while (pn)
 			{
-				pn->_panel->_x = x;
-				pn->_panel->_y = y;
-
-				y += pn->_panel->_height + g_panel_margin_v;
-
 				pn->_panel->_DrawFunc(pn->_panel, hdc);
 				pn = pn->_next;
 			}
@@ -190,6 +194,9 @@ Panel* Panel_init()
 
 	p->_CalcHeightFunc = CalcHeight;
 	p->_DrawFunc = Draw;
+	p->_ShowCaretFunc = _ShowCaret;
+
+	p->_caret_pos_x = p->_caret_pos_y = 0;
 
 	return p;
 }
@@ -206,29 +213,27 @@ void Panel_free(Panel* p)
 
 static void CalcHeight(Panel* p)
 {
-	HDC hdc = GetDC(p->_hWndParent);
+	{
+		// calc _cmd_pos_x
+		SIZE s1;
 
-	TEXTMETRIC tmFixed; 
-	SIZE s1;
-	
-	HGDIOBJ hOldFont = SelectObject(hdc, g_bold_font);
-	GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
+		HDC hdc = GetDC(p->_hWndParent);
+		SelectObject(hdc, g_bold_font);
+		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
+		p->_cmd_pos_x = s1.cx;
+		ReleaseDC(p->_hWndParent, hdc);
+	}
 
-	SelectObject(hdc, g_fixed_font);
-	GetTextMetrics(hdc, &tmFixed);
-	int w1 = p->_width - g_content_margin_h * 2 - s1.cx - g_padding;
-	int col1 = w1 / tmFixed.tmAveCharWidth;
+	int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
+	int col1 = w1 / g_tmFixed.tmAveCharWidth;
+	col1 = col1 ? col1 : 1;
 	int row_count = (int)(p->_str_in->_len / col1) + (p->_str_in->_len % col1 > 0 ? 1 : 0);
 
-	p->_height = row_count * tmFixed.tmHeight + 2 * g_content_margin_v;
-
-	ReleaseDC(p->_hWndParent, hdc);
+	p->_height = row_count * g_tmFixed.tmHeight + 2 * g_content_margin_v;
 }
 
 static void Draw(Panel* p, HDC hdc)
 {
-	TEXTMETRIC tmFixed;
-	SIZE s1;
 	RECT rc;
 	rc.left = p->_x;
 	rc.top = p->_y;
@@ -239,23 +244,22 @@ static void Draw(Panel* p, HDC hdc)
 
 	// Draw cnt_in_str "In:"
 	HGDIOBJ hOldFont = SelectObject(hdc, g_bold_font);
-	GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
 	TextOut(hdc, p->_x + g_content_margin_h, p->_y + g_content_margin_v,
 		p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len);
 
 	{
 		SelectObject(hdc, g_fixed_font);
-		GetTextMetrics(hdc, &tmFixed);
-		int w1 = p->_width - g_content_margin_h * 2 - s1.cx - g_padding;
-		int col1 = w1 / tmFixed.tmAveCharWidth;
+		int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
+		int col1 = w1 / g_tmFixed.tmAveCharWidth;
+		col1 = col1 ? col1 : 1;
 
 		int iy = 0;
 		int ix = 0;
 		while (ix < p->_str_in->_len)
 		{
 			int v = ix % col1;
-			TextOut(hdc, p->_x + g_content_margin_h + s1.cx + g_padding + v * tmFixed.tmAveCharWidth,
-				p->_y + g_content_margin_v + iy * tmFixed.tmHeight, p->_str_in->_str + ix, 1);
+			TextOut(hdc, p->_x + g_content_margin_h + p->_cmd_pos_x + g_padding + v * g_tmFixed.tmAveCharWidth,
+				p->_y + g_content_margin_v + iy * g_tmFixed.tmHeight, p->_str_in->_str + ix, 1);
 			if (v == col1 - 1)
 				++iy;
 			++ix;
@@ -265,3 +269,25 @@ static void Draw(Panel* p, HDC hdc)
 	SelectObject(hdc, hOldFont);
 }
 
+static void _ShowCaret(Panel* p)
+{
+	{
+		// calc _cmd_pos_x
+		SIZE s1;
+
+		HDC hdc = GetDC(p->_hWndParent);
+		SelectObject(hdc, g_bold_font);
+		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
+		p->_cmd_pos_x = s1.cx;
+		ReleaseDC(p->_hWndParent, hdc);
+	}
+
+	if (!p->_caret_pos_x)
+		p->_caret_pos_x = p->_cmd_pos_x;
+
+	if (!p->_caret_pos_y)
+		p->_caret_pos_y = g_content_margin_v;
+
+	SetCaretPos(p->_x + p->_caret_pos_x, p->_y + p->_caret_pos_y);
+	ShowCaret(p->_hWndParent);
+}
