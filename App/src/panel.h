@@ -1,6 +1,8 @@
 #ifndef _PANEL_H_
 #define _PANEL_H_
 
+#include "strg.h"
+
 typedef struct _Panel Panel;
 typedef struct _PanelLinkedList PanelLinkedList;
 
@@ -12,6 +14,11 @@ typedef void (*DrawFunc)(Panel* p, HDC hdc);
 typedef struct _Panel
 {
 	int _x, _y, _width, _height;
+	
+	String* _cnt_str_in;
+	String* _cnt_str_out;
+	String* _str_in;
+	String* _str_out;
 
 	DrawFunc _DrawFunc;
 } Panel;

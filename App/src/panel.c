@@ -2,7 +2,11 @@
 
 #include "panel.h"
 
+extern HFONT g_bold_font, g_math_font, g_fixed_font;
+
 static const int g_panel_margin_h = 10, g_panel_margin_v = 10;
+static const int g_content_margin_h = 10, g_content_margin_v = 10;
+static const int g_padding = 30;
 
 static void OnInitialze(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
@@ -90,14 +94,23 @@ static void OnInitialze(PanelLinkedList* pll)
 {
 	Panel* p1 = Panel_init();
 	p1->_height = 150;
+	String_cpy(p1->_cnt_str_in, L"In:");
+	String_cpy(p1->_str_in, L"x_1=(-b+sqrt(b^2-4*a*c))/(2*a),x_2=(-b-sqrt(b^2-4*a*c))/(2*a)");
+	String_cpy(p1->_cnt_str_out, L"Value:");
 	PanelLinkedList_pushpack(pll, p1);
 
 	Panel* p2 = Panel_init();
 	p2->_height =175;
+	String_cpy(p2->_cnt_str_in, L"In:");
+	String_cpy(p2->_str_in, L"n_0*x^n+n_1*x^(n-1)+n_2*x^(n-2)+tdot+n_(k-2)*x^2+n_(k-1)*x+n_k=0");
+	String_cpy(p2->_cnt_str_out, L"Value:");
 	PanelLinkedList_pushpack(pll, p2);
 
 	Panel* p3 = Panel_init();
 	p3->_height = 250;
+	String_cpy(p3->_cnt_str_in, L"In:");
+	String_cpy(p3->_str_in, L"Cos(x;2)+Sin(x;2)= 1");
+	String_cpy(p3->_cnt_str_out, L"Value:");
 	PanelLinkedList_pushpack(pll, p3);
 }
 
@@ -151,6 +164,11 @@ Panel* Panel_init()
 	Panel* p = (Panel*)malloc(sizeof(Panel));
 	assert(p != NULL);
 
+	p->_cnt_str_in = String_init();
+	p->_cnt_str_out = String_init();
+	p->_str_in = String_init();
+	p->_str_out = String_init();
+
 	p->_DrawFunc = Draw;
 
 	return p;
@@ -158,11 +176,18 @@ Panel* Panel_init()
 
 void Panel_free(Panel* p)
 {
+	String_free(p->_cnt_str_in);
+	String_free(p->_cnt_str_out);
+	String_free(p->_str_in);
+	String_free(p->_str_out);
+
 	free(p);
 }
 
 static void Draw(Panel* p, HDC hdc)
 {
+	TEXTMETRIC tmFixed;
+	SIZE s1;
 	RECT rc;
 	rc.left = p->_x;
 	rc.top = p->_y;
@@ -170,5 +195,32 @@ static void Draw(Panel* p, HDC hdc)
 	rc.bottom = rc.top + p->_height;
 
 	FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOWFRAME));
+
+	// Draw cnt_in_str "In:"
+	HGDIOBJ hOldFont = SelectObject(hdc, g_bold_font);
+	GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
+	TextOut(hdc, p->_x + g_content_margin_h, p->_y + g_content_margin_v,
+		p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len);
+
+	{
+		SelectObject(hdc, g_fixed_font);
+		GetTextMetrics(hdc, &tmFixed);
+		int w1 = p->_width - g_content_margin_h * 2 - s1.cx - g_padding;
+		int col1 = w1 / tmFixed.tmAveCharWidth;
+
+		int iy = 0;
+		int ix = 0;
+		while (ix < p->_str_in->_len)
+		{
+			int v = ix % col1;
+			TextOut(hdc, p->_x + g_content_margin_h + s1.cx + g_padding + v * tmFixed.tmAveCharWidth,
+				p->_y + g_content_margin_v + iy * tmFixed.tmHeight, p->_str_in->_str + ix, 1);
+			if (v == col1 - 1)
+				++iy;
+			++ix;
+		}
+	}
+
+	SelectObject(hdc, hOldFont);
 }
 

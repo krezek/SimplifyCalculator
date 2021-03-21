@@ -8,6 +8,9 @@ static TCHAR szTitle[] = _T("Simplify Calculator");
 static const int g_scrollbar_width = 20;
 static int g_statusbar_height;
 
+HFONT g_bold_font, g_math_font, g_fixed_font;
+TEXTMETRIC g_tmFixed;
+
 static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 ATOM MainWindow_RegisterClass()
@@ -76,6 +79,15 @@ void MainWindow_free(MainWindow* mw)
 
 static void OnCreate(MainWindow* mw)
 {
+    // Create app fonts
+    HDC hdc = GetDC(mw->_baseWindow._hWnd);
+    int lfHeight = -MulDiv(12, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+    ReleaseDC(mw->_baseWindow._hWnd, hdc);
+
+    g_fixed_font = CreateFont(lfHeight, 0, 0, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Courier New");
+    g_bold_font = CreateFont(lfHeight, 0, 0, 0, 700, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Courier New");
+    g_math_font = CreateFont(lfHeight, 0, 0, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Cambria");
+
     mw->_hWndVScrollBar = CreateWindowEx(
         0,
         L"SCROLLBAR",
@@ -234,6 +246,15 @@ static void OnPaint(MainWindow* mw)
     EndPaint(mw->_baseWindow._hWnd, &ps);
 }
 
+static void OnDestroy(MainWindow* mw)
+{
+    DeleteObject(g_bold_font);
+    DeleteObject(g_fixed_font);
+    DeleteObject(g_math_font);
+
+    PostQuitMessage(0);
+}
+
 static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     MainWindow* mw = (MainWindow*)_this;
@@ -261,7 +282,7 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         return 0;
 
     case WM_DESTROY:
-        PostQuitMessage(0);
+        OnDestroy(mw);
         return 0;
 
     default:
