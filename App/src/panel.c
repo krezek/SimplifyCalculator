@@ -10,7 +10,7 @@ static const int g_content_margin_h = 10, g_content_margin_v = 10;
 static const int g_padding = 30;
 
 static void OnInitialze(PanelLinkedList* pll);
-static void ParentSizeChanged(PanelLinkedList* pll);
+static void ParentPropertyChanged(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc);
 static void CalcHeight(Panel* p);
@@ -51,7 +51,7 @@ PanelLinkedList* PanelLinkedList_init()
 	pll->_x_current_pos = pll->_y_current_pos = 0;
 
 	pll->_OnInitializeFunc = OnInitialze;
-	pll->_ParentSizeChangedFunc = ParentSizeChanged;
+	pll->_ParentPropertyChangedFunc = ParentPropertyChanged;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_DrawListFunc = DrawList;
 
@@ -121,7 +121,7 @@ static void OnInitialze(PanelLinkedList* pll)
 	pll->_current_panel = p1;
 }
 
-static void ParentSizeChanged(PanelLinkedList* pll)
+static void ParentPropertyChanged(PanelLinkedList* pll)
 {
 	int x = g_panel_margin_h;
 	int y = g_panel_margin_v - pll->_y_current_pos;

@@ -165,7 +165,7 @@ static void OnSize(MainWindow* mw, int width, int height)
 
     mw->_panels->_client_width = width - g_scrollbar_width;
     mw->_panels->_client_height = height;
-    mw->_panels->_ParentSizeChangedFunc(mw->_panels);
+    mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
 
     SetScrollbarInfo(mw);
 }
@@ -214,6 +214,7 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
 
     // Reset the current scroll position. 
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
+    mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
 
     RECT rc;
     rc.left = 0;
