@@ -78,23 +78,24 @@ void MainWindow_free(MainWindow* mw)
     free(mw);
 }
 
-static void OnCreate(MainWindow* mw)
+static void CreateFonts(MainWindow* mw, int font_size)
 {
-    // Create app fonts
     HDC hdc = GetDC(mw->_baseWindow._hWnd);
-    int lfHeight = -MulDiv(g_font_size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-    ReleaseDC(mw->_baseWindow._hWnd, hdc);
 
+    // Create app fonts
+    int lfHeight = -MulDiv(font_size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
     g_fixed_font = CreateFont(lfHeight, 0, 0, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Courier New");
     g_bold_font = CreateFont(lfHeight, 0, 0, 0, 700, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Courier New");
     g_math_font = CreateFont(lfHeight, 0, 0, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Cambria");
 
     // Get TextMetrics for fixed font
-    hdc = GetDC(mw->_baseWindow._hWnd);
     SelectObject(hdc, g_fixed_font);
     GetTextMetrics(hdc, &g_tmFixed);
     ReleaseDC(mw->_baseWindow._hWnd, hdc);
+}
 
+static void OnCreate(MainWindow* mw)
+{
     mw->_hWndVScrollBar = CreateWindowEx(
         0,
         L"SCROLLBAR",
@@ -124,8 +125,24 @@ static void OnCreate(MainWindow* mw)
         NULL);
     assert(mw->_hWndStatusBar != NULL);
 
+    CreateFonts(mw, g_font_size);
+
+    RECT rc;
+    GetClientRect(mw->_baseWindow._hWnd, &rc);
+
+    mw->_client_width = rc.right - rc.left;
+    mw->_client_height = rc.bottom - rc.top;
+
+    SendMessage(mw->_hWndStatusBar, WM_SIZE, 0, 0);
+    GetWindowRect(mw->_hWndStatusBar, &rc);
+    g_statusbar_height = rc.bottom - rc.top; 
+    
+    mw->_panels->_client_width = mw->_client_width - g_scrollbar_width;
+    mw->_panels->_client_height = mw->_client_height - g_statusbar_height;
+
     mw->_panels->_hWndParent = mw->_baseWindow._hWnd;
     mw->_panels->_OnInitializeFunc(mw->_panels);
+    mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
 }
 
 void SetScrollbarInfo(MainWindow* mw)
@@ -147,15 +164,11 @@ void SetScrollbarInfo(MainWindow* mw)
 
 static void OnSize(MainWindow* mw, int width, int height)
 {
-    RECT statusBarRect;
-
     mw->_client_width = width;
     mw->_client_height = height;
 
     SendMessage(mw->_hWndStatusBar, WM_SIZE, 0, 0);
-    GetWindowRect(mw->_hWndStatusBar, &statusBarRect);
-    g_statusbar_height = statusBarRect.bottom - statusBarRect.top;
-
+    
     MoveWindow(mw->_hWndVScrollBar,
         width - g_scrollbar_width,
         0,
@@ -163,8 +176,8 @@ static void OnSize(MainWindow* mw, int width, int height)
         height - g_statusbar_height,
         TRUE);
 
-    mw->_panels->_client_width = width - g_scrollbar_width;
-    mw->_panels->_client_height = height;
+    mw->_panels->_client_width = mw->_client_width - g_scrollbar_width;
+    mw->_panels->_client_height = mw->_client_height - g_statusbar_height;
     mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
 
     SetScrollbarInfo(mw);
@@ -214,7 +227,7 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
 
     // Reset the current scroll position. 
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
-    mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
+    mw->_panels->_ParentPosChangedFunc(mw->_panels);
 
     RECT rc;
     rc.left = 0;
