@@ -1,5 +1,6 @@
 #include "platform.h"
 
+#include "parser.h"
 #include "panel.h"
 
 extern HFONT g_bold_font, g_math_font, g_fixed_font;
@@ -8,13 +9,16 @@ extern TEXTMETRIC g_tmFixed;
 static const int g_panel_margin_h = 10, g_panel_margin_v = 10;
 static const int g_content_margin_h = 10, g_content_margin_v = 10;
 static const int g_padding = 30;
+static const int g_formula_x = 50;
 
 static void OnInitialze(PanelLinkedList* pll);
 static void ParentPropertyChanged(PanelLinkedList* pll);
 static void ParentPosChanged(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc);
+
 static void CalcHeight(Panel* p);
+static void OnPropertyChanged(Panel* p);
 static void Draw(Panel* p, HDC hdc);
 static void _ShowCaret(Panel* p);
 
@@ -99,11 +103,28 @@ void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
 
 static void OnInitialze(PanelLinkedList* pll)
 {
+	Item* items = NULL;
+	int rs;
+
 	Panel* p1 = Panel_init();
 	p1->_hWndParent = pll->_hWndParent;
 	String_cpy(p1->_cnt_str_in, L"In:");
 	String_cpy(p1->_str_in, L"x_1=(-b+sqrt(b^2-4*a*c))/(2*a),x_2=(-b-sqrt(b^2-4*a*c))/(2*a)");
 	String_cpy(p1->_cnt_str_out, L"Value:");
+	rs = parse(&items, p1->_str_in->_str);
+	if (!rs)
+	{
+		p1->_items_in = items;
+	}
+	else
+	{
+		if (items)
+		{
+			ItemTree_free(&items);
+		}
+
+		p1->_items_in = (Item*)ItemLiteral_init(L"Parse error");
+	}
 	PanelLinkedList_pushpack(pll, p1);
 
 	Panel* p2 = Panel_init();
@@ -111,6 +132,20 @@ static void OnInitialze(PanelLinkedList* pll)
 	String_cpy(p2->_cnt_str_in, L"In:");
 	String_cpy(p2->_str_in, L"n_0*x^n+n_1*x^(n-1)+n_2*x^(n-2)+tdot+n_(k-2)*x^2+n_(k-1)*x+n_k=0");
 	String_cpy(p2->_cnt_str_out, L"Value:");
+	rs = parse(&items, p2->_str_in->_str);
+	if (!rs)
+	{
+		p2->_items_in = items;
+	}
+	else
+	{
+		if (items)
+		{
+			ItemTree_free(&items);
+		}
+
+		p2->_items_in = (Item*)ItemLiteral_init(L"Parse error");
+	}
 	PanelLinkedList_pushpack(pll, p2);
 
 	Panel* p3 = Panel_init();
@@ -118,6 +153,20 @@ static void OnInitialze(PanelLinkedList* pll)
 	String_cpy(p3->_cnt_str_in, L"In:");
 	String_cpy(p3->_str_in, L"Cos(x;2)+Sin(x;2)=1");
 	String_cpy(p3->_cnt_str_out, L"Value:");
+	rs = parse(&items, p3->_str_in->_str);
+	if (!rs)
+	{
+		p3->_items_in = items;
+	}
+	else
+	{
+		if (items)
+		{
+			ItemTree_free(&items);
+		}
+
+		p3->_items_in = (Item*)ItemLiteral_init(L"Parse error");
+	}
 	PanelLinkedList_pushpack(pll, p3);
 
 	pll->_current_panel = p1;
@@ -139,6 +188,7 @@ static void ParentPropertyChanged(PanelLinkedList* pll)
 				pn->_panel->_y = y;
 				pn->_panel->_width = pll->_client_width - g_panel_margin_h * 2;
 				pn->_panel->_CalcHeightFunc(pn->_panel);
+				pn->_panel->_OnPropertyChangedFunc(pn->_panel);
 
 				y += pn->_panel->_height + g_panel_margin_v;
 
@@ -162,6 +212,8 @@ static void ParentPosChanged(PanelLinkedList* pll)
 			{
 				pn->_panel->_x = x;
 				pn->_panel->_y = y;
+
+				pn->_panel->_OnPropertyChangedFunc(pn->_panel);
 				
 				y += pn->_panel->_height + g_panel_margin_v;
 
@@ -218,16 +270,24 @@ Panel* Panel_init()
 	p->_str_out = String_init();
 
 	p->_CalcHeightFunc = CalcHeight;
+	p->_OnPropertyChangedFunc = OnPropertyChanged;
 	p->_DrawFunc = Draw;
 	p->_ShowCaretFunc = _ShowCaret;
 
 	p->_caret_pos_x = p->_caret_pos_y = 0;
+	p->_items_in = NULL;
 
 	return p;
 }
 
 void Panel_free(Panel* p)
 {
+	if (p->_items_in)
+	{
+		ItemTree_free(&p->_items_in);
+		p->_items_in = NULL;
+	}
+
 	String_free(p->_cnt_str_in);
 	String_free(p->_cnt_str_out);
 	String_free(p->_str_in);
@@ -249,12 +309,44 @@ static void CalcHeight(Panel* p)
 		ReleaseDC(p->_hWndParent, hdc);
 	}
 
-	int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
-	int col1 = w1 / g_tmFixed.tmAveCharWidth;
-	col1 = col1 ? col1 : 1;
-	int row_count = (int)(p->_str_in->_len / col1) + (p->_str_in->_len % col1 > 0 ? 1 : 0);
+	// calc _str_in height
+	{
+		int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
+		int col1 = w1 / g_tmFixed.tmAveCharWidth;
+		col1 = col1 ? col1 : 1;
+		int row_count = (int)(p->_str_in->_len / col1) + (p->_str_in->_len % col1 > 0 ? 1 : 0);
 
-	p->_height = row_count * g_tmFixed.tmHeight + 2 * g_content_margin_v;
+		p->_height1 = row_count * g_tmFixed.tmHeight + 2 * g_content_margin_v;
+	}
+
+	// calc _items_in height
+	{
+		Graphics gfx;
+		FontHandle fh; 
+		HDC hdc = GetDC(p->_hWndParent);
+		SelectObject(hdc, g_math_font);
+		gfx._hdc = hdc;
+		fh._hfont = g_math_font;
+		p->_height2 = p->_items_in->_heightFunc(p->_items_in, &gfx) + g_content_margin_v;
+		ReleaseDC(p->_hWndParent, hdc);
+	}
+
+	p->_height = p->_height1 + p->_height2 + g_content_margin_v;
+}
+
+static void OnPropertyChanged(Panel* p)
+{
+	Graphics gfx;
+	FontHandle fh;
+	HDC hdc = GetDC(p->_hWndParent);
+	SelectObject(hdc, g_math_font);
+	gfx._hdc = hdc;
+	fh._hfont = g_math_font;
+
+	int baseLine = p->_y + p->_height1 + g_content_margin_v + p->_items_in->_baseLineFunc(p->_items_in, &gfx);
+	p->_items_in->_setFontFunc(p->_items_in, fh);
+	p->_items_in->_calcCoordinateFunc(p->_items_in, &gfx, p->_x + g_formula_x, baseLine);
+	ReleaseDC(p->_hWndParent, hdc);
 }
 
 static void Draw(Panel* p, HDC hdc)
@@ -289,6 +381,13 @@ static void Draw(Panel* p, HDC hdc)
 				++iy;
 			++ix;
 		}
+	}
+
+	{
+		SelectObject(hdc, g_math_font);
+		Graphics gfx;
+		gfx._hdc = hdc;
+		p->_items_in->_drawFunc(p->_items_in, &gfx);
 	}
 
 	SelectObject(hdc, hOldFont);

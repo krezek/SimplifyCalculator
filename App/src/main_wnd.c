@@ -1,4 +1,6 @@
 #include "platform.h"
+
+#include "items.h"
 #include "main_wnd.h"
 #include "resource.h"
 
@@ -126,6 +128,10 @@ static void OnCreate(MainWindow* mw)
     assert(mw->_hWndStatusBar != NULL);
 
     CreateFonts(mw, g_font_size);
+
+    FontHandle fh;
+    fh._hfont = g_math_font;
+    Graphics_fontList_init(fh);
 
     RECT rc;
     GetClientRect(mw->_baseWindow._hWnd, &rc);
