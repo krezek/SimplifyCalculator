@@ -315,6 +315,32 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     }
 }
 
+static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
+{
+    switch (wParam)
+    {
+    case 0x08:          // Backspace 
+        break;
+
+    case 0x09:          // Tab 
+        break;
+
+    case 0x0D:          // Carriage return 
+        break;
+
+    case 0x1B:        // Escape 
+    case 0x0A:        // Linefeed 
+        MessageBeep((UINT)-1);
+        break;
+
+    default:
+        mw->_panels->_selected_panel->_OnCharFunc(mw->_panels->_selected_panel, (wchar_t) wParam);
+        mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
+        InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
+        break;
+    }
+}
+
 static void OnPaint(MainWindow* mw)
 {
     PAINTSTRUCT ps;
@@ -372,6 +398,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_KEYDOWN:
         OnKeyDown(mw, wParam, lParam);
+        return 0;
+
+    case WM_CHAR:
+        OnChar(mw, wParam, lParam);
         return 0;
 
     case WM_DESTROY:

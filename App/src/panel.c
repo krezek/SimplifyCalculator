@@ -25,6 +25,8 @@ static void UpdateCaretPos(Panel* p);
 static void OnLeftArrow(Panel* p);
 static void OnRightArrow(Panel* p);
 
+static void OnChar(Panel* p, wchar_t ch);
+
 PanelNode* PanelNode_init(Panel* p, PanelNode* nxt, PanelNode* prv)
 {
 	PanelNode* pn = (PanelNode*)malloc(sizeof(PanelNode));
@@ -279,6 +281,7 @@ Panel* Panel_init()
 
 	p->_OnLeftArrowFunc = OnLeftArrow;
 	p->_OnRightArrowFunc = OnRightArrow;
+	p->_OnCharFunc = OnChar;
 
 	p->_caret_idx = 0;
 	p->_items_in = NULL;
@@ -430,4 +433,15 @@ static void OnRightArrow(Panel* p)
 		++(p->_caret_idx);
 
 	p->_UpdateCaretPosFunc(p);
+}
+
+static void OnChar(Panel* p, wchar_t ch)
+{
+	HideCaret(p->_hWndParent);
+
+	String_insert_c(p->_str_in, p->_caret_idx, ch);
+
+	p->_UpdateCaretPosFunc(p);
+
+	ShowCaret(p->_hWndParent);
 }
