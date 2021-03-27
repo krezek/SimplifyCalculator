@@ -233,7 +233,9 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
 
     // Reset the current scroll position. 
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
+
     mw->_panels->_ParentPosChangedFunc(mw->_panels);
+    mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
 
     RECT rc;
     rc.left = 0;
@@ -266,12 +268,53 @@ static void OnMouseWheel(MainWindow* mw, WPARAM wParam)
 static void OnFocus(MainWindow* mw)
 {
     CreateCaret(mw->_baseWindow._hWnd, (HBITMAP)NULL, 2, g_tmFixed.tmHeight);
-    //mw->_panels->_current_panel->_ShowCaretFunc(mw->_panels->_current_panel);
+    ShowCaret(mw->_baseWindow._hWnd);
+
+    mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
 }
 
 static void OnKillFocus(MainWindow* mw)
 {
     DestroyCaret();
+}
+
+static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
+{
+    switch (wParam)
+    {
+    case VK_RETURN:
+        break;
+    
+    case VK_HOME:       // Home 
+        break;
+
+    case VK_END:        // End 
+        break;
+
+    case VK_PRIOR:      // Page Up 
+        break;
+
+    case VK_NEXT:       // Page Down 
+        break;
+
+    case VK_LEFT:       // Left arrow 
+        mw->_panels->_selected_panel->_OnLeftArrowFunc(mw->_panels->_selected_panel);
+        mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
+        break;
+
+    case VK_RIGHT:      // Right arrow
+        mw->_panels->_selected_panel->_OnRightArrowFunc(mw->_panels->_selected_panel);
+        mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
+        break;
+    case VK_UP:         // Up arrow 
+        break;
+
+    case VK_DOWN:       // Down arrow 
+        break;
+
+    case VK_DELETE:     // Delete 
+        break;
+    }
 }
 
 static void OnPaint(MainWindow* mw)
@@ -327,6 +370,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_KILLFOCUS:
         OnKillFocus(mw);
+        return 0;
+
+    case WM_KEYDOWN:
+        OnKeyDown(mw, wParam, lParam);
         return 0;
 
     case WM_DESTROY:

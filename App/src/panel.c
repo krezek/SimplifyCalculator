@@ -20,7 +20,10 @@ static void DrawList(PanelLinkedList* pll, HDC hdc);
 static void CalcHeight(Panel* p);
 static void OnPropertyChanged(Panel* p);
 static void Draw(Panel* p, HDC hdc);
-static void _ShowCaret(Panel* p);
+static void UpdateCaretPos(Panel* p);
+
+static void OnLeftArrow(Panel* p);
+static void OnRightArrow(Panel* p);
 
 PanelNode* PanelNode_init(Panel* p, PanelNode* nxt, PanelNode* prv)
 {
@@ -169,7 +172,7 @@ static void OnInitialze(PanelLinkedList* pll)
 	}
 	PanelLinkedList_pushpack(pll, p3);
 
-	pll->_current_panel = p1;
+	pll->_selected_panel = p1;
 }
 
 static void ParentPropertyChanged(PanelLinkedList* pll)
@@ -272,9 +275,12 @@ Panel* Panel_init()
 	p->_CalcHeightFunc = CalcHeight;
 	p->_OnPropertyChangedFunc = OnPropertyChanged;
 	p->_DrawFunc = Draw;
-	p->_ShowCaretFunc = _ShowCaret;
+	p->_UpdateCaretPosFunc = UpdateCaretPos;
 
-	p->_caret_pos_x = p->_caret_pos_y = 0;
+	p->_OnLeftArrowFunc = OnLeftArrow;
+	p->_OnRightArrowFunc = OnRightArrow;
+
+	p->_caret_idx = 0;
 	p->_items_in = NULL;
 
 	return p;
@@ -298,17 +304,6 @@ void Panel_free(Panel* p)
 
 static void CalcHeight(Panel* p)
 {
-	{
-		// calc _cmd_pos_x
-		SIZE s1;
-
-		HDC hdc = GetDC(p->_hWndParent);
-		SelectObject(hdc, g_bold_font);
-		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
-		p->_cmd_pos_x = s1.cx;
-		ReleaseDC(p->_hWndParent, hdc);
-	}
-
 	// calc _str_in height
 	{
 		int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
@@ -336,6 +331,17 @@ static void CalcHeight(Panel* p)
 
 static void OnPropertyChanged(Panel* p)
 {
+	{
+		// calc _cmd_pos_x
+		SIZE s1;
+
+		HDC hdc = GetDC(p->_hWndParent);
+		SelectObject(hdc, g_bold_font);
+		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
+		p->_cmd_pos_x = s1.cx;
+		ReleaseDC(p->_hWndParent, hdc);
+	}
+
 	Graphics gfx;
 	FontHandle fh;
 	HDC hdc = GetDC(p->_hWndParent);
@@ -393,25 +399,21 @@ static void Draw(Panel* p, HDC hdc)
 	SelectObject(hdc, hOldFont);
 }
 
-static void _ShowCaret(Panel* p)
+static void UpdateCaretPos(Panel* p)
 {
-	{
-		// calc _cmd_pos_x
-		SIZE s1;
+	int caret_pos_x = p->_x + p->_cmd_pos_x + g_content_margin_h + g_padding + p->_caret_idx * g_tmFixed.tmAveCharWidth;
+	
+	int caret_pos_y = p->_y + g_content_margin_v;
 
-		HDC hdc = GetDC(p->_hWndParent);
-		SelectObject(hdc, g_bold_font);
-		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
-		p->_cmd_pos_x = s1.cx;
-		ReleaseDC(p->_hWndParent, hdc);
-	}
+	SetCaretPos(caret_pos_x, caret_pos_y);
+}
 
-	if (!p->_caret_pos_x)
-		p->_caret_pos_x = p->_cmd_pos_x;
+static void OnLeftArrow(Panel* p)
+{
+	--(p->_caret_idx);
+}
 
-	if (!p->_caret_pos_y)
-		p->_caret_pos_y = g_content_margin_v;
-
-	SetCaretPos(p->_x + p->_caret_pos_x, p->_y + p->_caret_pos_y);
-	ShowCaret(p->_hWndParent);
+static void OnRightArrow(Panel* p)
+{
+	++(p->_caret_idx);
 }
