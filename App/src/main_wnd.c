@@ -299,12 +299,10 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
 
     case VK_LEFT:       // Left arrow 
         mw->_panels->_selected_panel->_OnLeftArrowFunc(mw->_panels->_selected_panel);
-        mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
         break;
 
     case VK_RIGHT:      // Right arrow
         mw->_panels->_selected_panel->_OnRightArrowFunc(mw->_panels->_selected_panel);
-        mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
         break;
     case VK_UP:         // Up arrow 
         break;
