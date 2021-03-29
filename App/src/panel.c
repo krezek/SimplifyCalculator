@@ -459,27 +459,23 @@ static void OnRightArrow(Panel* p)
 
 static void OnChar(Panel* p, wchar_t ch)
 {
-	HideCaret(p->_hWndParent);
-
 	String_insert_c(p->_str_in, p->_caret_idx, ch);
 
 	++p->_caret_idx;
 	p->_UpdateCaretPosFunc(p);
 
-	ShowCaret(p->_hWndParent);
+	PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
 }
 
 static void OnBackspace(Panel* p)
 {
 	if (p->_caret_idx > 0)
 	{
-		HideCaret(p->_hWndParent);
-
 		--p->_caret_idx;
 		String_delete_c(p->_str_in, p->_caret_idx);
 
 		p->_UpdateCaretPosFunc(p);
 
-		ShowCaret(p->_hWndParent);
+		PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
 	}
 }

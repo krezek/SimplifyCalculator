@@ -318,12 +318,12 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
 
 static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
 {
+    HideCaret(mw->_baseWindow._hWnd);
+
     switch (wParam)
     {
     case 0x08:          // Backspace 
         mw->_panels->_selected_panel->_OnBackspaceFunc(mw->_panels->_selected_panel);
-        mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
-        InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
         break;
 
     case 0x09:          // Tab 
@@ -339,10 +339,24 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
 
     default:
         mw->_panels->_selected_panel->_OnCharFunc(mw->_panels->_selected_panel, (wchar_t) wParam);
-        mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
-        InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
         break;
     }
+
+    ShowCaret(mw->_baseWindow._hWnd);
+}
+
+static void OnPanelProperty(MainWindow* mw, Panel* p)
+{
+    mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
+    SetScrollbarInfo(mw);
+
+    RECT rc;
+    rc.left = 0;
+    rc.top = 0;
+    rc.right = rc.left + mw->_client_width - g_scrollbar_width;
+    rc.bottom = rc.top + mw->_client_height - g_statusbar_height;
+
+    InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
 }
 
 static void OnCommand(MainWindow* mw, WPARAM wParam, LPARAM lParam)
@@ -420,6 +434,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_COMMAND:
         OnCommand(mw, wParam, lParam);
+        return 0;
+
+    case WM_PANEL_PROPERTY:
+        OnPanelProperty(mw, (Panel*)lParam);
         return 0;
 
     case WM_DESTROY:
