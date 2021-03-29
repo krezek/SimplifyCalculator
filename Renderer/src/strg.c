@@ -28,7 +28,7 @@ void String_free(String* s)
 
 void String_cpy(String* s, const wchar_t* ws)
 {
-	size_t len = wcslen(ws) + s->_len;
+	size_t len = wcslen(ws);
 	size_t cap = (len / EXPAND + ((len % EXPAND > 0) ? 1 : 0)) * EXPAND + 1;
 
 	s->_len = len;

@@ -1,5 +1,6 @@
 #include "platform.h"
 
+#include "calcimpl.h"
 #include "parser.h"
 #include "panel.h"
 
@@ -271,7 +272,7 @@ void Panel_free(Panel* p)
 
 static void CalcHeight(Panel* p)
 {
-	p->_height1 = p->_height2 = 0;
+	p->_height1 = p->_height2 = p->_height3 = 0;
 
 	// calc _str_in height
 	{
@@ -297,7 +298,12 @@ static void CalcHeight(Panel* p)
 		ReleaseDC(p->_hWndParent, hdc);
 	}
 
-	p->_height = p->_height1 + p->_height2 + g_content_margin_v;
+	if (p->_str_out->_len > 0)
+	{
+		p->_height3 = g_tmFixed.tmHeight + g_content_margin_v;
+	}
+
+	p->_height = p->_height1 + p->_height2 + p->_height3 + g_content_margin_v;
 }
 
 static void OnPropertyChanged(Panel* p)
@@ -358,6 +364,20 @@ static void Draw(Panel* p, HDC hdc)
 		Graphics gfx;
 		gfx._hdc = hdc;
 		p->_items_in->_drawFunc(p->_items_in, &gfx);
+	}
+
+	if (p->_str_out->_len > 0)
+	{
+		SIZE s;
+
+		SelectObject(hdc, g_bold_font);
+		TextOut(hdc, p->_x + g_content_margin_h, p->_y + g_content_margin_v + p->_height1 + p->_height2,
+			p->_cnt_str_out->_str, (int)p->_cnt_str_out->_len);
+		GetTextExtentPoint32(hdc, p->_cnt_str_out->_str, (int)p->_cnt_str_out->_len, &s);
+
+		SelectObject(hdc, g_fixed_font); 
+		TextOut(hdc, p->_x + g_content_margin_h + s.cx, p->_y + g_content_margin_v + p->_height1 + p->_height2,
+			p->_str_out->_str, (int)p->_str_out->_len);
 	}
 
 	SelectObject(hdc, hOldFont);
@@ -431,7 +451,22 @@ static void OnChar_Return(Panel* p)
 	rs = parse(&items, p->_str_in->_str);
 	if (!rs)
 	{
+		double result;
+		wchar_t str[255];
+
 		p->_items_in = items;
+
+		rs = calculate((Item**)&p->_items_in, &result);
+		if (rs == 0)
+		{
+			swprintf_s(str, 255, L"%f", result);
+			String_cpy(p->_str_out, str);
+		}
+		else
+		{
+			swprintf_s(str, 255, L"Invalid value");
+			String_cpy(p->_str_out, str);
+		}
 	}
 	else
 	{

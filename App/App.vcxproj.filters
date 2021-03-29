@@ -32,6 +32,9 @@
     <ClCompile Include="src\panel.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\calcimpl.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\platform.h">
@@ -47,6 +50,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\panel.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\calcimpl.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

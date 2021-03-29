@@ -31,7 +31,7 @@ typedef struct _Panel
 {
 	HWND _hWndParent;
 	int _x, _y, _width, _height;
-	int _height1, _height2;
+	int _height1, _height2, _height3;
 	
 	String* _cnt_str_in;
 	String* _cnt_str_out;
