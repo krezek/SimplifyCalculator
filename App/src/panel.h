@@ -19,10 +19,12 @@ typedef void (*CalcHeightFunc)(Panel* p);
 typedef void (*OnPropertyChangedFunc)(Panel* p);
 typedef void (*DrawFunc)(Panel* p, HDC hdc);
 typedef void (*UpdateCaretPosFunc)(Panel* p);
-typedef void (*OnLeftArrowFunc)(Panel* p);
-typedef void (*OnRightArrowFunc)(Panel* p);
-typedef void (*OnCharFunc)(Panel* p, wchar_t ch);
-typedef void (*OnBackspaceFunc)(Panel* p);
+
+typedef void (*OnKey_LeftArrowFunc)(Panel* p);
+typedef void (*OnKey_RightArrowFunc)(Panel* p);
+typedef void (*OnChar_DefaultFunc)(Panel* p, wchar_t ch);
+typedef void (*OnChar_BackspaceFunc)(Panel* p);
+typedef void (*OnChar_ReturnFunc)(Panel* p);
 
 typedef struct _Panel
 {
@@ -45,10 +47,11 @@ typedef struct _Panel
 	DrawFunc _DrawFunc;
 	UpdateCaretPosFunc _UpdateCaretPosFunc;
 
-	OnLeftArrowFunc _OnLeftArrowFunc;
-	OnLeftArrowFunc _OnRightArrowFunc;
-	OnCharFunc _OnCharFunc;
-	OnBackspaceFunc _OnBackspaceFunc;
+	OnKey_LeftArrowFunc _OnKey_LeftArrowFunc;
+	OnKey_RightArrowFunc _OnKey_RightArrowFunc;
+	OnChar_DefaultFunc _OnChar_DefaultFunc;
+	OnChar_BackspaceFunc _OnChar_BackspaceFunc;
+	OnChar_ReturnFunc _OnChar_ReturnFunc;
 } Panel;
 
 typedef struct _PanelNode

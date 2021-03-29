@@ -22,11 +22,12 @@ static void OnPropertyChanged(Panel* p);
 static void Draw(Panel* p, HDC hdc);
 static void UpdateCaretPos(Panel* p);
 
-static void OnLeftArrow(Panel* p);
-static void OnRightArrow(Panel* p);
+static void OnKey_LeftArrow(Panel* p);
+static void OnKey_RightArrow(Panel* p);
 
-static void OnChar(Panel* p, wchar_t ch);
-static void OnBackspace(Panel* p);
+static void OnChar_Default(Panel* p, wchar_t ch);
+static void OnChar_Backspace(Panel* p);
+static void OnChar_Return(Panel* p);
 
 PanelNode* PanelNode_init(Panel* p, PanelNode* nxt, PanelNode* prv)
 {
@@ -115,7 +116,7 @@ static void OnInitialze(PanelLinkedList* pll)
 	Panel* p1 = Panel_init();
 	p1->_hWndParent = pll->_hWndParent;
 	String_cpy(p1->_cnt_str_in, L"In:");
-	String_cpy(p1->_str_in, L"x_1=(-b+sqrt(b^2-4*a*c))/(2*a),x_2=(-b-sqrt(b^2-4*a*c))/(2*a)");
+	//String_cpy(p1->_str_in, L"x_1=(-b+sqrt(b^2-4*a*c))/(2*a),x_2=(-b-sqrt(b^2-4*a*c))/(2*a)");
 	String_cpy(p1->_cnt_str_out, L"Value:");
 	{
 		// calc _cmd_pos_x
@@ -128,7 +129,7 @@ static void OnInitialze(PanelLinkedList* pll)
 		ReleaseDC(p1->_hWndParent, hdc);
 	}
 
-	rs = parse(&items, p1->_str_in->_str);
+	/*rs = parse(&items, p1->_str_in->_str);
 	if (!rs)
 	{
 		p1->_items_in = items;
@@ -141,7 +142,7 @@ static void OnInitialze(PanelLinkedList* pll)
 		}
 
 		p1->_items_in = (Item*)ItemLiteral_init(L"Parse error");
-	}
+	}*/
 	PanelLinkedList_pushpack(pll, p1);
 
 	Panel* p2 = Panel_init();
@@ -307,15 +308,18 @@ Panel* Panel_init()
 	p->_str_in = String_init();
 	p->_str_out = String_init();
 
+	p->_items_in = NULL;
+
 	p->_CalcHeightFunc = CalcHeight;
 	p->_OnPropertyChangedFunc = OnPropertyChanged;
 	p->_DrawFunc = Draw;
 	p->_UpdateCaretPosFunc = UpdateCaretPos;
 
-	p->_OnLeftArrowFunc = OnLeftArrow;
-	p->_OnRightArrowFunc = OnRightArrow;
-	p->_OnCharFunc = OnChar;
-	p->_OnBackspaceFunc = OnBackspace;
+	p->_OnKey_LeftArrowFunc = OnKey_LeftArrow;
+	p->_OnKey_RightArrowFunc = OnKey_RightArrow;
+	p->_OnChar_DefaultFunc = OnChar_Default;
+	p->_OnChar_BackspaceFunc = OnChar_Backspace;
+	p->_OnChar_ReturnFunc = OnChar_Return;
 
 	p->_caret_idx = 0;
 	p->_items_in = NULL;
@@ -341,17 +345,21 @@ void Panel_free(Panel* p)
 
 static void CalcHeight(Panel* p)
 {
+	p->_height1 = p->_height2 = 0;
+
 	// calc _str_in height
 	{
 		int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
 		int col1 = w1 / g_tmFixed.tmAveCharWidth;
 		col1 = col1 ? col1 : 1;
 		int row_count = (int)(p->_str_in->_len / col1) + (p->_str_in->_len % col1 > 0 ? 1 : 0);
+		row_count = (row_count <= 0) ? 1 : row_count;
 
 		p->_height1 = row_count * g_tmFixed.tmHeight + 2 * g_content_margin_v;
 	}
 
 	// calc _items_in height
+	if(p->_items_in)
 	{
 		Graphics gfx;
 		FontHandle fh; 
@@ -368,17 +376,20 @@ static void CalcHeight(Panel* p)
 
 static void OnPropertyChanged(Panel* p)
 {
-	Graphics gfx;
-	FontHandle fh;
-	HDC hdc = GetDC(p->_hWndParent);
-	SelectObject(hdc, g_math_font);
-	gfx._hdc = hdc;
-	fh._hfont = g_math_font;
+	if (p->_items_in)
+	{
+		Graphics gfx;
+		FontHandle fh;
+		HDC hdc = GetDC(p->_hWndParent);
+		SelectObject(hdc, g_math_font);
+		gfx._hdc = hdc;
+		fh._hfont = g_math_font;
 
-	int baseLine = p->_y + p->_height1 + g_content_margin_v + p->_items_in->_baseLineFunc(p->_items_in, &gfx);
-	p->_items_in->_setFontFunc(p->_items_in, fh);
-	p->_items_in->_calcCoordinateFunc(p->_items_in, &gfx, p->_x + g_formula_x, baseLine);
-	ReleaseDC(p->_hWndParent, hdc);
+		int baseLine = p->_y + p->_height1 + g_content_margin_v + p->_items_in->_baseLineFunc(p->_items_in, &gfx);
+		p->_items_in->_setFontFunc(p->_items_in, fh);
+		p->_items_in->_calcCoordinateFunc(p->_items_in, &gfx, p->_x + g_formula_x, baseLine);
+		ReleaseDC(p->_hWndParent, hdc);
+	}
 }
 
 static void Draw(Panel* p, HDC hdc)
@@ -415,6 +426,7 @@ static void Draw(Panel* p, HDC hdc)
 		}
 	}
 
+	if(p->_items_in)
 	{
 		SelectObject(hdc, g_math_font);
 		Graphics gfx;
@@ -441,7 +453,7 @@ static void UpdateCaretPos(Panel* p)
 	SetCaretPos(caret_pos_x, caret_pos_y);
 }
 
-static void OnLeftArrow(Panel* p)
+static void OnKey_LeftArrow(Panel* p)
 {
 	if(p->_caret_idx > 0)
 		--(p->_caret_idx);
@@ -449,7 +461,7 @@ static void OnLeftArrow(Panel* p)
 	p->_UpdateCaretPosFunc(p);
 }
 
-static void OnRightArrow(Panel* p)
+static void OnKey_RightArrow(Panel* p)
 {
 	if(p->_caret_idx < p->_str_in->_len)
 		++(p->_caret_idx);
@@ -457,7 +469,7 @@ static void OnRightArrow(Panel* p)
 	p->_UpdateCaretPosFunc(p);
 }
 
-static void OnChar(Panel* p, wchar_t ch)
+static void OnChar_Default(Panel* p, wchar_t ch)
 {
 	String_insert_c(p->_str_in, p->_caret_idx, ch);
 
@@ -467,7 +479,7 @@ static void OnChar(Panel* p, wchar_t ch)
 	PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
 }
 
-static void OnBackspace(Panel* p)
+static void OnChar_Backspace(Panel* p)
 {
 	if (p->_caret_idx > 0)
 	{
@@ -478,4 +490,32 @@ static void OnBackspace(Panel* p)
 
 		PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
 	}
+}
+
+static void OnChar_Return(Panel* p)
+{
+	int rs;
+	Item* items = NULL;
+
+	if (p->_items_in)
+	{
+		ItemTree_free(&p->_items_in);
+	}
+
+	rs = parse(&items, p->_str_in->_str);
+	if (!rs)
+	{
+		p->_items_in = items;
+	}
+	else
+	{
+		if (items)
+		{
+			ItemTree_free(&items);
+		}
+
+		p->_items_in = (Item*)ItemLiteral_init(L"Parse error");
+	}
+
+	PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
 }

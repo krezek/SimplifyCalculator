@@ -299,11 +299,11 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         break;
 
     case VK_LEFT:       // Left arrow 
-        mw->_panels->_selected_panel->_OnLeftArrowFunc(mw->_panels->_selected_panel);
+        mw->_panels->_selected_panel->_OnKey_LeftArrowFunc(mw->_panels->_selected_panel);
         break;
 
     case VK_RIGHT:      // Right arrow
-        mw->_panels->_selected_panel->_OnRightArrowFunc(mw->_panels->_selected_panel);
+        mw->_panels->_selected_panel->_OnKey_RightArrowFunc(mw->_panels->_selected_panel);
         break;
     case VK_UP:         // Up arrow 
         break;
@@ -323,13 +323,14 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     switch (wParam)
     {
     case 0x08:          // Backspace 
-        mw->_panels->_selected_panel->_OnBackspaceFunc(mw->_panels->_selected_panel);
+        mw->_panels->_selected_panel->_OnChar_BackspaceFunc(mw->_panels->_selected_panel);
         break;
 
     case 0x09:          // Tab 
         break;
 
     case 0x0D:          // Carriage return 
+        mw->_panels->_selected_panel->_OnChar_ReturnFunc(mw->_panels->_selected_panel);
         break;
 
     case 0x1B:        // Escape 
@@ -338,7 +339,7 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         break;
 
     default:
-        mw->_panels->_selected_panel->_OnCharFunc(mw->_panels->_selected_panel, (wchar_t) wParam);
+        mw->_panels->_selected_panel->_OnChar_DefaultFunc(mw->_panels->_selected_panel, (wchar_t) wParam);
         break;
     }
 
