@@ -117,6 +117,17 @@ static void OnInitialze(PanelLinkedList* pll)
 	String_cpy(p1->_cnt_str_in, L"In:");
 	String_cpy(p1->_str_in, L"x_1=(-b+sqrt(b^2-4*a*c))/(2*a),x_2=(-b-sqrt(b^2-4*a*c))/(2*a)");
 	String_cpy(p1->_cnt_str_out, L"Value:");
+	{
+		// calc _cmd_pos_x
+		SIZE s1;
+
+		HDC hdc = GetDC(p1->_hWndParent);
+		SelectObject(hdc, g_bold_font);
+		GetTextExtentPoint32(hdc, p1->_cnt_str_in->_str, (int)p1->_cnt_str_in->_len, &s1);
+		p1->_cmd_pos_x = s1.cx;
+		ReleaseDC(p1->_hWndParent, hdc);
+	}
+
 	rs = parse(&items, p1->_str_in->_str);
 	if (!rs)
 	{
@@ -138,6 +149,17 @@ static void OnInitialze(PanelLinkedList* pll)
 	String_cpy(p2->_cnt_str_in, L"In:");
 	String_cpy(p2->_str_in, L"n_0*x^n+n_1*x^(n-1)+n_2*x^(n-2)+tdot+n_(k-2)*x^2+n_(k-1)*x+n_k=0");
 	String_cpy(p2->_cnt_str_out, L"Value:");
+	{
+		// calc _cmd_pos_x
+		SIZE s1;
+
+		HDC hdc = GetDC(p2->_hWndParent);
+		SelectObject(hdc, g_bold_font);
+		GetTextExtentPoint32(hdc, p2->_cnt_str_in->_str, (int)p2->_cnt_str_in->_len, &s1);
+		p2->_cmd_pos_x = s1.cx;
+		ReleaseDC(p2->_hWndParent, hdc);
+	}
+
 	rs = parse(&items, p2->_str_in->_str);
 	if (!rs)
 	{
@@ -159,6 +181,16 @@ static void OnInitialze(PanelLinkedList* pll)
 	String_cpy(p3->_cnt_str_in, L"In:");
 	String_cpy(p3->_str_in, L"Cos(x;2)+Sin(x;2)=1");
 	String_cpy(p3->_cnt_str_out, L"Value:");
+	{
+		// calc _cmd_pos_x
+		SIZE s1;
+
+		HDC hdc = GetDC(p3->_hWndParent);
+		SelectObject(hdc, g_bold_font);
+		GetTextExtentPoint32(hdc, p3->_cnt_str_in->_str, (int)p3->_cnt_str_in->_len, &s1);
+		p3->_cmd_pos_x = s1.cx;
+		ReleaseDC(p3->_hWndParent, hdc);
+	}
 	rs = parse(&items, p3->_str_in->_str);
 	if (!rs)
 	{
@@ -336,17 +368,6 @@ static void CalcHeight(Panel* p)
 
 static void OnPropertyChanged(Panel* p)
 {
-	{
-		// calc _cmd_pos_x
-		SIZE s1;
-
-		HDC hdc = GetDC(p->_hWndParent);
-		SelectObject(hdc, g_bold_font);
-		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
-		p->_cmd_pos_x = s1.cx;
-		ReleaseDC(p->_hWndParent, hdc);
-	}
-
 	Graphics gfx;
 	FontHandle fh;
 	HDC hdc = GetDC(p->_hWndParent);

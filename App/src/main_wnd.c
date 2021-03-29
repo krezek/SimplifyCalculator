@@ -345,6 +345,16 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     }
 }
 
+static void OnCommand(MainWindow* mw, WPARAM wParam, LPARAM lParam)
+{
+    switch (LOWORD(wParam))
+    {
+    case ID_FILE_EXIT:
+        PostMessage(mw->_baseWindow._hWnd, WM_CLOSE, 0, 0);
+        break;
+    }
+}
+
 static void OnPaint(MainWindow* mw)
 {
     PAINTSTRUCT ps;
@@ -406,6 +416,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_CHAR:
         OnChar(mw, wParam, lParam);
+        return 0;
+
+    case WM_COMMAND:
+        OnCommand(mw, wParam, lParam);
         return 0;
 
     case WM_DESTROY:
