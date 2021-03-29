@@ -185,6 +185,7 @@ static void OnSize(MainWindow* mw, int width, int height)
     mw->_panels->_client_width = mw->_client_width - g_scrollbar_width;
     mw->_panels->_client_height = mw->_client_height - g_statusbar_height;
     mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
+    mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
 
     SetScrollbarInfo(mw);
 }
