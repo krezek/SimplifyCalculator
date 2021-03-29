@@ -41,7 +41,7 @@ BOOL Create(BaseWindow* _this)
     HWND hWnd = CreateWindow(
         szWindowClass,
         szTitle,
-        WS_OVERLAPPEDWINDOW,
+        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
         CW_USEDEFAULT, CW_USEDEFAULT,
         800, 600,
         NULL,
@@ -284,6 +284,19 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     switch (wParam)
     {
     case VK_RETURN:
+        if (GetKeyState(VK_SHIFT) < 0)
+        {
+            Panel* p = mw->_panels->_AddNewTicketFunc(mw->_panels);
+            SendMessage(mw->_baseWindow._hWnd, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
+            mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
+            //ShowCaret(mw->_baseWindow._hWnd);
+
+        }
+        else
+        {
+            mw->_panels->_selected_panel->_OnChar_ReturnFunc(mw->_panels->_selected_panel);
+        }
+        
         break;
     
     case VK_HOME:       // Home 
@@ -330,7 +343,6 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         break;
 
     case 0x0D:          // Carriage return 
-        mw->_panels->_selected_panel->_OnChar_ReturnFunc(mw->_panels->_selected_panel);
         break;
 
     case 0x1B:        // Escape 

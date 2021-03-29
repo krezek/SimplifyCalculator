@@ -16,6 +16,7 @@ static void ParentPropertyChanged(PanelLinkedList* pll);
 static void ParentPosChanged(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc);
+static Panel* AddNewTicket(PanelLinkedList* pll);
 
 static void CalcHeight(Panel* p);
 static void OnPropertyChanged(Panel* p);
@@ -67,6 +68,7 @@ PanelLinkedList* PanelLinkedList_init()
 	pll->_ParentPosChangedFunc = ParentPosChanged;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_DrawListFunc = DrawList;
+	pll->_AddNewTicketFunc = AddNewTicket;
 
 	return pll;
 }
@@ -110,105 +112,29 @@ void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
 
 static void OnInitialze(PanelLinkedList* pll)
 {
-	Item* items = NULL;
-	int rs;
+	AddNewTicket(pll);
+}
 
-	Panel* p1 = Panel_init();
-	p1->_hWndParent = pll->_hWndParent;
-	String_cpy(p1->_cnt_str_in, L"In:");
-	//String_cpy(p1->_str_in, L"x_1=(-b+sqrt(b^2-4*a*c))/(2*a),x_2=(-b-sqrt(b^2-4*a*c))/(2*a)");
-	String_cpy(p1->_cnt_str_out, L"Value:");
+static Panel* AddNewTicket(PanelLinkedList* pll)
+{
+	Panel* p = Panel_init();
+	p->_hWndParent = pll->_hWndParent;
+	String_cpy(p->_cnt_str_in, L"In:");
+	String_cpy(p->_cnt_str_out, L"Value:");
 	{
 		// calc _cmd_pos_x
 		SIZE s1;
 
-		HDC hdc = GetDC(p1->_hWndParent);
+		HDC hdc = GetDC(p->_hWndParent);
 		SelectObject(hdc, g_bold_font);
-		GetTextExtentPoint32(hdc, p1->_cnt_str_in->_str, (int)p1->_cnt_str_in->_len, &s1);
-		p1->_cmd_pos_x = s1.cx;
-		ReleaseDC(p1->_hWndParent, hdc);
+		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
+		p->_cmd_pos_x = s1.cx;
+		ReleaseDC(p->_hWndParent, hdc);
 	}
+	PanelLinkedList_pushpack(pll, p);
 
-	/*rs = parse(&items, p1->_str_in->_str);
-	if (!rs)
-	{
-		p1->_items_in = items;
-	}
-	else
-	{
-		if (items)
-		{
-			ItemTree_free(&items);
-		}
-
-		p1->_items_in = (Item*)ItemLiteral_init(L"Parse error");
-	}*/
-	PanelLinkedList_pushpack(pll, p1);
-
-	Panel* p2 = Panel_init();
-	p2->_hWndParent = pll->_hWndParent;
-	String_cpy(p2->_cnt_str_in, L"In:");
-	String_cpy(p2->_str_in, L"n_0*x^n+n_1*x^(n-1)+n_2*x^(n-2)+tdot+n_(k-2)*x^2+n_(k-1)*x+n_k=0");
-	String_cpy(p2->_cnt_str_out, L"Value:");
-	{
-		// calc _cmd_pos_x
-		SIZE s1;
-
-		HDC hdc = GetDC(p2->_hWndParent);
-		SelectObject(hdc, g_bold_font);
-		GetTextExtentPoint32(hdc, p2->_cnt_str_in->_str, (int)p2->_cnt_str_in->_len, &s1);
-		p2->_cmd_pos_x = s1.cx;
-		ReleaseDC(p2->_hWndParent, hdc);
-	}
-
-	rs = parse(&items, p2->_str_in->_str);
-	if (!rs)
-	{
-		p2->_items_in = items;
-	}
-	else
-	{
-		if (items)
-		{
-			ItemTree_free(&items);
-		}
-
-		p2->_items_in = (Item*)ItemLiteral_init(L"Parse error");
-	}
-	PanelLinkedList_pushpack(pll, p2);
-
-	Panel* p3 = Panel_init();
-	p3->_hWndParent = pll->_hWndParent;
-	String_cpy(p3->_cnt_str_in, L"In:");
-	String_cpy(p3->_str_in, L"Cos(x;2)+Sin(x;2)=1");
-	String_cpy(p3->_cnt_str_out, L"Value:");
-	{
-		// calc _cmd_pos_x
-		SIZE s1;
-
-		HDC hdc = GetDC(p3->_hWndParent);
-		SelectObject(hdc, g_bold_font);
-		GetTextExtentPoint32(hdc, p3->_cnt_str_in->_str, (int)p3->_cnt_str_in->_len, &s1);
-		p3->_cmd_pos_x = s1.cx;
-		ReleaseDC(p3->_hWndParent, hdc);
-	}
-	rs = parse(&items, p3->_str_in->_str);
-	if (!rs)
-	{
-		p3->_items_in = items;
-	}
-	else
-	{
-		if (items)
-		{
-			ItemTree_free(&items);
-		}
-
-		p3->_items_in = (Item*)ItemLiteral_init(L"Parse error");
-	}
-	PanelLinkedList_pushpack(pll, p3);
-
-	pll->_selected_panel = p1;
+	pll->_selected_panel = p;
+	return p;
 }
 
 static void ParentPropertyChanged(PanelLinkedList* pll)
