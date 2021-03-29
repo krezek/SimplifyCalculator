@@ -106,11 +106,11 @@ double calcWolker(Item* item)
 	{
 		ItemLiteral* i = (ItemLiteral*)item;
 		
-		if (_wcsicmp(L"\u03C0", i->_str->_str) == 0)
+		if (_wcsicmp(L"pi", i->_str->_str) == 0)
 		{
 			return M_PI;
 		}
-		else if (_wcsicmp(L"\u0065", i->_str->_str) == 0)
+		else if (_wcsicmp(L"e", i->_str->_str) == 0)
 		{
 			return M_E;
 		}

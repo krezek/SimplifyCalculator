@@ -417,6 +417,14 @@ static void OnKey_RightArrow(Panel* p)
 
 static void OnChar_Default(Panel* p, wchar_t ch)
 {
+	static int x = 2;
+	if (ch == L'^')
+	{
+		--x;
+		if (x) return;
+		x = 2;
+	}
+
 	String_insert_c(p->_str_in, p->_caret_idx, ch);
 
 	++p->_caret_idx;
