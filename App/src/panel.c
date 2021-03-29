@@ -440,6 +440,7 @@ static void OnChar(Panel* p, wchar_t ch)
 
 	String_insert_c(p->_str_in, p->_caret_idx, ch);
 
+	++p->_caret_idx;
 	p->_UpdateCaretPosFunc(p);
 
 	ShowCaret(p->_hWndParent);
