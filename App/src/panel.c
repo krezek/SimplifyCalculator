@@ -410,7 +410,6 @@ static void UpdateCaretPos(Panel* p)
 
 	int caret_pos_x = 0, caret_pos_y = 0;
 	
-	col1++;
 	int v1 = p->_caret_idx % col1;
 	int v2 = p->_caret_idx / col1;
 	caret_pos_x = p->_x + g_content_margin_h + p->_cmd_pos_x + g_padding + v1 * g_tmFixed.tmAveCharWidth;
@@ -429,7 +428,7 @@ static void OnLeftArrow(Panel* p)
 
 static void OnRightArrow(Panel* p)
 {
-	if(p->_caret_idx <= p->_str_in->_len)
+	if(p->_caret_idx < p->_str_in->_len)
 		++(p->_caret_idx);
 
 	p->_UpdateCaretPosFunc(p);
