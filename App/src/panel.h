@@ -20,6 +20,7 @@ typedef void (*UpdateCaretPosFunc)(Panel* p);
 typedef void (*OnLeftArrowFunc)(Panel* p);
 typedef void (*OnRightArrowFunc)(Panel* p);
 typedef void (*OnCharFunc)(Panel* p, wchar_t ch);
+typedef void (*OnBackspaceFunc)(Panel* p);
 
 typedef struct _Panel
 {
@@ -45,6 +46,7 @@ typedef struct _Panel
 	OnLeftArrowFunc _OnLeftArrowFunc;
 	OnLeftArrowFunc _OnRightArrowFunc;
 	OnCharFunc _OnCharFunc;
+	OnBackspaceFunc _OnBackspaceFunc;
 } Panel;
 
 typedef struct _PanelNode

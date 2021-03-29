@@ -115,6 +115,7 @@ void String_delete_s(String* s, int idx1, int idx2)
 	free(s->_str);
 	s->_capacity = cap;
 	s->_str = str;
+	s->_len = len;
 }
 
 void String_delete_c(String* s, int idx)

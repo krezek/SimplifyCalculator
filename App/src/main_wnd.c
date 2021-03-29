@@ -320,6 +320,9 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     switch (wParam)
     {
     case 0x08:          // Backspace 
+        mw->_panels->_selected_panel->_OnBackspaceFunc(mw->_panels->_selected_panel);
+        mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
+        InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
         break;
 
     case 0x09:          // Tab 
