@@ -13,7 +13,7 @@ typedef void (*OnInitializeFunc)(PanelLinkedList* pll);
 typedef void (*ParentPropertyChangedFunc)(PanelLinkedList* pll);
 typedef void (*ParentPosChangedFunc)(PanelLinkedList* pll);
 typedef int (*GetViewportHeightFunc)(PanelLinkedList* pll);
-typedef void (*DrawListFunc)(PanelLinkedList * pll, HDC hdc);
+typedef void (*DrawListFunc)(PanelLinkedList * pll, HDC hdc, RECT* rcPaint);
 typedef Panel* (*AddNewTicketFunc)(PanelLinkedList* pll);
 
 typedef void (*CalcHeightFunc)(Panel* p);

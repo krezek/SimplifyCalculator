@@ -16,7 +16,7 @@ static void OnInitialze(PanelLinkedList* pll);
 static void ParentPropertyChanged(PanelLinkedList* pll);
 static void ParentPosChanged(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
-static void DrawList(PanelLinkedList* pll, HDC hdc);
+static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
 static Panel* AddNewTicket(PanelLinkedList* pll);
 
 static void CalcHeight(Panel* p);
@@ -209,7 +209,7 @@ static int GetViewportHeight(PanelLinkedList* pll)
 	return y;
 }
 
-static void DrawList(PanelLinkedList* pll, HDC hdc)
+static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint)
 {
 	if (pll)
 	{
@@ -219,8 +219,14 @@ static void DrawList(PanelLinkedList* pll, HDC hdc)
 			while (pn)
 			{
 				Panel* p = pn->_panel;
-				if ((p->_y >= 0 && p->_y <= pll->_client_height) ||
-					(p->_y + p->_height >= 0 && p->_y + p->_height <= pll->_client_height))
+				RECT rc, pRect;
+				
+				pRect.left = p->_x;
+				pRect.top = p->_y;
+				pRect.right = pRect.left + p->_width;
+				pRect.bottom = pRect.top + p->_height;
+
+				if (IntersectRect(&rc, rcPaint, &pRect))
 				{
 					p->_DrawFunc(pn->_panel, hdc);
 				}
