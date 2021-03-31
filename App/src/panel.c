@@ -218,7 +218,13 @@ static void DrawList(PanelLinkedList* pll, HDC hdc)
 			PanelNode* pn = pll->_front;
 			while (pn)
 			{
-				pn->_panel->_DrawFunc(pn->_panel, hdc);
+				Panel* p = pn->_panel;
+				if ((p->_y >= 0 && p->_y <= pll->_client_height) ||
+					(p->_y + p->_height >= 0 && p->_y + p->_height <= pll->_client_height))
+				{
+					p->_DrawFunc(pn->_panel, hdc);
+				}
+				
 				pn = pn->_next;
 			}
 		}
