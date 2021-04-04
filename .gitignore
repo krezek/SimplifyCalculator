@@ -13,3 +13,7 @@
 /Renderer/x64/Debug
 /Renderer/Renderer.vcxproj.user
 /Renderer/x64/Release
+/Renderer/Release
+/SimplifyCalculator/Release
+/SimplifyCalculator/x64
+/SimplifyCalculator/SimplifyCalculator.vcxproj.user
