@@ -96,6 +96,10 @@ double calcWolker(Item* item)
 			return log(calcWolker(item->_left));
 		}
 	}
+	else if (item->_objectType == OBJ_Parentheses)
+	{
+		return calcWolker(item->_left);
+	}
 	else if (item->_objectType == OBJ_Number)
 	{
 		ItemNumber* i = (ItemNumber*)item;
