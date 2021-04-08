@@ -3,11 +3,11 @@
 #include "panel_list.h"
 
 static void OnInitialze(PanelLinkedList* pll);
+static Panel* AddNewPanel(PanelLinkedList* pll);
 static void ParentPropertyChanged(PanelLinkedList* pll);
 static void ParentPosChanged(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
-static Panel* AddNewTicket(PanelLinkedList* pll);
 
 extern HFONT g_bold_font, g_math_font, g_fixed_font;
 static const int g_panel_margin_h = 10, g_panel_margin_v = 10;
@@ -51,7 +51,7 @@ PanelLinkedList* PanelLinkedList_init()
 	pll->_ParentPosChangedFunc = ParentPosChanged;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_DrawListFunc = DrawList;
-	pll->_AddNewTicketFunc = AddNewTicket;
+	pll->_AddNewPanelFunc = AddNewPanel;
 
 	return pll;
 }
@@ -95,25 +95,12 @@ void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
 
 static void OnInitialze(PanelLinkedList* pll)
 {
-	AddNewTicket(pll);
+	AddNewPanel(pll);
 }
 
-static Panel* AddNewTicket(PanelLinkedList* pll)
+static Panel* AddNewPanel(PanelLinkedList* pll)
 {
-	Panel* p = Panel_init();
-	p->_hWndParent = pll->_hWndParent;
-	String_cpy(p->_cnt_str_in, L"In:");
-	String_cpy(p->_cnt_str_out, L"Value:");
-	{
-		// calc _cmd_pos_x
-		SIZE s1;
-
-		HDC hdc = GetDC(p->_hWndParent);
-		SelectObject(hdc, g_bold_font);
-		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s1);
-		p->_cmd_pos_x = s1.cx;
-		ReleaseDC(p->_hWndParent, hdc);
-	}
+	Panel* p = Panel_init(pll->_hWndParent, L"In:", L"Value:");
 	PanelLinkedList_pushpack(pll, p);
 
 	pll->_selected_panel = p;

@@ -47,7 +47,7 @@ typedef struct _Panel
 	OnChar_ReturnFunc _OnChar_ReturnFunc;
 } Panel;
 
-Panel* Panel_init();
+Panel* Panel_init(HWND hWnd, const wchar_t* cstr1, const wchar_t* cstr2);
 void Panel_free(Panel* p);
 
 #endif /* _PANEL_H_ */

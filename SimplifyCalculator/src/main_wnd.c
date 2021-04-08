@@ -286,7 +286,7 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     case VK_RETURN:
         if (GetKeyState(VK_SHIFT) < 0)
         {
-            Panel* p = mw->_panels->_AddNewTicketFunc(mw->_panels);
+            Panel* p = mw->_panels->_AddNewPanelFunc(mw->_panels);
             SendMessage(mw->_baseWindow._hWnd, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
             mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
             //ShowCaret(mw->_baseWindow._hWnd);

@@ -23,7 +23,7 @@ static const int g_content_margin_h = 10, g_content_margin_v = 10;
 static const int g_padding = 30;
 static const int g_formula_x = 50;
 
-Panel* Panel_init()
+Panel* Panel_init(HWND hWnd, const wchar_t* cstr1, const wchar_t* cstr2)
 {
 	Panel* p = (Panel*)malloc(sizeof(Panel));
 	assert(p != NULL);
@@ -48,6 +48,21 @@ Panel* Panel_init()
 
 	p->_caret_idx = 0;
 	p->_items_in = NULL;
+
+	p->_hWndParent = hWnd;
+	String_cpy(p->_cnt_str_in, cstr1);
+	String_cpy(p->_cnt_str_out, cstr2);
+
+	{
+		// calc _cmd_pos_x
+		SIZE s;
+
+		HDC hdc = GetDC(p->_hWndParent);
+		SelectObject(hdc, g_bold_font);
+		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s);
+		p->_cmd_pos_x = s.cx;
+		ReleaseDC(p->_hWndParent, hdc);
+	}
 
 	return p;
 }
