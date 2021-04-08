@@ -2,7 +2,7 @@
 #define _MAIN_WND_H_
 
 #include "base_wnd.h"
-#include "panel.h"
+#include "panel_list.h"
 
 typedef struct
 {
