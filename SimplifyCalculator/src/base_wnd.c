@@ -38,12 +38,30 @@ BOOL BaseWindow_Update(BaseWindow* _this)
 	return UpdateWindow(_this->_hWnd);
 }
 
+BOOL BaseWindow_OnSizing(BaseWindow* _this, RECT* pRect)
+{
+	LONG nWidth = pRect->right - pRect->left;
+	LONG nHeight = pRect->bottom - pRect->top;
+
+	if ((nWidth < _this->_minWidth) || (nHeight < _this->_minHeight))
+	{
+		pRect->right = max(pRect->right, pRect->left + _this->_minWidth);
+		pRect->bottom = max(pRect->bottom, pRect->top + _this->_minHeight);
+	}
+
+	return TRUE;
+}
+
 void BaseWindow_default(BaseWindow* _this)
 {
+	_this->_minWidth = 300;
+	_this->_minHeight = 400;
+
 	_this->_CreateFunc = NULL;
 	_this->_HandleMessageFunc = NULL;
 	
 	_this->_ShowFunc = BaseWindow_Show;
 	_this->_UpdateFunc = BaseWindow_Update;
+	_this->_OnSizingFunc = BaseWindow_OnSizing;
 }
 

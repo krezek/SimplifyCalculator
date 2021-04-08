@@ -9,7 +9,6 @@ static void ParentPosChanged(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
 
-extern HFONT g_bold_font, g_math_font, g_fixed_font;
 static const int g_panel_margin_h = 10, g_panel_margin_v = 10;
 
 

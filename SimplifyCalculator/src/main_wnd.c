@@ -148,7 +148,6 @@ static void OnCreate(MainWindow* mw)
 
     mw->_panels->_hWndParent = mw->_baseWindow._hWnd;
     mw->_panels->_OnInitializeFunc(mw->_panels);
-    mw->_panels->_ParentPropertyChangedFunc(mw->_panels);
 }
 
 void SetScrollbarInfo(MainWindow* mw)
@@ -416,6 +415,9 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
     case WM_PAINT:
         OnPaint(mw);
         return 0;
+
+    case WM_SIZING:
+        return mw->_baseWindow._OnSizingFunc(&mw->_baseWindow, (RECT*)lParam);
 
     case WM_SIZE:
         OnSize(mw, LOWORD(lParam), HIWORD(lParam));

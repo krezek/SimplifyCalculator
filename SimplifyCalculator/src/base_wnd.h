@@ -3,19 +3,23 @@
 
 typedef struct _BaseWindow BaseWindow;
 
-typedef BOOL(*CreateFunc)(BaseWindow* _this);
-typedef LRESULT(*HandleMessageFunc) (BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
+typedef BOOL (*CreateFunc)(BaseWindow* _this);
+typedef LRESULT (*HandleMessageFunc) (BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
 typedef BOOL (*ShowFunc)(BaseWindow* _this, int nCmdShow);
-typedef BOOL(*UpdateFunc)(BaseWindow* _this);
+typedef BOOL (*UpdateFunc)(BaseWindow* _this);
+typedef BOOL (*OnSizingFunc)(BaseWindow* _this, RECT* pRect);
 
 typedef struct _BaseWindow
 {
 	HWND _hWnd;
 
+	int _minWidth, _minHeight;
+
 	CreateFunc _CreateFunc;
 	HandleMessageFunc _HandleMessageFunc;
 	ShowFunc _ShowFunc;
 	UpdateFunc _UpdateFunc;
+	OnSizingFunc _OnSizingFunc;
 } BaseWindow;
 
 LRESULT CALLBACK BaseWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
