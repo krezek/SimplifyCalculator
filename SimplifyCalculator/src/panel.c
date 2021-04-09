@@ -197,14 +197,10 @@ static void Draw(Panel* p, HDC hdc)
 
 static void UpdateCaretPos(Panel* p)
 {
-	int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
-	int col1 = w1 / g_tmFixed.tmAveCharWidth;
-	col1 = col1 ? col1 : 1;
-
 	int caret_pos_x = 0, caret_pos_y = 0;
 	
-	int v1 = p->_caret_idx % col1;
-	int v2 = p->_caret_idx / col1;
+	int v1 = p->_caret_idx % p->_cmd_column;
+	int v2 = p->_caret_idx / p->_cmd_column;
 	caret_pos_x = p->_x + g_content_margin_h + p->_cmd_pos_x + g_padding + v1 * g_tmFixed.tmAveCharWidth;
 	caret_pos_y = p->_y + g_content_margin_v + v2 * g_tmFixed.tmHeight;
 
