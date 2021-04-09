@@ -1,7 +1,7 @@
 #ifndef _STRG_H_
 #define _STRG_H_
 
-#define EXPAND 10
+#define EXPAND 100
 
 typedef struct
 {
