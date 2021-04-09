@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "panel.h"
 
+static void SetCmdProperties(Panel* p);
 static void CalcHeight(Panel* p);
 static void OnPropertyChanged(Panel* p);
 static void Draw(Panel* p, HDC hdc);
@@ -35,6 +36,7 @@ Panel* Panel_init(HWND hWnd, const wchar_t* cstr1, const wchar_t* cstr2)
 
 	p->_items_in = NULL;
 
+	p->_SetCmdPropertiesFunc = SetCmdProperties;
 	p->_CalcHeightFunc = CalcHeight;
 	p->_OnPropertyChangedFunc = OnPropertyChanged;
 	p->_DrawFunc = Draw;
@@ -52,17 +54,6 @@ Panel* Panel_init(HWND hWnd, const wchar_t* cstr1, const wchar_t* cstr2)
 	p->_hWndParent = hWnd;
 	String_cpy(p->_cnt_str_in, cstr1);
 	String_cpy(p->_cnt_str_out, cstr2);
-
-	{
-		// calc _cmd_pos_x
-		SIZE s;
-
-		HDC hdc = GetDC(p->_hWndParent);
-		SelectObject(hdc, g_bold_font);
-		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s);
-		p->_cmd_pos_x = s.cx;
-		ReleaseDC(p->_hWndParent, hdc);
-	}
 
 	return p;
 }
@@ -83,22 +74,33 @@ void Panel_free(Panel* p)
 	free(p);
 }
 
-static void CalcHeight(Panel* p)
+static void SetCmdProperties(Panel* p)
 {
-	p->_height1 = p->_height2 = p->_height3 = 0;
-
-	// calc _str_in height
 	{
-		int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
-		int col1 = w1 / g_tmFixed.tmAveCharWidth;
-		col1 = col1 ? col1 : 1;
-		int row_count = (int)(p->_str_in->_len / col1) + (p->_str_in->_len % col1 > 0 ? 1 : 0);
-		row_count = (row_count <= 0) ? 1 : row_count;
+		// calc _cmd_pos_x
+		SIZE s;
 
-		p->_height1 = row_count * g_tmFixed.tmHeight + 2 * g_content_margin_v;
+		HDC hdc = GetDC(p->_hWndParent);
+		SelectObject(hdc, g_bold_font);
+		GetTextExtentPoint32(hdc, p->_cnt_str_in->_str, (int)p->_cnt_str_in->_len, &s);
+		p->_cmd_pos_x = s.cx;
+		ReleaseDC(p->_hWndParent, hdc);
 	}
 
+	// Set cmd Properties
+	p->_cmd_width = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
+	p->_cmd_column = p->_cmd_width / g_tmFixed.tmAveCharWidth;
+	p->_cmd_column = p->_cmd_column ? p->_cmd_column : 1;
+	p->_cmd_row_count = (int)(p->_str_in->_len / p->_cmd_column) + (p->_str_in->_len % p->_cmd_column > 0 ? 1 : 0);
+	p->_cmd_row_count = (p->_cmd_row_count <= 0) ? 1 : p->_cmd_row_count;
+}
+
+static void CalcHeight(Panel* p)
+{
+	p->_height1 = p->_cmd_row_count * g_tmFixed.tmHeight + g_content_margin_v;
+
 	// calc _items_in height
+	p->_height2 = 0;
 	if(p->_items_in)
 	{
 		Graphics gfx;
@@ -111,6 +113,7 @@ static void CalcHeight(Panel* p)
 		ReleaseDC(p->_hWndParent, hdc);
 	}
 
+	p->_height3 = 0;
 	if (p->_str_out->_len > 0)
 	{
 		p->_height3 = g_tmFixed.tmHeight + g_content_margin_v;
@@ -154,18 +157,14 @@ static void Draw(Panel* p, HDC hdc)
 
 	{
 		SelectObject(hdc, g_fixed_font);
-		int w1 = p->_width - g_content_margin_h * 2 - p->_cmd_pos_x - g_padding;
-		int col1 = w1 / g_tmFixed.tmAveCharWidth;
-		col1 = col1 ? col1 : 1;
-
 		int iy = 0;
 		int ix = 0;
 		while (ix < p->_str_in->_len)
 		{
-			int v = ix % col1;
+			int v = ix % p->_cmd_column;
 			TextOut(hdc, p->_x + g_content_margin_h + p->_cmd_pos_x + g_padding + v * g_tmFixed.tmAveCharWidth,
 				p->_y + g_content_margin_v + iy * g_tmFixed.tmHeight, p->_str_in->_str + ix, 1);
-			if (v == col1 - 1)
+			if (v == p->_cmd_column - 1)
 				++iy;
 			++ix;
 		}
@@ -189,7 +188,7 @@ static void Draw(Panel* p, HDC hdc)
 		GetTextExtentPoint32(hdc, p->_cnt_str_out->_str, (int)p->_cnt_str_out->_len, &s);
 
 		SelectObject(hdc, g_fixed_font); 
-		TextOut(hdc, p->_x + g_content_margin_h + s.cx, p->_y + g_content_margin_v + p->_height1 + p->_height2,
+		TextOut(hdc, p->_x + g_content_margin_h + s.cx + g_padding, p->_y + g_content_margin_v + p->_height1 + p->_height2,
 			p->_str_out->_str, (int)p->_str_out->_len);
 	}
 

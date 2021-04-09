@@ -8,6 +8,7 @@
 
 typedef struct _Panel Panel;
 
+typedef void (*SetCmdPropertiesFunc)(Panel* p); 
 typedef void (*CalcHeightFunc)(Panel* p);
 typedef void (*OnPropertyChangedFunc)(Panel* p);
 typedef void (*DrawFunc)(Panel* p, HDC hdc);
@@ -32,9 +33,12 @@ typedef struct _Panel
 
 	Item* _items_in;
 
-	int _cmd_pos_x;
+	int _cmd_pos_x, _cmd_width;
+	int _cmd_column, _cmd_row_count;
+
 	int _caret_idx;
 
+	SetCmdPropertiesFunc _SetCmdPropertiesFunc;
 	CalcHeightFunc _CalcHeightFunc;
 	OnPropertyChangedFunc _OnPropertyChangedFunc;
 	DrawFunc _DrawFunc;

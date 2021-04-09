@@ -128,6 +128,7 @@ static void ParentSizeChanged(PanelLinkedList* pll, int width, int height)
 				pn->_panel->_x = x;
 				pn->_panel->_y = y;
 				pn->_panel->_width = pll->_client_width - g_panel_margin_h * 2;
+				pn->_panel->_SetCmdPropertiesFunc(pn->_panel);
 				pn->_panel->_CalcHeightFunc(pn->_panel);
 				pn->_panel->_OnPropertyChangedFunc(pn->_panel);
 
