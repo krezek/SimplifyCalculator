@@ -235,7 +235,7 @@ static void Panel_Update(Panel* p)
 	}
 	else
 	{
-		PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
+		PostMessage(p->_hWndParent, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
 	}
 }
 
@@ -333,5 +333,5 @@ static void OnChar_Return(Panel* p)
 		p->_items_in = (Item*)ItemLiteral_init(L"Parse error");
 	}
 
-	PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
+	PostMessage(p->_hWndParent, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
 }

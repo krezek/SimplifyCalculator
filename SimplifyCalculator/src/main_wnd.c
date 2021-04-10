@@ -286,7 +286,7 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         if (GetKeyState(VK_SHIFT) < 0)
         {
             Panel* p = mw->_panels->_AddNewPanelFunc(mw->_panels);
-            SendMessage(mw->_baseWindow._hWnd, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
+            SendMessage(mw->_baseWindow._hWnd, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
             mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
             //ShowCaret(mw->_baseWindow._hWnd);
 
@@ -368,11 +368,9 @@ static void OnPanelRepaint(MainWindow* mw, Panel* p)
     InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
 }
 
-static void OnPanelProperty(MainWindow* mw, Panel* p)
+static void OnPanelSizeChanged(MainWindow* mw, Panel* p)
 {
-    mw->_panels->_ParentSizeChangedFunc(mw->_panels,
-        mw->_client_width - g_scrollbar_width,
-        mw->_client_height - g_statusbar_height);
+    mw->_panels->_PanelSizeChangedFunc(mw->_panels, p);
     SetScrollbarInfo(mw);
 
     RECT rc;
@@ -468,8 +466,8 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         OnPanelRepaint(mw, (Panel*)lParam);
         return 0;
 
-    case WM_PANEL_PROPERTY:
-        OnPanelProperty(mw, (Panel*)lParam);
+    case WM_PANEL_SIZE_CHANGED:
+        OnPanelSizeChanged(mw, (Panel*)lParam);
         return 0;
 
     case WM_DESTROY:

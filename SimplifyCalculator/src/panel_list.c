@@ -6,6 +6,7 @@ static void OnInitialze(PanelLinkedList* pll, HWND hWnd, int width, int height);
 static Panel* AddNewPanel(PanelLinkedList* pll);
 static void ParentSizeChanged(PanelLinkedList* pll, int width, int height);
 static void ParentPosChanged(PanelLinkedList* pll);
+static void PanelSizeChanged(PanelLinkedList* pll, Panel* p);
 static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
 
@@ -48,6 +49,7 @@ PanelLinkedList* PanelLinkedList_init()
 	pll->_OnInitializeFunc = OnInitialze;
 	pll->_ParentSizeChangedFunc = ParentSizeChanged;
 	pll->_ParentPosChangedFunc = ParentPosChanged;
+	pll->_PanelSizeChangedFunc = PanelSizeChanged;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_DrawListFunc = DrawList;
 	pll->_AddNewPanelFunc = AddNewPanel;
@@ -155,6 +157,34 @@ static void ParentPosChanged(PanelLinkedList* pll)
 				pn->_panel->_x = x;
 				pn->_panel->_y = y;
 
+				pn->_panel->_OnPropertyChangedFunc(pn->_panel);
+
+				y += pn->_panel->_height + g_panel_margin_v;
+
+				pn = pn->_next;
+			}
+		}
+	}
+}
+
+//Todo: ignore unchanged panels
+static void PanelSizeChanged(PanelLinkedList* pll, Panel* p)
+{
+	int x = g_panel_margin_h;
+	int y = g_panel_margin_v - pll->_y_current_pos;
+
+	if (pll)
+	{
+		if (pll->_front)
+		{
+			PanelNode* pn = pll->_front;
+			while (pn)
+			{
+				pn->_panel->_x = x;
+				pn->_panel->_y = y;
+				pn->_panel->_width = pll->_client_width - g_panel_margin_h * 2;
+				pn->_panel->_SetCmdPropertiesFunc(pn->_panel);
+				pn->_panel->_CalcHeightFunc(pn->_panel);
 				pn->_panel->_OnPropertyChangedFunc(pn->_panel);
 
 				y += pn->_panel->_height + g_panel_margin_v;
