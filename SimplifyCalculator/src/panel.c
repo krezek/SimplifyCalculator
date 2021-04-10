@@ -199,12 +199,44 @@ static void UpdateCaretPos(Panel* p)
 {
 	int caret_pos_x = 0, caret_pos_y = 0;
 	
-	int v1 = p->_caret_idx % p->_cmd_column;
-	int v2 = p->_caret_idx / p->_cmd_column;
-	caret_pos_x = p->_x + g_content_margin_h + p->_cmd_pos_x + g_padding + v1 * g_tmFixed.tmAveCharWidth;
-	caret_pos_y = p->_y + g_content_margin_v + v2 * g_tmFixed.tmHeight;
+	if (p->_caret_idx == 0)
+	{
+		caret_pos_x = p->_x + g_content_margin_h + p->_cmd_pos_x + g_padding;
+		caret_pos_y = p->_y + g_content_margin_v;
+	}
+	else 
+	{
+		int v1 = p->_caret_idx % p->_cmd_column;
+		int v2 = p->_caret_idx / p->_cmd_column;
 
+		if (v1)
+		{
+			caret_pos_x = p->_x + g_content_margin_h + p->_cmd_pos_x + g_padding + v1 * g_tmFixed.tmAveCharWidth;
+			caret_pos_y = p->_y + g_content_margin_v + v2 * g_tmFixed.tmHeight;
+		}
+		else
+		{
+			caret_pos_x = p->_x + g_content_margin_h + p->_cmd_pos_x + g_padding + p->_cmd_column * g_tmFixed.tmAveCharWidth;
+			caret_pos_y = p->_y + g_content_margin_v + (v2 - 1) * g_tmFixed.tmHeight;
+		}
+	}
+	
 	SetCaretPos(caret_pos_x, caret_pos_y);
+}
+
+static void Panel_Update(Panel* p)
+{
+	int row_count = (int)(p->_str_in->_len / p->_cmd_column) + (p->_str_in->_len % p->_cmd_column > 0 ? 1 : 0);
+	row_count = (row_count <= 0) ? 1 : row_count;
+
+	if (row_count == p->_cmd_row_count)
+	{
+		PostMessage(p->_hWndParent, WM_PANEL_REPAINT, (WPARAM)NULL, (LPARAM)p);
+	}
+	else
+	{
+		PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
+	}
 }
 
 static void OnKey_LeftArrow(Panel* p)
@@ -237,8 +269,7 @@ static void OnChar_Default(Panel* p, wchar_t ch)
 
 	++p->_caret_idx;
 	p->_UpdateCaretPosFunc(p);
-
-	PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
+	Panel_Update(p);
 }
 
 static void OnChar_Backspace(Panel* p)
@@ -249,8 +280,7 @@ static void OnChar_Backspace(Panel* p)
 		String_delete_c(p->_str_in, p->_caret_idx);
 
 		p->_UpdateCaretPosFunc(p);
-
-		PostMessage(p->_hWndParent, WM_PANEL_PROPERTY, (WPARAM)NULL, (LPARAM)p);
+		Panel_Update(p);
 	}
 }
 

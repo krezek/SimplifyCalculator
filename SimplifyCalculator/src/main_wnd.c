@@ -357,6 +357,17 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     ShowCaret(mw->_baseWindow._hWnd);
 }
 
+static void OnPanelRepaint(MainWindow* mw, Panel* p)
+{
+    RECT rc;
+    rc.left = p->_x;
+    rc.top = p->_y;
+    rc.right = rc.left + p->_width;
+    rc.bottom = rc.top + p->_height;
+
+    InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+}
+
 static void OnPanelProperty(MainWindow* mw, Panel* p)
 {
     mw->_panels->_ParentSizeChangedFunc(mw->_panels,
@@ -451,6 +462,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_COMMAND:
         OnCommand(mw, wParam, lParam);
+        return 0;
+
+    case WM_PANEL_REPAINT:
+        OnPanelRepaint(mw, (Panel*)lParam);
         return 0;
 
     case WM_PANEL_PROPERTY:

@@ -4,7 +4,8 @@
 #include "strg.h"
 #include "items.h"
 
-#define WM_PANEL_PROPERTY WM_USER+1
+#define WM_PANEL_REPAINT WM_USER + 1
+#define WM_PANEL_PROPERTY WM_USER + 2
 
 typedef struct _Panel Panel;
 
