@@ -275,7 +275,16 @@ static void OnChar_Return(Panel* p)
 		rs = calculate((Item**)&p->_items_in, &result);
 		if (rs == 0)
 		{
-			swprintf_s(str, 255, L"%e", result);
+			long long lrs = (long long)result;
+
+			if (result == (double)lrs)
+			{
+				swprintf_s(str, 255, L"%lld", lrs);
+			}
+			else
+			{
+				swprintf_s(str, 255, L"%e", result);
+			}
 			String_cpy(p->_str_out, str);
 		}
 		else
