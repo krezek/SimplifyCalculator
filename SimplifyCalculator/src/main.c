@@ -20,6 +20,13 @@ int WINAPI WinMain(HINSTANCE hInstance,
     RedirectIOToConsole();
 #endif
 
+    HRESULT hr = CoInitialize(NULL);
+    if (FAILED(hr))
+    {
+        ShowError(L"WinMain:CoInitialize");
+        return -1;
+    }
+
     if (!MainWindow_RegisterClass())
     {
         MessageBox(NULL,
@@ -54,6 +61,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
     }
 
     MainWindow_free((MainWindow*)mainWindow);
+
+    CoUninitialize();
 
     return (int)msg.wParam;
 }

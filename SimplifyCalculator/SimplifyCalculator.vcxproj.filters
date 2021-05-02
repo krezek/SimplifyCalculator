@@ -38,6 +38,15 @@
     <ClCompile Include="src\panel_list.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\ribbon.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cmdhandler.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fnthandler.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\platform.h">
@@ -61,12 +70,22 @@
     <ClInclude Include="src\panel_list.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="src\ids.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribbon.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="src\res1.xml" />
+    <Xml Include="ribbon.xml" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\Resource.rc">
+      <Filter>Ressourcendateien</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="src\ribbonui.rc">
       <Filter>Ressourcendateien</Filter>
     </ResourceCompile>
   </ItemGroup>

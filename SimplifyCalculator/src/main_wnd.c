@@ -1,8 +1,18 @@
 #include "platform.h"
 
+#include "ribbon.h"
 #include "items.h"
 #include "main_wnd.h"
 #include "resource.h"
+
+typedef struct {
+    wchar_t _family[1024];
+    double _size;
+    unsigned int _bold;
+    unsigned int _italic;
+} _FontProp;
+
+_FontProp _fontProp;
 
 static TCHAR szWindowClass[] = _T("DesktopApp");
 static TCHAR szTitle[] = _T("Simplify Calculator");
@@ -98,6 +108,14 @@ static void CreateFonts(MainWindow* mw, int font_size)
 
 static void OnCreate(MainWindow* mw)
 {
+    // Fill FontProp
+    wcscpy_s(_fontProp._family, sizeof(_fontProp._family) / sizeof(wchar_t), L"Cambria");
+    _fontProp._size = 16;
+    _fontProp._bold = 1;
+    _fontProp._italic = 1;
+
+    CreateRibbon(mw->_baseWindow._hWnd);
+
     mw->_hWndVScrollBar = CreateWindowEx(
         0,
         L"SCROLLBAR",
@@ -410,6 +428,8 @@ static void OnDestroy(MainWindow* mw)
     DeleteObject(g_fixed_font);
     DeleteObject(g_math_font);
 
+    DestroyRibbon();
+
     PostQuitMessage(0);
 }
 
@@ -431,7 +451,7 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         return mw->_baseWindow._OnSizingFunc(&mw->_baseWindow, (RECT*)lParam);
 
     case WM_SIZE:
-        OnSize(mw, LOWORD(lParam), HIWORD(lParam));
+        //OnSize(mw, LOWORD(lParam), HIWORD(lParam));
         return 0;
 
     case WM_VSCROLL:

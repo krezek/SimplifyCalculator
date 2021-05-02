@@ -19,3 +19,6 @@
 /SimplifyCalculator/SimplifyCalculator.vcxproj.user
 /Renderer/Debug
 /SimplifyCalculator/Debug
+/SimplifyCalculator/ids.h
+/SimplifyCalculator/ribbon.bml
+/SimplifyCalculator/ribbonui.rc

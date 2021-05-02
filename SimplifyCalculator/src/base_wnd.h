@@ -26,5 +26,7 @@ LRESULT CALLBACK BaseWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 void BaseWindow_default(BaseWindow* _this);
 
+void ShowError(const wchar_t* lpszFunction);
+
 #endif /* _BASE_WND_H_*/
 

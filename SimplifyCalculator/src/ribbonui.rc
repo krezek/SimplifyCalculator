@@ -1,0 +1,24 @@
+// ******************************************************************************
+// * This is an automatically generated file containing the ribbon resource for *
+// * your application.                                                          *
+// ******************************************************************************
+
+#include ".\ids.h"
+
+STRINGTABLE 
+BEGIN
+    IDC_CMD_TAB_START_LabelTitle_RESID L"Start" /* LabelTitle IDC_CMD_TAB_START_LabelTitle_RESID: Start tab */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdFontOnlyGroup_LabelTitle_RESID L"Font" /* LabelTitle cmdFontOnlyGroup_LabelTitle_RESID: FontOnlyGroup */
+END
+
+STRINGTABLE 
+BEGIN
+    IDC_CMD_EXIT_LabelTitle_RESID L"Exit" /* LabelTitle IDC_CMD_EXIT_LabelTitle_RESID: (null) */
+END
+
+IDC_CMD_EXIT_LargeImages_RESID    BITMAP    "res\\ExitL.bmp" /* LargeImages IDC_CMD_EXIT_LargeImages_RESID: (null) */
+APPLICATION_RIBBON    UIFILE    "ribbon.bml"

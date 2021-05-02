@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<Application xmlns='http://schemas.microsoft.com/windows/2009/Ribbon'>
+  
+  <Application.Commands>
+
+    <Command Name="cmdTabStart"
+             Comment="Start tab"
+             Symbol="IDC_CMD_TAB_START"
+             Id="20000" >
+      <Command.LabelTitle>
+        <String>Start</String>
+      </Command.LabelTitle>
+    </Command>
+
+    <Command Name="cmdFontOnlyGroup"
+         Symbol="cmdFontOnlyGroup"
+         Comment="FontOnlyGroup"
+         Id="50001"
+         LabelTitle="Font"/>
+    <Command Name="cmdFontOnly"
+             Symbol="cmdFontOnly"
+             Comment="FontOnly"
+             Id="50010"/>
+
+    <Command Name="cmdQat"/>
+    <Command Name="cmdFileMenu" />
+    <Command Name="cmdExit" Symbol="IDC_CMD_EXIT">
+      <Command.LabelTitle>
+        <String Id ="290">Exit</String>
+      </Command.LabelTitle>
+      <Command.LargeImages>
+        <Image Id ="291">res/ExitL.bmp</Image>
+      </Command.LargeImages>
+    </Command>
+  </Application.Commands>
+  <Application.Views>
+    <Ribbon>
+      <Ribbon.ApplicationMenu>
+        <ApplicationMenu CommandName="cmdFileMenu">
+          <MenuGroup Class="MajorItems">
+            <Button CommandName="cmdExit" />
+          </MenuGroup>
+        </ApplicationMenu>
+      </Ribbon.ApplicationMenu>
+      <Ribbon.Tabs>
+        <Tab CommandName="cmdTabStart">
+          <Tab.ScalingPolicy>
+            <ScalingPolicy>
+              <ScalingPolicy.IdealSizes>
+                <Scale Group="cmdFontOnlyGroup" Size="Large" />
+              </ScalingPolicy.IdealSizes>
+            </ScalingPolicy>
+          </Tab.ScalingPolicy>
+          <Group CommandName="cmdFontOnlyGroup"
+                   SizeDefinition="OneFontControl">
+            <FontControl CommandName="cmdFontOnly"
+                         FontType="FontOnly"
+                         IsUnderlineButtonVisible="false"
+                         IsStrikethroughButtonVisible="false"
+                         MinimumFontSize="12"/>
+          </Group>
+        </Tab>
+      </Ribbon.Tabs>
+      <Ribbon.QuickAccessToolbar>
+        <QuickAccessToolbar CommandName="cmdQat" />
+      </Ribbon.QuickAccessToolbar>
+    </Ribbon>
+  </Application.Views>
+</Application>
