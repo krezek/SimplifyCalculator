@@ -43,6 +43,8 @@ PanelLinkedList* PanelLinkedList_init()
 	pll->_front = NULL;
 	pll->_rear = NULL;
 
+	pll->_selected_panel = NULL;
+
 	pll->_client_width = pll->_client_height = 0;
 	pll->_x_current_pos = pll->_y_current_pos = 0;
 

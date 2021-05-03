@@ -7,11 +7,12 @@
 typedef struct
 {
 	BaseWindow _baseWindow;
-	HWND _hWndVScrollBar;
+	HWND _hWndVScrollBar, _hWndHScrollBar, _hWndCorner;
 	HWND _hWndStatusBar;
 	TEXTMETRIC _tmFixedFont;
 
 	int _client_width, _client_height;
+	int _ribbon_height;
 	int _x_current_pos, _y_current_pos;
 	int _yMaxScroll;
 

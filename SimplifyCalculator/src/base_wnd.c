@@ -54,8 +54,8 @@ BOOL BaseWindow_OnSizing(BaseWindow* _this, RECT* pRect)
 
 void BaseWindow_default(BaseWindow* _this)
 {
-	_this->_minWidth = 300;
-	_this->_minHeight = 400;
+	_this->_minWidth = 600;
+	_this->_minHeight = 500;
 
 	_this->_CreateFunc = NULL;
 	_this->_HandleMessageFunc = NULL;

@@ -31,7 +31,7 @@ ATOM MainWindow_RegisterClass()
     WNDCLASSEX wcex;
 
     wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.style = CS_DBLCLKS;
     wcex.lpfnWndProc = BaseWindow_Proc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = 0;
@@ -73,6 +73,7 @@ MainWindow* MainWindow_init()
     BaseWindow_default((BaseWindow*)mw);
 
     mw->_client_width = mw->_client_height = 0;
+    mw->_ribbon_height = 0;
     mw->_x_current_pos = mw->_y_current_pos = 0;
     mw->_yMaxScroll = 0;
 
@@ -114,7 +115,10 @@ static void OnCreate(MainWindow* mw)
     _fontProp._bold = 1;
     _fontProp._italic = 1;
 
-    CreateRibbon(mw->_baseWindow._hWnd);
+    if (CreateRibbon(mw->_baseWindow._hWnd))
+    {
+        ShowError(L"OnCreate:CreateRibbon:Error");
+    }
 
     mw->_hWndVScrollBar = CreateWindowEx(
         0,
@@ -131,6 +135,38 @@ static void OnCreate(MainWindow* mw)
         (PVOID)NULL
     );
     assert(mw->_hWndVScrollBar != NULL);
+
+    mw->_hWndHScrollBar = CreateWindowEx(
+        0,
+        L"SCROLLBAR",
+        (PTSTR)NULL,
+        WS_CHILD | WS_VISIBLE | SBS_HORZ,
+        0,
+        0,
+        0,
+        0,
+        mw->_baseWindow._hWnd,
+        (HMENU)NULL,
+        (HINSTANCE)GetWindowLongPtr(mw->_baseWindow._hWnd, GWLP_HINSTANCE),
+        (PVOID)NULL
+    );
+    assert(mw->_hWndHScrollBar != NULL);
+
+    mw->_hWndCorner = CreateWindowEx(
+        0,
+        L"BUTTON",
+        (PTSTR)NULL,
+        WS_CHILD | WS_VISIBLE | WS_DISABLED,
+        0,
+        0,
+        0,
+        0,
+        mw->_baseWindow._hWnd,
+        (HMENU)NULL,
+        (HINSTANCE)GetWindowLongPtr(mw->_baseWindow._hWnd, GWLP_HINSTANCE),
+        (PVOID)NULL
+    );
+    assert(mw->_hWndCorner != NULL);
 
     mw->_hWndStatusBar = CreateWindowEx(
         0,
@@ -184,27 +220,57 @@ void SetScrollbarInfo(MainWindow* mw)
     SetScrollInfo(mw->_hWndVScrollBar, SB_CTL, &si, TRUE);
 }
 
+static void WindowPropertyChanged(MainWindow* mw)
+{
+    SendMessage(mw->_hWndStatusBar, WM_SIZE, 0, 0);
+
+    MoveWindow(mw->_hWndVScrollBar,
+        mw->_client_width - g_scrollbar_width,
+        mw->_ribbon_height,
+        g_scrollbar_width,
+        mw->_client_height - g_statusbar_height - mw->_ribbon_height - g_scrollbar_width,
+        TRUE);
+    InvalidateRect(mw->_hWndVScrollBar, NULL, TRUE);
+
+    MoveWindow(mw->_hWndHScrollBar,
+        0,
+        mw->_client_height - g_statusbar_height - g_scrollbar_width,
+        mw->_client_width - g_scrollbar_width,
+        g_scrollbar_width,
+        TRUE);
+    InvalidateRect(mw->_hWndHScrollBar, NULL, TRUE);
+
+    MoveWindow(mw->_hWndCorner,
+        mw->_client_width - g_scrollbar_width,
+        mw->_client_height - g_statusbar_height - g_scrollbar_width,
+        g_scrollbar_width,
+        g_scrollbar_width,
+        TRUE);
+    InvalidateRect(mw->_hWndCorner, NULL, TRUE);
+        
+    mw->_panels->_ParentSizeChangedFunc(mw->_panels,
+        mw->_client_width - g_scrollbar_width,
+        mw->_client_height + mw->_ribbon_height - g_statusbar_height);
+        
+    if(mw->_panels->_selected_panel)
+        mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
+
+    SetScrollbarInfo(mw);
+}
+
 static void OnSize(MainWindow* mw, int width, int height)
 {
     mw->_client_width = width;
     mw->_client_height = height;
 
-    SendMessage(mw->_hWndStatusBar, WM_SIZE, 0, 0);
+    WindowPropertyChanged(mw);
+}
+
+void OnRibbonHeightChanged(MainWindow* mw, int height)
+{
+    mw->_ribbon_height = height;
     
-    MoveWindow(mw->_hWndVScrollBar,
-        width - g_scrollbar_width,
-        0,
-        g_scrollbar_width,
-        height - g_statusbar_height,
-        TRUE);
-
-    mw->_panels->_ParentSizeChangedFunc(mw->_panels, 
-        mw->_client_width - g_scrollbar_width, 
-        mw->_client_height - g_statusbar_height);
-
-    mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
-
-    SetScrollbarInfo(mw);
+    WindowPropertyChanged(mw);
 }
 
 static void OnVScroll(MainWindow* mw, WPARAM wParam)
@@ -418,7 +484,7 @@ static void OnPaint(MainWindow* mw)
     FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW));
 
     mw->_panels->_DrawListFunc(mw->_panels, hdc, &ps.rcPaint);
-
+    
     EndPaint(mw->_baseWindow._hWnd, &ps);
 }
 
@@ -451,7 +517,7 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         return mw->_baseWindow._OnSizingFunc(&mw->_baseWindow, (RECT*)lParam);
 
     case WM_SIZE:
-        //OnSize(mw, LOWORD(lParam), HIWORD(lParam));
+        OnSize(mw, LOWORD(lParam), HIWORD(lParam));
         return 0;
 
     case WM_VSCROLL:
@@ -488,6 +554,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_PANEL_SIZE_CHANGED:
         OnPanelSizeChanged(mw, (Panel*)lParam);
+        return 0;
+
+    case WM_RIBBON_HEIGHT_CHANGED:
+        OnRibbonHeightChanged(mw, (int)wParam);
         return 0;
 
     case WM_DESTROY:
