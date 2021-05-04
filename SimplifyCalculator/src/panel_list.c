@@ -2,9 +2,9 @@
 
 #include "panel_list.h"
 
-static void OnInitialze(PanelLinkedList* pll, HWND hWnd, int width, int height);
+static void OnInitialze(PanelLinkedList* pll, HWND hWnd);
 static Panel* AddNewPanel(PanelLinkedList* pll);
-static void ParentSizeChanged(PanelLinkedList* pll, int width, int height);
+static void ParentSizeChanged(PanelLinkedList* pll, int x0, int y0, int width, int height);
 static void ParentPosChanged(PanelLinkedList* pll);
 static void PanelSizeChanged(PanelLinkedList* pll, Panel* p);
 static int GetViewportHeight(PanelLinkedList* pll);
@@ -45,7 +45,7 @@ PanelLinkedList* PanelLinkedList_init()
 
 	pll->_selected_panel = NULL;
 
-	pll->_client_width = pll->_client_height = 0;
+	pll->_width = pll->_height = 0;
 	pll->_x_current_pos = pll->_y_current_pos = 0;
 
 	pll->_OnInitializeFunc = OnInitialze;
@@ -96,31 +96,31 @@ void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
 	}
 }
 
-static void OnInitialze(PanelLinkedList* pll, HWND hWnd, int width, int height)
+static void OnInitialze(PanelLinkedList* pll, HWND hWnd)
 {
 	pll->_hWndParent = hWnd;
-	pll->_client_width = width;
-	pll->_client_height = height;
 
 	AddNewPanel(pll);
 }
 
 static Panel* AddNewPanel(PanelLinkedList* pll)
 {
-	Panel* p = Panel_init(pll->_hWndParent, L"In:", L"Value:");
+	Panel* p = Panel_init(pll->_hWndParent, L"In:", L"Out:");
 	PanelLinkedList_pushpack(pll, p);
 
 	pll->_selected_panel = p;
 	return p;
 }
 
-static void ParentSizeChanged(PanelLinkedList* pll, int width, int height)
+static void ParentSizeChanged(PanelLinkedList* pll, int x0, int y0, int width, int height)
 {
-	pll->_client_width = width;
-	pll->_client_height = height;
+	pll->_x0 = x0;
+	pll->_y0 = y0;
+	pll->_width = width;
+	pll->_height = height;
 
-	int x = g_panel_margin_h;
-	int y = g_panel_margin_v - pll->_y_current_pos;
+	int x = pll->_x0 + g_panel_margin_h;
+	int y = pll->_y0 + g_panel_margin_v - pll->_y_current_pos;
 
 	if (pll)
 	{
@@ -131,7 +131,7 @@ static void ParentSizeChanged(PanelLinkedList* pll, int width, int height)
 			{
 				pn->_panel->_x = x;
 				pn->_panel->_y = y;
-				pn->_panel->_width = pll->_client_width - g_panel_margin_h * 2;
+				pn->_panel->_width = pll->_width - g_panel_margin_h * 2;
 				pn->_panel->_SetCmdPropertiesFunc(pn->_panel);
 				pn->_panel->_CalcHeightFunc(pn->_panel);
 				pn->_panel->_OnPropertyChangedFunc(pn->_panel);
@@ -146,8 +146,8 @@ static void ParentSizeChanged(PanelLinkedList* pll, int width, int height)
 
 static void ParentPosChanged(PanelLinkedList* pll)
 {
-	int x = g_panel_margin_h;
-	int y = g_panel_margin_v - pll->_y_current_pos;
+	int x = pll->_x0 + g_panel_margin_h;
+	int y = pll->_y0 + g_panel_margin_v - pll->_y_current_pos;
 
 	if (pll)
 	{
@@ -172,8 +172,8 @@ static void ParentPosChanged(PanelLinkedList* pll)
 //Todo: ignore unchanged panels
 static void PanelSizeChanged(PanelLinkedList* pll, Panel* p)
 {
-	int x = g_panel_margin_h;
-	int y = g_panel_margin_v - pll->_y_current_pos;
+	int x = pll->_x0 + g_panel_margin_h;
+	int y = pll->_y0 + g_panel_margin_v - pll->_y_current_pos;
 
 	if (pll)
 	{
@@ -184,7 +184,7 @@ static void PanelSizeChanged(PanelLinkedList* pll, Panel* p)
 			{
 				pn->_panel->_x = x;
 				pn->_panel->_y = y;
-				pn->_panel->_width = pll->_client_width - g_panel_margin_h * 2;
+				pn->_panel->_width = pll->_width - g_panel_margin_h * 2;
 				pn->_panel->_SetCmdPropertiesFunc(pn->_panel);
 				pn->_panel->_CalcHeightFunc(pn->_panel);
 				pn->_panel->_OnPropertyChangedFunc(pn->_panel);

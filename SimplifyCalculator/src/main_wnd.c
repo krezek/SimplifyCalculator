@@ -197,10 +197,7 @@ static void OnCreate(MainWindow* mw)
     GetWindowRect(mw->_hWndStatusBar, &rc);
     g_statusbar_height = rc.bottom - rc.top; 
     
-    mw->_panels->_OnInitializeFunc(mw->_panels, 
-        mw->_baseWindow._hWnd,
-        mw->_client_width - g_scrollbar_width,
-        mw->_client_height - g_statusbar_height);
+    mw->_panels->_OnInitializeFunc(mw->_panels, mw->_baseWindow._hWnd);
 }
 
 void SetScrollbarInfo(MainWindow* mw)
@@ -248,18 +245,23 @@ static void WindowPropertyChanged(MainWindow* mw)
         TRUE);
     InvalidateRect(mw->_hWndCorner, NULL, TRUE);
         
-    mw->_panels->_ParentSizeChangedFunc(mw->_panels,
+    mw->_panels->_ParentSizeChangedFunc(mw->_panels, 0, mw->_ribbon_height,
         mw->_client_width - g_scrollbar_width,
-        mw->_client_height + mw->_ribbon_height - g_statusbar_height);
+        mw->_client_height - mw->_ribbon_height - g_statusbar_height);
         
     if(mw->_panels->_selected_panel)
         mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
 
     SetScrollbarInfo(mw);
+
+    InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
 
 static void OnSize(MainWindow* mw, int width, int height)
 {
+    if (!IsWindowVisible(mw->_baseWindow._hWnd))
+        return;
+
     mw->_client_width = width;
     mw->_client_height = height;
 
