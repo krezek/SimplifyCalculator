@@ -245,13 +245,6 @@ static void WindowPropertyChanged(MainWindow* mw)
         TRUE);
     InvalidateRect(mw->_hWndCorner, NULL, TRUE);
         
-    mw->_panels->_ParentSizeChangedFunc(mw->_panels, 0, mw->_ribbon_height,
-        mw->_client_width - g_scrollbar_width,
-        mw->_client_height - mw->_ribbon_height - g_statusbar_height);
-        
-    if(mw->_panels->_selected_panel)
-        mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
-
     SetScrollbarInfo(mw);
 
     InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
@@ -321,7 +314,7 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
 
     mw->_panels->_ParentPosChangedFunc(mw->_panels);
-    mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
+    //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
 
     RECT rc;
     rc.left = 0;
@@ -356,7 +349,7 @@ static void OnFocus(MainWindow* mw)
     CreateCaret(mw->_baseWindow._hWnd, (HBITMAP)NULL, 2, g_tmFixed.tmHeight);
     ShowCaret(mw->_baseWindow._hWnd);
 
-    mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
+    //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
 }
 
 static void OnKillFocus(MainWindow* mw)
@@ -373,7 +366,7 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         {
             Panel* p = mw->_panels->_AddNewPanelFunc(mw->_panels);
             SendMessage(mw->_baseWindow._hWnd, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
-            mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
+            //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
             //ShowCaret(mw->_baseWindow._hWnd);
 
         }
@@ -446,8 +439,8 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
 static void OnPanelRepaint(MainWindow* mw, Panel* p)
 {
     RECT rc;
-    rc.left = p->_x;
-    rc.top = p->_y;
+    rc.left = p->_x0;
+    rc.top = p->_y0;
     rc.right = rc.left + p->_width;
     rc.bottom = rc.top + p->_height;
 
@@ -456,7 +449,7 @@ static void OnPanelRepaint(MainWindow* mw, Panel* p)
 
 static void OnPanelSizeChanged(MainWindow* mw, Panel* p)
 {
-    mw->_panels->_PanelSizeChangedFunc(mw->_panels, p);
+    //mw->_panels->_PanelSizeChangedFunc(mw->_panels, p);
     SetScrollbarInfo(mw);
 
     RECT rc;

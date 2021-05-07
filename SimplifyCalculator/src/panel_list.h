@@ -7,9 +7,8 @@ typedef struct _PanelLinkedList PanelLinkedList;
 
 typedef void (*OnInitializeFunc)(PanelLinkedList* pll, HWND hWnd);
 typedef Panel* (*AddNewPanelFunc)(PanelLinkedList* pll);
-typedef void (*ParentSizeChangedFunc)(PanelLinkedList* pll, int x0, int y0, int width, int height);
 typedef void (*ParentPosChangedFunc)(PanelLinkedList* pll);
-typedef void (*PanelSizeChangedFunc)(PanelLinkedList* pll, Panel* p);
+typedef int (*GetViewportWidthFunc)(PanelLinkedList* pll);
 typedef int (*GetViewportHeightFunc)(PanelLinkedList* pll);
 typedef void (*DrawListFunc)(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
 
@@ -34,9 +33,8 @@ typedef struct _PanelLinkedList
 
 	OnInitializeFunc _OnInitializeFunc;
 	AddNewPanelFunc _AddNewPanelFunc;
-	ParentSizeChangedFunc _ParentSizeChangedFunc;
 	ParentPosChangedFunc _ParentPosChangedFunc;
-	PanelSizeChangedFunc _PanelSizeChangedFunc;
+	GetViewportWidthFunc _GetViewportWidthFunc;
 	GetViewportHeightFunc _GetViewportHeightFunc;
 	DrawListFunc _DrawListFunc;
 } PanelLinkedList;
