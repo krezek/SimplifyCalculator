@@ -20,9 +20,7 @@ static TCHAR szTitle[] = _T("Simplify Calculator");
 static const int g_scrollbar_width = 20;
 static int g_statusbar_height;
 
-static const int g_font_size = 12;
-HFONT g_bold_font, g_math_font, g_fixed_font;
-TEXTMETRIC g_tmFixed;
+HFONT g_math_font;
 
 static void AfterCreate(BaseWindow* _this);
 static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -93,22 +91,6 @@ void MainWindow_free(MainWindow* mw)
     free(mw);
 }
 
-static void CreateFonts(MainWindow* mw, int font_size)
-{
-    HDC hdc = GetDC(mw->_baseWindow._hWnd);
-
-    // Create app fonts
-    int lfHeight = -MulDiv(font_size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
-    g_fixed_font = CreateFont(lfHeight, 0, 0, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Courier New");
-    g_bold_font = CreateFont(lfHeight, 0, 0, 0, 700, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Courier New");
-    g_math_font = CreateFont(lfHeight, 0, 0, 0, 0, FALSE, 0, 0, 0, 0, 0, 0, 0, L"Cambria");
-
-    // Get TextMetrics for fixed font
-    SelectObject(hdc, g_fixed_font);
-    GetTextMetrics(hdc, &g_tmFixed);
-    ReleaseDC(mw->_baseWindow._hWnd, hdc);
-}
-
 static void OnCreate(MainWindow* mw)
 {
     // Fill FontProp
@@ -116,6 +98,13 @@ static void OnCreate(MainWindow* mw)
     _fontProp._size = 16;
     _fontProp._bold = 1;
     _fontProp._italic = 1;
+
+    // Create Font
+    HDC hdc = GetDC(mw->_baseWindow._hWnd);
+    int lfHeight = -MulDiv((int)_fontProp._size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+    g_math_font = CreateFont(lfHeight, 0, 0, 0, _fontProp._bold, 
+        _fontProp._italic ? FALSE : TRUE, 0, 0, 0, 0, 0, 0, 0, _fontProp._family);
+    ReleaseDC(mw->_baseWindow._hWnd, hdc);
 
     if (CreateRibbon(mw->_baseWindow._hWnd))
     {
@@ -182,8 +171,6 @@ static void OnCreate(MainWindow* mw)
         (HINSTANCE)GetWindowLongPtr(mw->_baseWindow._hWnd, GWLP_HINSTANCE),
         NULL);
     assert(mw->_hWndStatusBar != NULL);
-
-    CreateFonts(mw, g_font_size);
 
     FontHandle fh;
     fh._hfont = g_math_font;
@@ -304,6 +291,26 @@ void AfterCreate(BaseWindow* _this)
     mw->_panels->_OnInitializeFunc(mw->_panels, mw->_baseWindow._hWnd);
     
     mw->_panels->_AddNewPanelFunc(mw->_panels);
+}
+
+void OnFontChanged(MainWindow* mw)
+{
+    Graphics_fontList_free();
+    DeleteObject(g_math_font);
+
+    HDC hdc = GetDC(mw->_baseWindow._hWnd);
+    int lfHeight = -MulDiv((int)_fontProp._size, GetDeviceCaps(hdc, LOGPIXELSY), 72);
+    g_math_font = CreateFont(lfHeight, 0, 0, 0, _fontProp._bold,
+        _fontProp._italic ? FALSE : TRUE, 0, 0, 0, 0, 0, 0, 0, _fontProp._family);
+    ReleaseDC(mw->_baseWindow._hWnd, hdc);
+
+    FontHandle fh;
+    fh._hfont = g_math_font;
+    Graphics_fontList_init(fh);
+
+    mw->_panels->_ParentFontChangedFunc(mw->_panels);
+    WindowPropertyChanged(mw);
+    InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
 
 static void OnVScroll(MainWindow* mw, WPARAM wParam)
@@ -449,8 +456,8 @@ static void OnMouseWheel(MainWindow* mw, WPARAM wParam)
 
 static void OnFocus(MainWindow* mw)
 {
-    CreateCaret(mw->_baseWindow._hWnd, (HBITMAP)NULL, 2, g_tmFixed.tmHeight);
-    ShowCaret(mw->_baseWindow._hWnd);
+    //CreateCaret(mw->_baseWindow._hWnd, (HBITMAP)NULL, 2, g_tmFixed.tmHeight);
+    //ShowCaret(mw->_baseWindow._hWnd);
 
     //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
 }
@@ -598,8 +605,8 @@ static void OnPaint(MainWindow* mw)
 
 static void OnDestroy(MainWindow* mw)
 {
-    DeleteObject(g_bold_font);
-    DeleteObject(g_fixed_font);
+    Graphics_fontList_free();
+
     DeleteObject(g_math_font);
 
     DestroyRibbon();
@@ -670,6 +677,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_RIBBON_HEIGHT_CHANGED:
         OnRibbonHeightChanged(mw, (int)wParam);
+        return 0;
+
+    case WM_RIBBON_FONT_CHANGED:
+        OnFontChanged(mw);
         return 0;
 
     case WM_DESTROY:

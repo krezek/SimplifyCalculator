@@ -5,6 +5,7 @@
 static void OnInitialze(PanelLinkedList* pll, HWND hWnd);
 static Panel* AddNewPanel(PanelLinkedList* pll);
 static void ParentPosChanged(PanelLinkedList* pll);
+static void ParentFontChanged(PanelLinkedList* pll);
 static int GetViewportWidth(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
@@ -49,6 +50,7 @@ PanelLinkedList* PanelLinkedList_init()
 
 	pll->_OnInitializeFunc = OnInitialze;
 	pll->_ParentPosChangedFunc = ParentPosChanged;
+	pll->_ParentFontChangedFunc = ParentFontChanged;
 	pll->_GetViewportWidthFunc = GetViewportWidth;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_DrawListFunc = DrawList;
@@ -136,6 +138,31 @@ static void ParentPosChanged(PanelLinkedList* pll)
 				pn->_panel->_y0 = y;
 
 				pn->_panel->_PosChangedFunc(pn->_panel);
+
+				y += pn->_panel->_height + g_margin_v;
+
+				pn = pn->_next;
+			}
+		}
+	}
+}
+
+static void ParentFontChanged(PanelLinkedList* pll)
+{
+	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
+	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
+
+	if (pll)
+	{
+		if (pll->_front)
+		{
+			PanelNode* pn = pll->_front;
+			while (pn)
+			{
+				pn->_panel->_x0 = x;
+				pn->_panel->_y0 = y;
+
+				pn->_panel->_FontChangedFunc(pn->_panel);
 
 				y += pn->_panel->_height + g_margin_v;
 

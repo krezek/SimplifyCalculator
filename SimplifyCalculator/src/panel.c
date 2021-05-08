@@ -6,6 +6,7 @@
 
 static void Draw(Panel* p, HDC hdc);
 static void PosChanged(Panel* p);
+static void FontChanged(Panel* p);
 static void CalcSize(Panel* p);
 
 static void OnKey_LeftArrow(Panel* p);
@@ -21,6 +22,8 @@ static const wchar_t* g_out_str = L"Out:";
 static const int g_margin_h = 10, g_margin_v = 10;
 static const int g_padding = 30;
 
+extern HFONT g_math_font;
+
 Panel* Panel_init(HWND hWnd)
 {
 	Panel* p = (Panel*)malloc(sizeof(Panel));
@@ -31,6 +34,7 @@ Panel* Panel_init(HWND hWnd)
 
 	p->_DrawFunc = Draw;
 	p->_PosChangedFunc = PosChanged;
+	p->_FontChangedFunc = FontChanged;
 	p->_CalcSizeFunc = CalcSize;
 	
 	p->_OnKey_LeftArrowFunc = OnKey_LeftArrow;
@@ -71,6 +75,12 @@ static void Draw(Panel* p, HDC hdc)
 
 	FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOWFRAME));
 
+	HFONT hOldFont = SelectObject(hdc,  g_math_font);
+
+	{
+		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + g_margin_h, g_in_str, wcslen(g_in_str));
+	}
+
 	if(p->_in_items)
 	{
 		//SelectObject(hdc, g_math_font);
@@ -87,12 +97,17 @@ static void Draw(Panel* p, HDC hdc)
 		p->_out_items->_drawFunc(p->_out_items, &gfx);
 	}
 
-	//SelectObject(hdc, hOldFont);
+	SelectObject(hdc, hOldFont);
 }
 
 static void PosChanged(Panel* p)
 {
 
+}
+
+static void FontChanged(Panel* p)
+{
+	CalcSize(p);
 }
 
 static void CalcSize(Panel* p)
@@ -102,6 +117,7 @@ static void CalcSize(Panel* p)
 	SIZE sz1, sz2;
 
 	HDC hdc = GetDC(p->_hWndParent);
+	SelectObject(hdc, g_math_font);
 
 	GetTextExtentPoint(hdc, g_in_str, (int)wcslen(g_in_str), &sz1);
 	GetTextExtentPoint(hdc, g_out_str, (int)wcslen(g_out_str), &sz2);
