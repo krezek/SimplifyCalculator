@@ -58,6 +58,7 @@ void BaseWindow_default(BaseWindow* _this)
 	_this->_minHeight = 500;
 
 	_this->_CreateFunc = NULL;
+	_this->_AfterCreateFunc = NULL;
 	_this->_HandleMessageFunc = NULL;
 	
 	_this->_ShowFunc = BaseWindow_Show;

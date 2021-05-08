@@ -89,7 +89,7 @@ HRESULT STDMETHODCALLTYPE OnViewChanged(IUIApplication* This, UINT32 viewId,
 
                 if (_hFrameWnd)
                 {
-                    PostMessage(_hFrameWnd, WM_RIBBON_HEIGHT_CHANGED, _uRibbonHeight, 0);
+                    SendMessage(_hFrameWnd, WM_RIBBON_HEIGHT_CHANGED, _uRibbonHeight, 0);
                 }
             }
         }

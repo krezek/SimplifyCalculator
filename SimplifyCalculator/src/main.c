@@ -49,6 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
         return -1;
     }
 
+    mainWindow->_AfterCreateFunc(mainWindow); 
     mainWindow->_ShowFunc(mainWindow, nCmdShow);
     mainWindow->_UpdateFunc(mainWindow);
 

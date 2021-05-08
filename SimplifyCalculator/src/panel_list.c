@@ -96,11 +96,6 @@ void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
 static void OnInitialze(PanelLinkedList* pll, HWND hWnd)
 {
 	pll->_hWndParent = hWnd;
-
-	pll->_x0 = 0;
-	pll->_y0 = 0;
-
-	AddNewPanel(pll);
 }
 
 static Panel* AddNewPanel(PanelLinkedList* pll)
@@ -108,7 +103,7 @@ static Panel* AddNewPanel(PanelLinkedList* pll)
 	int x, y;
 
 	x = pll->_x0 + g_margin_v;
-	y = (pll->_rear) ? (pll->_rear->_panel->_x0 + pll->_rear->_panel->_height + g_margin_h) : pll->_y0 + g_margin_h;
+	y = (pll->_rear) ? (pll->_rear->_panel->_y0 + pll->_rear->_panel->_height + g_margin_h) : pll->_y0 + g_margin_h;
 
 	Panel* p = Panel_init(pll->_hWndParent);
 	PanelLinkedList_pushpack(pll, p);

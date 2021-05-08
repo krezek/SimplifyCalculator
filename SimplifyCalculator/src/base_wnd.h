@@ -4,6 +4,7 @@
 typedef struct _BaseWindow BaseWindow;
 
 typedef BOOL (*CreateFunc)(BaseWindow* _this);
+typedef void (*AfterCreateFunc) (BaseWindow* _this);
 typedef LRESULT (*HandleMessageFunc) (BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
 typedef BOOL (*ShowFunc)(BaseWindow* _this, int nCmdShow);
 typedef BOOL (*UpdateFunc)(BaseWindow* _this);
@@ -16,6 +17,7 @@ typedef struct _BaseWindow
 	int _minWidth, _minHeight;
 
 	CreateFunc _CreateFunc;
+	AfterCreateFunc _AfterCreateFunc;
 	HandleMessageFunc _HandleMessageFunc;
 	ShowFunc _ShowFunc;
 	UpdateFunc _UpdateFunc;

@@ -24,6 +24,7 @@ static const int g_font_size = 12;
 HFONT g_bold_font, g_math_font, g_fixed_font;
 TEXTMETRIC g_tmFixed;
 
+static void AfterCreate(BaseWindow* _this);
 static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 ATOM MainWindow_RegisterClass()
@@ -79,6 +80,7 @@ MainWindow* MainWindow_init()
 
     mw->_baseWindow._HandleMessageFunc = HandleMessage;
     mw->_baseWindow._CreateFunc = Create;
+    mw->_baseWindow._AfterCreateFunc = AfterCreate;
 
     mw->_panels = PanelLinkedList_init();
 
@@ -196,8 +198,6 @@ static void OnCreate(MainWindow* mw)
     SendMessage(mw->_hWndStatusBar, WM_SIZE, 0, 0);
     GetWindowRect(mw->_hWndStatusBar, &rc);
     g_statusbar_height = rc.bottom - rc.top; 
-    
-    mw->_panels->_OnInitializeFunc(mw->_panels, mw->_baseWindow._hWnd);
 }
 
 void SetScrollbarInfo(MainWindow* mw)
@@ -263,6 +263,9 @@ static void OnSize(MainWindow* mw, int width, int height)
 void OnRibbonHeightChanged(MainWindow* mw, int height)
 {
     mw->_ribbon_height = height;
+    
+    if (!IsWindowVisible(mw->_baseWindow._hWnd))
+        return;
 
     WindowPropertyChanged(mw);
 
@@ -270,6 +273,20 @@ void OnRibbonHeightChanged(MainWindow* mw, int height)
     mw->_panels->_ParentPosChangedFunc(mw->_panels);
 
     InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
+}
+
+void AfterCreate(BaseWindow* _this)
+{
+    MainWindow* mw = (MainWindow*)_this;
+
+    mw->_panels->_x0 = 0;
+    mw->_panels->_y0 = mw->_ribbon_height;
+    mw->_panels->_width = mw->_client_width;
+    mw->_panels->_height = mw->_client_height;
+
+    mw->_panels->_OnInitializeFunc(mw->_panels, mw->_baseWindow._hWnd);
+    
+    mw->_panels->_AddNewPanelFunc(mw->_panels);
 }
 
 static void OnVScroll(MainWindow* mw, WPARAM wParam)
@@ -369,7 +386,15 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         if (GetKeyState(VK_SHIFT) < 0)
         {
             Panel* p = mw->_panels->_AddNewPanelFunc(mw->_panels);
-            SendMessage(mw->_baseWindow._hWnd, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
+            
+            RECT rc;
+            rc.left = p->_x0;
+            rc.top = p->_y0;
+            rc.right = rc.left + p->_width;
+            rc.bottom = rc.top + p->_height;
+            InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+
+            //SendMessage(mw->_baseWindow._hWnd, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
             //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
             //ShowCaret(mw->_baseWindow._hWnd);
 
