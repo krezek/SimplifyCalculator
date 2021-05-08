@@ -246,8 +246,6 @@ static void WindowPropertyChanged(MainWindow* mw)
     InvalidateRect(mw->_hWndCorner, NULL, TRUE);
         
     SetScrollbarInfo(mw);
-
-    InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
 
 static void OnSize(MainWindow* mw, int width, int height)
@@ -259,13 +257,19 @@ static void OnSize(MainWindow* mw, int width, int height)
     mw->_client_height = height;
 
     WindowPropertyChanged(mw);
+    InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
 
 void OnRibbonHeightChanged(MainWindow* mw, int height)
 {
     mw->_ribbon_height = height;
-    
+
     WindowPropertyChanged(mw);
+
+    mw->_panels->_y0 = mw->_ribbon_height;
+    mw->_panels->_ParentPosChangedFunc(mw->_panels);
+
+    InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
 
 static void OnVScroll(MainWindow* mw, WPARAM wParam)

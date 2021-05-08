@@ -5,6 +5,8 @@
 #include "panel.h"
 
 static void Draw(Panel* p, HDC hdc);
+static void PosChanged(Panel* p);
+static void CalcSize(Panel* p);
 
 static void OnKey_LeftArrow(Panel* p);
 static void OnKey_RightArrow(Panel* p);
@@ -28,6 +30,8 @@ Panel* Panel_init(HWND hWnd)
 	p->_out_items = NULL;
 
 	p->_DrawFunc = Draw;
+	p->_PosChangedFunc = PosChanged;
+	p->_CalcSizeFunc = CalcSize;
 	
 	p->_OnKey_LeftArrowFunc = OnKey_LeftArrow;
 	p->_OnKey_RightArrowFunc = OnKey_RightArrow;
@@ -56,6 +60,7 @@ void Panel_free(Panel* p)
 
 	free(p);
 }
+
 static void Draw(Panel* p, HDC hdc)
 {
 	RECT rc;
@@ -83,6 +88,46 @@ static void Draw(Panel* p, HDC hdc)
 	}
 
 	//SelectObject(hdc, hOldFont);
+}
+
+static void PosChanged(Panel* p)
+{
+
+}
+
+static void CalcSize(Panel* p)
+{
+	int cnt_width = 0, var_width = 0;
+	int var_height = 0;
+	SIZE sz1, sz2;
+
+	HDC hdc = GetDC(p->_hWndParent);
+
+	GetTextExtentPoint(hdc, g_in_str, (int)wcslen(g_in_str), &sz1);
+	GetTextExtentPoint(hdc, g_out_str, (int)wcslen(g_out_str), &sz2);
+	cnt_width = max(sz1.cx, sz2.cx);
+
+	if (p->_in_items)
+	{
+		var_width += max(var_width, p->_in_items->_width);
+		var_height += max(sz1.cy, p->_in_items->_height);
+	}
+
+	if (p->_out_items)
+	{
+		var_width += max(var_width, p->_out_items->_width);
+		var_height += max(sz2.cy, p->_out_items->_height);
+	}
+
+	var_height = max(var_height, max(sz1.cy, sz2.cy));
+
+	if (p->_in_items && p->_out_items)
+		var_height += g_margin_h;
+
+	p->_width = cnt_width + var_width + g_padding + 2 * g_margin_v;
+	p->_height = var_height + 2 * g_margin_h;
+
+	ReleaseDC(p->_hWndParent, hdc);
 }
 
 /*static void Panel_Update(Panel* p)

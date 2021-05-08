@@ -10,6 +10,8 @@
 typedef struct _Panel Panel;
 
 typedef void (*DrawFunc)(Panel* p, HDC hdc);
+typedef void (*PosChangedFunc)(Panel* p);
+typedef void (*CalcSizeFunc)(Panel* p);
 
 typedef void (*OnKey_LeftArrowFunc)(Panel* p);
 typedef void (*OnKey_RightArrowFunc)(Panel* p);
@@ -27,6 +29,8 @@ typedef struct _Panel
 	Item* _out_items;
 
 	DrawFunc _DrawFunc;
+	PosChangedFunc _PosChangedFunc;
+	CalcSizeFunc _CalcSizeFunc;
 	
 	OnKey_LeftArrowFunc _OnKey_LeftArrowFunc;
 	OnKey_RightArrowFunc _OnKey_RightArrowFunc;

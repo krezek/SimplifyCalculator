@@ -97,15 +97,28 @@ static void OnInitialze(PanelLinkedList* pll, HWND hWnd)
 {
 	pll->_hWndParent = hWnd;
 
+	pll->_x0 = 0;
+	pll->_y0 = 0;
+
 	AddNewPanel(pll);
 }
 
 static Panel* AddNewPanel(PanelLinkedList* pll)
 {
+	int x, y;
+
+	x = pll->_x0 + g_margin_v;
+	y = (pll->_rear) ? (pll->_rear->_panel->_x0 + pll->_rear->_panel->_height + g_margin_h) : pll->_y0 + g_margin_h;
+
 	Panel* p = Panel_init(pll->_hWndParent);
 	PanelLinkedList_pushpack(pll, p);
-
 	pll->_selected_panel = p;
+
+	p->_x0 = x;
+	p->_y0 = y;
+
+	p->_CalcSizeFunc(p);
+	
 	return p;
 }
 
@@ -124,7 +137,7 @@ static void ParentPosChanged(PanelLinkedList* pll)
 				pn->_panel->_x0 = x;
 				pn->_panel->_y0 = y;
 
-				//pn->_panel->_OnPropertyChangedFunc(pn->_panel);
+				pn->_panel->_PosChangedFunc(pn->_panel);
 
 				y += pn->_panel->_height + g_margin_v;
 
