@@ -78,12 +78,11 @@ static void Draw(Panel* p, HDC hdc)
 	HFONT hOldFont = SelectObject(hdc,  g_math_font);
 
 	{
-		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + g_margin_h, g_in_str, wcslen(g_in_str));
+		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + g_margin_h, g_in_str, (int)wcslen(g_in_str));
 	}
 
 	if(p->_in_items)
 	{
-		//SelectObject(hdc, g_math_font);
 		Graphics gfx;
 		gfx._hdc = hdc;
 		p->_in_items->_drawFunc(p->_in_items, &gfx);
@@ -91,7 +90,6 @@ static void Draw(Panel* p, HDC hdc)
 
 	if (p->_out_items)
 	{
-		//SelectObject(hdc, g_math_font);
 		Graphics gfx;
 		gfx._hdc = hdc;
 		p->_out_items->_drawFunc(p->_out_items, &gfx);
@@ -119,20 +117,23 @@ static void CalcSize(Panel* p)
 	HDC hdc = GetDC(p->_hWndParent);
 	SelectObject(hdc, g_math_font);
 
+	Graphics gfx;
+	gfx._hdc = hdc;
+	
 	GetTextExtentPoint(hdc, g_in_str, (int)wcslen(g_in_str), &sz1);
 	GetTextExtentPoint(hdc, g_out_str, (int)wcslen(g_out_str), &sz2);
 	cnt_width = max(sz1.cx, sz2.cx);
 
 	if (p->_in_items)
 	{
-		var_width += max(var_width, p->_in_items->_width);
-		var_height += max(sz1.cy, p->_in_items->_height);
+		var_width += max(var_width, p->_in_items->_widthFunc(p->_in_items, &gfx));
+		var_height += max(sz1.cy, p->_in_items->_heightFunc(p->_in_items, &gfx));
 	}
 
 	if (p->_out_items)
 	{
-		var_width += max(var_width, p->_out_items->_width);
-		var_height += max(sz2.cy, p->_out_items->_height);
+		var_width += max(var_width, p->_out_items->_widthFunc(p->_out_items, &gfx));
+		var_height += max(sz2.cy, p->_out_items->_heightFunc(p->_out_items, &gfx));
 	}
 
 	var_height = max(var_height, max(sz1.cy, sz2.cy));

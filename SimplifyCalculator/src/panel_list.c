@@ -1,6 +1,7 @@
 #include "platform.h"
 
 #include "panel_list.h"
+#include <parser.h>
 
 static void OnInitialze(PanelLinkedList* pll, HWND hWnd);
 static Panel* AddNewPanel(PanelLinkedList* pll);
@@ -11,7 +12,7 @@ static int GetViewportHeight(PanelLinkedList* pll);
 static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
 
 static const int g_margin_h = 10, g_margin_v = 10;
-
+extern HFONT g_math_font;
 
 PanelNode* PanelNode_init(Panel* p, PanelNode* nxt, PanelNode* prv)
 {
