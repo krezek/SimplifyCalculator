@@ -49,6 +49,7 @@ PanelLinkedList* PanelLinkedList_init()
 
 	pll->_OnInitializeFunc = OnInitialze;
 	pll->_ParentPosChangedFunc = ParentPosChanged;
+	pll->_GetViewportWidthFunc = GetViewportWidth;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_DrawListFunc = DrawList;
 	pll->_AddNewPanelFunc = AddNewPanel;
@@ -104,6 +105,8 @@ static Panel* AddNewPanel(PanelLinkedList* pll)
 
 	x = pll->_x0 + g_margin_v;
 	y = (pll->_rear) ? (pll->_rear->_panel->_y0 + pll->_rear->_panel->_height + g_margin_h) : pll->_y0 + g_margin_h;
+	x -= pll->_x_current_pos;
+	y -= pll->_y_current_pos;
 
 	Panel* p = Panel_init(pll->_hWndParent);
 	PanelLinkedList_pushpack(pll, p);
@@ -158,6 +161,8 @@ static int GetViewportWidth(PanelLinkedList* pll)
 			}
 		}
 	}
+
+	w += g_margin_v * 2;
 
 	return w;
 }

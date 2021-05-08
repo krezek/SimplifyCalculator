@@ -76,7 +76,7 @@ MainWindow* MainWindow_init()
     mw->_client_width = mw->_client_height = 0;
     mw->_ribbon_height = 0;
     mw->_x_current_pos = mw->_y_current_pos = 0;
-    mw->_yMaxScroll = 0;
+    mw->_xMaxScroll = mw->_yMaxScroll = 0;
 
     mw->_baseWindow._HandleMessageFunc = HandleMessage;
     mw->_baseWindow._CreateFunc = Create;
@@ -202,19 +202,33 @@ static void OnCreate(MainWindow* mw)
 
 void SetScrollbarInfo(MainWindow* mw)
 {
-    SCROLLINFO si;
+    SCROLLINFO siv, sih;
 
     int v1 = mw->_y_current_pos;
-    int v2 = mw->_panels->_GetViewportHeightFunc(mw->_panels) - mw->_client_height - v1 + g_statusbar_height;
+    int v2 = mw->_panels->_GetViewportHeightFunc(mw->_panels) - 
+        mw->_client_height - v1 + mw->_ribbon_height + g_statusbar_height + g_scrollbar_width;
     int v = v1 + (v2 > 0 ? v2 : 0);
 
     mw->_yMaxScroll = v;
-    si.cbSize = sizeof(si);
-    si.fMask = SIF_RANGE | SIF_POS;
-    si.nMin = 0;
-    si.nMax = mw->_yMaxScroll;
-    si.nPos = mw->_y_current_pos;
-    SetScrollInfo(mw->_hWndVScrollBar, SB_CTL, &si, TRUE);
+    siv.cbSize = sizeof(siv);
+    siv.fMask = SIF_RANGE | SIF_POS;
+    siv.nMin = 0;
+    siv.nMax = mw->_yMaxScroll;
+    siv.nPos = mw->_y_current_pos;
+    SetScrollInfo(mw->_hWndVScrollBar, SB_CTL, &siv, TRUE);
+
+    int h1 = mw->_x_current_pos;
+    int h2 = mw->_panels->_GetViewportWidthFunc(mw->_panels) -
+        mw->_client_width - h1 + g_scrollbar_width;
+    int h = h1 + (h2 > 0 ? h2 : 0);
+
+    mw->_xMaxScroll = h;
+    sih.cbSize = sizeof(sih);
+    sih.fMask = SIF_RANGE | SIF_POS;
+    sih.nMin = 0;
+    sih.nMax = mw->_xMaxScroll;
+    sih.nPos = mw->_x_current_pos;
+    SetScrollInfo(mw->_hWndHScrollBar, SB_CTL, &sih, TRUE);
 }
 
 static void WindowPropertyChanged(MainWindow* mw)
@@ -255,6 +269,9 @@ static void OnSize(MainWindow* mw, int width, int height)
 
     mw->_client_width = width;
     mw->_client_height = height;
+
+    mw->_panels->_width = mw->_client_width;
+    mw->_panels->_height = mw->_client_height;
 
     WindowPropertyChanged(mw);
     InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
@@ -335,13 +352,12 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
 
     mw->_panels->_ParentPosChangedFunc(mw->_panels);
-    //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
 
     RECT rc;
     rc.left = 0;
-    rc.top = 0;
+    rc.top = mw->_ribbon_height;
     rc.right = mw->_client_width - g_scrollbar_width;
-    rc.bottom = mw->_client_height - g_statusbar_height;
+    rc.bottom = mw->_client_height - g_statusbar_height - g_scrollbar_width;
 
     ScrollWindowEx(mw->_baseWindow._hWnd, -xDelta, -yDelta, &rc,
         &rc, (HRGN)NULL, (RECT*)NULL,
@@ -354,6 +370,72 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
     si.fMask = SIF_POS;
     si.nPos = mw->_y_current_pos;
     SetScrollInfo(mw->_hWndVScrollBar, SB_CTL, &si, TRUE);
+}
+
+static void OnHScroll(MainWindow* mw, WPARAM wParam)
+{
+    int xDelta;
+    int xNewPos;
+    int yDelta = 0;
+
+    switch (LOWORD(wParam))
+    {
+    case SB_PAGEUP:
+        xNewPos = mw->_x_current_pos - 60;
+        break;
+
+    case SB_PAGEDOWN:
+        xNewPos = mw->_x_current_pos + 60;
+        break;
+
+    case SB_LINEUP:
+        xNewPos = mw->_x_current_pos - 20;
+        break;
+
+    case SB_LINEDOWN:
+        xNewPos = mw->_x_current_pos + 20;
+        break;
+
+    case SB_THUMBPOSITION:
+        xNewPos = HIWORD(wParam);
+        break;
+
+    default:
+        xNewPos = mw->_x_current_pos;
+    }
+
+    xNewPos = max(0, xNewPos);
+    xNewPos = min(mw->_xMaxScroll, xNewPos);
+
+    // If the current position does not change, do not scroll.
+    if (xNewPos == mw->_x_current_pos)
+        return;
+
+    // Determine the amount scrolled (in pixels). 
+    xDelta = xNewPos - mw->_x_current_pos;
+
+    // Reset the current scroll position. 
+    mw->_panels->_x_current_pos = mw->_x_current_pos = xNewPos;
+
+    mw->_panels->_ParentPosChangedFunc(mw->_panels);
+
+    RECT rc;
+    rc.left = 0;
+    rc.top = mw->_ribbon_height;
+    rc.right = mw->_client_width - g_scrollbar_width;
+    rc.bottom = mw->_client_height - g_statusbar_height - g_scrollbar_width;
+
+    ScrollWindowEx(mw->_baseWindow._hWnd, -xDelta, -yDelta, &rc,
+        &rc, (HRGN)NULL, (RECT*)NULL,
+        SW_INVALIDATE);
+    UpdateWindow(mw->_baseWindow._hWnd);
+
+    // Reset the scroll bar. 
+    SCROLLINFO si;
+    si.cbSize = sizeof(si);
+    si.fMask = SIF_POS;
+    si.nPos = mw->_x_current_pos;
+    SetScrollInfo(mw->_hWndHScrollBar, SB_CTL, &si, TRUE);
 }
 
 static void OnMouseWheel(MainWindow* mw, WPARAM wParam)
@@ -393,6 +475,8 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
             rc.right = rc.left + p->_width;
             rc.bottom = rc.top + p->_height;
             InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+
+            SetScrollbarInfo(mw);
 
             //SendMessage(mw->_baseWindow._hWnd, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
             //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
@@ -546,6 +630,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_VSCROLL:
         OnVScroll(mw, wParam);
+        return 0;
+
+    case WM_HSCROLL:
+        OnHScroll(mw, wParam);
         return 0;
 
     case WM_MOUSEWHEEL:

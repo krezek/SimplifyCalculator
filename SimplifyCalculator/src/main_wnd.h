@@ -14,7 +14,7 @@ typedef struct
 	int _client_width, _client_height;
 	int _ribbon_height;
 	int _x_current_pos, _y_current_pos;
-	int _yMaxScroll;
+	int _xMaxScroll, _yMaxScroll;
 
 	PanelLinkedList* _panels;
 } MainWindow;
