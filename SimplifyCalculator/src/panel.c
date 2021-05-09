@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "panel.h"
 
+static void OnInit(Panel* p);
 static void Draw(Panel* p, HDC hdc);
 static void PosChanged(Panel* p);
 static void FontChanged(Panel* p);
@@ -32,6 +33,7 @@ Panel* Panel_init(HWND hWnd)
 	p->_in_items = NULL;
 	p->_out_items = NULL;
 
+	p->_OnPanelInitFunc = OnInit;
 	p->_DrawFunc = Draw;
 	p->_PosChangedFunc = PosChanged;
 	p->_FontChangedFunc = FontChanged;
@@ -63,6 +65,11 @@ void Panel_free(Panel* p)
 	}
 
 	free(p);
+}
+
+static void OnInit(Panel* p)
+{
+	p->_CalcSizeFunc(p);
 }
 
 static void Draw(Panel* p, HDC hdc)

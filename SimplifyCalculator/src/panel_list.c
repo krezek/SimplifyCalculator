@@ -118,7 +118,7 @@ static Panel* AddNewPanel(PanelLinkedList* pll)
 	p->_x0 = x;
 	p->_y0 = y;
 
-	p->_CalcSizeFunc(p);
+	p->_OnPanelInitFunc(p);
 	
 	return p;
 }
