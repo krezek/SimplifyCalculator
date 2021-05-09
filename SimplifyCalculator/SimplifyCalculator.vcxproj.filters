@@ -47,6 +47,9 @@
     <ClCompile Include="src\fnthandler.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\editor.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\platform.h">
@@ -74,6 +77,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\ribbon.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

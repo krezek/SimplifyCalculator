@@ -25,6 +25,7 @@
     <ClCompile Include="src\base_wnd.c" />
     <ClCompile Include="src\calcimpl.c" />
     <ClCompile Include="src\cmdhandler.c" />
+    <ClCompile Include="src\editor.c" />
     <ClCompile Include="src\fnthandler.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\main_wnd.c" />
@@ -35,6 +36,7 @@
   <ItemGroup>
     <ClInclude Include="src\base_wnd.h" />
     <ClInclude Include="src\calcimpl.h" />
+    <ClInclude Include="src\editor.h" />
     <ClInclude Include="src\ids.h" />
     <ClInclude Include="src\main_wnd.h" />
     <ClInclude Include="src\panel.h" />
