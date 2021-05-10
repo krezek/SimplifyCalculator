@@ -8,7 +8,10 @@ static void OnInit(Panel* p);
 static void Draw(Panel* p, HDC hdc);
 static void PosChanged(Panel* p);
 static void FontChanged(Panel* p);
-static void CalcSize(Panel* p);
+static void SetCntSize(Panel* p);
+static void SetItemsSize(Panel* p);
+static void SetCoordinate(Panel* p);
+static void CalcPanelSize(Panel* p);
 
 static void OnKey_LeftArrow(Panel* p);
 static void OnKey_RightArrow(Panel* p);
@@ -21,7 +24,10 @@ static const wchar_t* g_in_str = L"In:";
 static const wchar_t* g_out_str = L"Out:";
 
 static const int g_margin_h = 10, g_margin_v = 10;
-static const int g_padding = 30;
+
+static int g_in_str_width, g_in_str_height;
+static int g_out_str_width, g_out_str_height;
+static int g_padding;
 
 extern HFONT g_math_font;
 
@@ -33,13 +39,10 @@ Panel* Panel_init(HWND hWnd)
 	p->_in_items = NULL;
 	p->_out_items = NULL;
 
-	p->_editor = NULL;
-
 	p->_OnPanelInitFunc = OnInit;
 	p->_DrawFunc = Draw;
 	p->_PosChangedFunc = PosChanged;
 	p->_FontChangedFunc = FontChanged;
-	p->_CalcSizeFunc = CalcSize;
 	
 	p->_OnKey_LeftArrowFunc = OnKey_LeftArrow;
 	p->_OnKey_RightArrowFunc = OnKey_RightArrow;
@@ -48,6 +51,8 @@ Panel* Panel_init(HWND hWnd)
 	p->_OnChar_ReturnFunc = OnChar_Return;
 
 	p->_hWndParent = hWnd;
+
+	p->_editor = Editor_init(&p->_in_items);
 
 	return p;
 }
@@ -76,7 +81,12 @@ void Panel_free(Panel* p)
 
 static void OnInit(Panel* p)
 {
-	p->_CalcSizeFunc(p);
+	p->_editor->_OnEditorInitializeFunc(p->_editor);
+
+	SetCntSize(p);
+	SetCoordinate(p);
+	SetItemsSize(p);
+	CalcPanelSize(p);
 }
 
 static void Draw(Panel* p, HDC hdc)
@@ -92,7 +102,8 @@ static void Draw(Panel* p, HDC hdc)
 	HFONT hOldFont = SelectObject(hdc,  g_math_font);
 
 	{
-		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + g_margin_h, g_in_str, (int)wcslen(g_in_str));
+		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + g_margin_h + p->_in_baseLine - g_in_str_height / 2, g_in_str, (int)wcslen(g_in_str));
+		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + 2 * g_margin_h + p->_in_height + p->_out_baseLine, g_out_str, (int)wcslen(g_out_str));
 	}
 
 	if(p->_in_items)
@@ -119,46 +130,98 @@ static void PosChanged(Panel* p)
 
 static void FontChanged(Panel* p)
 {
-	CalcSize(p);
+	SetItemsSize(p);
 }
 
-static void CalcSize(Panel* p)
+static void SetCntSize(Panel* p)
 {
-	int cnt_width = 0, var_width = 0;
-	int var_height = 0;
-	SIZE sz1, sz2;
+	SIZE sz1, sz2, sz3;
 
+	HDC hdc = GetDC(p->_hWndParent);
+	SelectObject(hdc, g_math_font);
+
+	GetTextExtentPoint(hdc, g_in_str, (int)wcslen(g_in_str), &sz1);
+	GetTextExtentPoint(hdc, g_out_str, (int)wcslen(g_out_str), &sz2);
+	GetTextExtentPoint(hdc, L"W", 1, &sz3);
+
+	g_in_str_width = sz1.cx;
+	g_in_str_height = sz1.cy;
+
+	g_out_str_width = sz2.cx;
+	g_out_str_height = sz2.cy;
+
+	g_padding = sz3.cx;
+
+	ReleaseDC(p->_hWndParent, hdc);
+}
+
+static void SetItemsSize(Panel* p)
+{
 	HDC hdc = GetDC(p->_hWndParent);
 	SelectObject(hdc, g_math_font);
 
 	Graphics gfx;
 	gfx._hdc = hdc;
 	
-	GetTextExtentPoint(hdc, g_in_str, (int)wcslen(g_in_str), &sz1);
-	GetTextExtentPoint(hdc, g_out_str, (int)wcslen(g_out_str), &sz2);
-	cnt_width = max(sz1.cx, sz2.cx);
+	p->_in_width = p->_in_height = 0;
+	p->_out_width = p->_out_height = 0;
 
 	if (p->_in_items)
 	{
-		var_width += max(var_width, p->_in_items->_widthFunc(p->_in_items, &gfx));
-		var_height += max(sz1.cy, p->_in_items->_heightFunc(p->_in_items, &gfx));
+		p->_in_width = p->_in_items->_widthFunc(p->_in_items, &gfx);
+		p->_in_height = p->_in_items->_heightFunc(p->_in_items, &gfx);
 	}
 
 	if (p->_out_items)
 	{
-		var_width += max(var_width, p->_out_items->_widthFunc(p->_out_items, &gfx));
-		var_height += max(sz2.cy, p->_out_items->_heightFunc(p->_out_items, &gfx));
+		p->_out_width = p->_out_items->_widthFunc(p->_out_items, &gfx);
+		p->_out_height = p->_out_items->_heightFunc(p->_out_items, &gfx);
 	}
 
-	var_height = max(var_height, max(sz1.cy, sz2.cy));
+	ReleaseDC(p->_hWndParent, hdc);
+}
 
-	if (p->_in_items && p->_out_items)
-		var_height += g_margin_h;
+static void SetCoordinate(Panel* p)
+{
+	HDC hdc = GetDC(p->_hWndParent);
+	SelectObject(hdc, g_math_font);
 
-	p->_width = cnt_width + var_width + g_padding + 2 * g_margin_v;
-	p->_height = var_height + 2 * g_margin_h;
+	Graphics gfx;
+	gfx._hdc = hdc;
+
+	FontHandle fh;
+	fh._hfont = g_math_font;
+
+	p->_in_baseLine = p->_out_baseLine = 0;
+	int x = p->_x0 + g_margin_v + max(g_in_str_width, g_out_str_width) + g_padding;
+
+	if (p->_in_items)
+	{
+		p->_in_baseLine = p->_in_items->_baseLineFunc(p->_in_items, &gfx);
+
+		p->_in_items->_setFontFunc(p->_in_items, fh);
+		p->_in_items->_calcCoordinateFunc(p->_in_items, &gfx, 
+			x, 
+			p->_in_baseLine + p->_y0 + g_margin_h);
+	}
+	
+	if (p->_out_items)
+	{
+		p->_out_baseLine = p->_out_items->_baseLineFunc(p->_out_items, &gfx);
+
+		p->_out_items->_setFontFunc(p->_out_items, fh);
+		p->_out_items->_calcCoordinateFunc(p->_out_items, &gfx, 
+			x, 
+			p->_out_baseLine + p->_y0 + g_margin_h);
+	}
 
 	ReleaseDC(p->_hWndParent, hdc);
+}
+
+static void CalcPanelSize(Panel* p)
+{
+	p->_width = 2 * g_margin_v + max(g_in_str_width, g_out_str_width) + g_padding + max(p->_in_width, p->_out_width);
+	p->_height = max(g_in_str_height, p->_in_height) + max(g_out_str_height, p->_out_height) + 3 * g_margin_h;
 }
 
 /*static void Panel_Update(Panel* p)

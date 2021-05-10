@@ -1,6 +1,9 @@
 #include "platform.h"
 
 #include "editor.h"
+#include <parser.h>
+
+static void OnInitialize(Editor* ed);
 
 EditorNode* EditorNode_init(Item* itm, NodeType nt, String* str, int index, EditorNode* n, EditorNode* p)
 {
@@ -70,15 +73,17 @@ void LinkedList_free(EditorLinkedList* ll)
 	}
 }
 
-Editor* Editor_init()
+Editor* Editor_init(Item** pItems)
 {
 	Editor* ed = (Editor*)malloc(sizeof(Editor));
 	assert(ed != NULL);
 
 	ed->_hWnd = NULL;
-	ed->_items = NULL;
+	ed->_pItems = pItems;
 	ed->_itemsOrder = NULL;
 	ed->_current_node = NULL;
+
+	ed->_OnEditorInitializeFunc = OnInitialize;
 
 	return ed;
 }
@@ -86,4 +91,13 @@ Editor* Editor_init()
 void Editor_free(Editor* ed)
 {
 	free(ed);
+}
+
+static void OnInitialize(Editor* ed)
+{
+	int rs = parse(ed->_pItems, L"x_1=(-b+sqrt(b^2-4*a*c))/(2*a),x_2=(-b-sqrt(b^2-4*a*c))/(2*a)");
+	if (rs)
+	{
+		wprintf(L"Editor:OnInitialize:parse Error\n");
+	}
 }

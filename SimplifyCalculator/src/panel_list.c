@@ -1,7 +1,6 @@
 #include "platform.h"
 
 #include "panel_list.h"
-#include <parser.h>
 
 static void OnInitialze(PanelLinkedList* pll, HWND hWnd);
 static Panel* AddNewPanel(PanelLinkedList* pll);

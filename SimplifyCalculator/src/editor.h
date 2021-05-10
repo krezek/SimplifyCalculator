@@ -5,6 +5,9 @@
 #include <strg.h>
 
 typedef enum { NT_Null, NT_Begin, NT_End, NT_Number, NT_Literal } NodeType;
+typedef struct _Editor Editor;
+
+typedef void (*OnEditorInitializeFunc) (Editor* ed);
 
 typedef struct _EditorNode
 {
@@ -24,15 +27,17 @@ typedef struct
 	EditorNode* _rear;
 } EditorLinkedList;
 
-typedef struct
+typedef struct _Editor
 {
 	HWND _hWnd;
-	Item* _items;
+	Item** _pItems;
 	EditorLinkedList* _itemsOrder;
 	EditorNode* _current_node;
+
+	OnEditorInitializeFunc _OnEditorInitializeFunc;
 } Editor;
 
-Editor* Editor_init();
+Editor* Editor_init(Item** pitems);
 void Editor_free(Editor* ed);
 
 
