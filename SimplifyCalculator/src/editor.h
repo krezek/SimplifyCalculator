@@ -32,6 +32,9 @@ typedef struct
 	EditorNode* _current_node;
 } Editor;
 
+Editor* Editor_init();
+void Editor_free(Editor* ed);
+
 
 #endif /* _EDITOR_H_ */
 

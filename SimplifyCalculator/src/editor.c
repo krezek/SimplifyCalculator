@@ -69,3 +69,21 @@ void LinkedList_free(EditorLinkedList* ll)
 		free(ll);
 	}
 }
+
+Editor* Editor_init()
+{
+	Editor* ed = (Editor*)malloc(sizeof(Editor));
+	assert(ed != NULL);
+
+	ed->_hWnd = NULL;
+	ed->_items = NULL;
+	ed->_itemsOrder = NULL;
+	ed->_current_node = NULL;
+
+	return ed;
+}
+
+void Editor_free(Editor* ed)
+{
+	free(ed);
+}

@@ -3,6 +3,7 @@
 
 #include "strg.h"
 #include "items.h"
+#include "editor.h"
 
 #define WM_PANEL_REPAINT WM_USER + 1
 #define WM_PANEL_SIZE_CHANGED WM_USER + 2
@@ -29,6 +30,8 @@ typedef struct _Panel
 	
 	Item* _in_items;
 	Item* _out_items;
+
+	Editor* _editor;
 
 	OnPanelInitFunc _OnPanelInitFunc;
 	DrawFunc _DrawFunc;

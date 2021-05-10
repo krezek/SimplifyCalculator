@@ -33,6 +33,8 @@ Panel* Panel_init(HWND hWnd)
 	p->_in_items = NULL;
 	p->_out_items = NULL;
 
+	p->_editor = NULL;
+
 	p->_OnPanelInitFunc = OnInit;
 	p->_DrawFunc = Draw;
 	p->_PosChangedFunc = PosChanged;
@@ -52,6 +54,11 @@ Panel* Panel_init(HWND hWnd)
 
 void Panel_free(Panel* p)
 {
+	if (p->_editor)
+	{
+		Editor_free(p->_editor);
+	}
+
 	if (p->_in_items)
 	{
 		ItemTree_free(&p->_in_items);
