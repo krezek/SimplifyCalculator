@@ -125,12 +125,15 @@ static void Draw(Panel* p, HDC hdc)
 
 static void PosChanged(Panel* p)
 {
-
+	SetCoordinate(p);
 }
 
 static void FontChanged(Panel* p)
 {
+	SetCntSize(p);
+	SetCoordinate(p);
 	SetItemsSize(p);
+	CalcPanelSize(p);
 }
 
 static void SetCntSize(Panel* p)
