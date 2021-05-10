@@ -22,3 +22,6 @@
 /SimplifyCalculator/ids.h
 /SimplifyCalculator/ribbon.bml
 /SimplifyCalculator/ribbonui.rc
+/BigInteger/Debug
+/BigInteger/Release
+/BigInteger/x64
