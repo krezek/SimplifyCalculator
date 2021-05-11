@@ -310,6 +310,11 @@ void OnFontChanged(MainWindow* mw)
 
     mw->_panels->_ParentFontChangedFunc(mw->_panels);
     WindowPropertyChanged(mw);
+
+    if (mw->_panels->_selected_panel)
+        if (mw->_panels->_selected_panel->_editor)
+            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+
     InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
 
@@ -359,6 +364,9 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
 
     mw->_panels->_ParentPosChangedFunc(mw->_panels);
+    if (mw->_panels->_selected_panel)
+        if (mw->_panels->_selected_panel->_editor)
+            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
     RECT rc;
     rc.left = 0;
@@ -425,6 +433,9 @@ static void OnHScroll(MainWindow* mw, WPARAM wParam)
     mw->_panels->_x_current_pos = mw->_x_current_pos = xNewPos;
 
     mw->_panels->_ParentPosChangedFunc(mw->_panels);
+    if (mw->_panels->_selected_panel)
+        if (mw->_panels->_selected_panel->_editor)
+            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
     RECT rc;
     rc.left = 0;
@@ -471,20 +482,26 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     case VK_RETURN:
         if (GetKeyState(VK_SHIFT) < 0)
         {
+            RECT rc1, rc2;
+
+            // Remove old selection
+            rc1 = mw->_panels->_selected_panel->_GetRectFunc(mw->_panels->_selected_panel);
+            (*mw->_panels->_selected_panel->_editor->_current_node->_pItem)->_setFocusFunc(
+                *mw->_panels->_selected_panel->_editor->_current_node->_pItem, 0);
+            InvalidateRect(mw->_baseWindow._hWnd, &rc1, TRUE);
+
+
+            // Adding new panel
             Panel* p = mw->_panels->_AddNewPanelFunc(mw->_panels);
-            
-            RECT rc;
-            rc.left = p->_x0;
-            rc.top = p->_y0;
-            rc.right = rc.left + p->_width;
-            rc.bottom = rc.top + p->_height;
-            InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+            rc2 = rc1 = mw->_panels->_selected_panel->_GetRectFunc(mw->_panels->_selected_panel);
+            InvalidateRect(mw->_baseWindow._hWnd, &rc2, TRUE);
 
             SetScrollbarInfo(mw);
 
-            //SendMessage(mw->_baseWindow._hWnd, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
-            //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
-            //ShowCaret(mw->_baseWindow._hWnd);
+            // update caret position
+            if (mw->_panels->_selected_panel)
+                if (mw->_panels->_selected_panel->_editor)
+                    mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
         }
         else

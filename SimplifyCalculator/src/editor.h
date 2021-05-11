@@ -12,6 +12,7 @@ typedef void (*OnStopEditingFunc) (Editor* ed);
 
 typedef void (*OnEditorSetFocusFunc)(Editor* ed);
 typedef void (*OnEditorKillFocusFunc)(Editor* ed);
+typedef void (*OnEditorUpdateCaretFunc)(Editor* ed);
 
 typedef void (*OnKey_EditorLeftArrowFunc)(Editor* ed);
 typedef void (*OnKey_EditorRightArrowFunc)(Editor* ed);
@@ -49,6 +50,7 @@ typedef struct _Editor
 
 	OnEditorSetFocusFunc _OnSetFocusFunc;
 	OnEditorKillFocusFunc _OnKillFocusFunc;
+	OnEditorUpdateCaretFunc _OnUpdateCaret;
 
 	OnKey_EditorLeftArrowFunc _OnKey_LeftArrowFunc;
 	OnKey_EditorRightArrowFunc _OnKey_RightArrowFunc;

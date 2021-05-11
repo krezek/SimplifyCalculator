@@ -105,6 +105,7 @@ Editor* Editor_init(Item** pItems)
 
 	ed->_OnSetFocusFunc = OnSetFocus;
 	ed->_OnKillFocusFunc = OnKillFocus;
+	ed->_OnUpdateCaret = UpdateCaret;
 
 	ed->_OnKey_LeftArrowFunc = OnKey_LeftArrow;
 	ed->_OnKey_RightArrowFunc = OnKey_RightArrow;
@@ -269,6 +270,17 @@ static void OnKillFocus(Editor* ed)
 
 static void OnKey_LeftArrow(Editor* ed)
 {
+	if (ed->_current_node->_nodeType == NT_Number ||
+		ed->_current_node->_nodeType == NT_Literal)
+	{
+		if (ed->_current_node->_index > 0)
+		{
+			ed->_current_node->_index -= 1;
+			UpdateCaret(ed);
+			return;
+		}
+	}
+
 	EditorNode* prevNode = get_prev_node(ed, ed->_current_node);
 
 	if (!prevNode)
@@ -283,6 +295,17 @@ static void OnKey_LeftArrow(Editor* ed)
 
 static void OnKey_RightArrow(Editor* ed)
 {
+	if (ed->_current_node->_nodeType == NT_Number ||
+		ed->_current_node->_nodeType == NT_Literal)
+	{
+		if (ed->_current_node->_index < (int)ed->_current_node->_str->_len)
+		{
+			ed->_current_node->_index += 1;
+			UpdateCaret(ed);
+			return;
+		}
+	}
+
 	EditorNode* nextNode = get_next_node(ed, ed->_current_node);
 
 	if (!nextNode)
