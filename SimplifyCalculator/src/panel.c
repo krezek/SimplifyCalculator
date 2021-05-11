@@ -14,6 +14,9 @@ static void SetItemsSize(Panel* p);
 static void SetCoordinate(Panel* p);
 static void CalcPanelSize(Panel* p);
 
+static void OnSetFocus(Panel* p);
+static void OnKillFocus(Panel* p);
+
 static void OnKey_LeftArrow(Panel* p);
 static void OnKey_RightArrow(Panel* p);
 
@@ -46,6 +49,9 @@ Panel* Panel_init(HWND hWnd)
 	p->_DrawFunc = Draw;
 	p->_PosChangedFunc = PosChanged;
 	p->_FontChangedFunc = FontChanged;
+	
+	p->_OnSetFocusFunc = OnSetFocus;
+	p->_OnKillFocusFunc = OnKillFocus;
 	
 	p->_OnKey_LeftArrowFunc = OnKey_LeftArrow;
 	p->_OnKey_RightArrowFunc = OnKey_RightArrow;
@@ -97,6 +103,7 @@ static RECT GetRect(Panel* p)
 
 static void OnInit(Panel* p)
 {
+	p->_editor->_hWnd = p->_hWndParent;
 	p->_editor->_OnEditorInitializeFunc(p->_editor);
 
 	SetCntSize(p);
@@ -257,6 +264,18 @@ static void CalcPanelSize(Panel* p)
 		PostMessage(p->_hWndParent, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
 	}
 }*/
+
+static void OnSetFocus(Panel* p)
+{
+	if (p->_editor)
+		p->_editor->_OnSetFocusFunc(p->_editor);
+}
+
+static void OnKillFocus(Panel* p)
+{
+	if (p->_editor)
+		p->_editor->_OnKillFocusFunc(p->_editor);
+}
 
 static void OnKey_LeftArrow(Panel* p)
 {

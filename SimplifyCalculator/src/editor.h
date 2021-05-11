@@ -10,6 +10,9 @@ typedef struct _Editor Editor;
 typedef void (*OnEditorInitializeFunc) (Editor* ed);
 typedef void (*OnStopEditingFunc) (Editor* ed);
 
+typedef void (*OnEditorSetFocusFunc)(Editor* ed);
+typedef void (*OnEditorKillFocusFunc)(Editor* ed);
+
 typedef void (*OnKey_EditorLeftArrowFunc)(Editor* ed);
 typedef void (*OnKey_EditorRightArrowFunc)(Editor* ed);
 typedef void (*OnChar_EditorDefaultFunc)(Editor* ed, wchar_t ch);
@@ -43,6 +46,9 @@ typedef struct _Editor
 
 	OnEditorInitializeFunc _OnEditorInitializeFunc;
 	OnStopEditingFunc _OnStopEditingFunc;
+
+	OnEditorSetFocusFunc _OnSetFocusFunc;
+	OnEditorKillFocusFunc _OnKillFocusFunc;
 
 	OnKey_EditorLeftArrowFunc _OnKey_LeftArrowFunc;
 	OnKey_EditorRightArrowFunc _OnKey_RightArrowFunc;

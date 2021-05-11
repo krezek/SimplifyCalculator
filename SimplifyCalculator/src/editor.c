@@ -6,6 +6,10 @@
 static void OnInitialize(Editor* ed);
 static void OnStopEditing(Editor* ed);
 
+static void UpdateCaret(Editor* ed);
+static void OnSetFocus(Editor* ed);
+static void OnKillFocus(Editor* ed);
+
 static void OnKey_LeftArrow(Editor* ed);
 static void OnKey_RightArrow(Editor* ed);
 static void OnChar_Default(Editor* ed, wchar_t ch);
@@ -98,6 +102,9 @@ Editor* Editor_init(Item** pItems)
 
 	ed->_OnEditorInitializeFunc = OnInitialize;
 	ed->_OnStopEditingFunc = OnStopEditing;
+
+	ed->_OnSetFocusFunc = OnSetFocus;
+	ed->_OnKillFocusFunc = OnKillFocus;
 
 	ed->_OnKey_LeftArrowFunc = OnKey_LeftArrow;
 	ed->_OnKey_RightArrowFunc = OnKey_RightArrow;
@@ -218,6 +225,48 @@ void TreeWalker(Editor* ed, Item** pItem)
 	}
 }
 
+static void UpdateCaret(Editor* ed)
+{
+	CreateCaret(ed->_hWnd, (HBITMAP)NULL, 2, (*ed->_current_node->_pItem)->_height);
+
+	if (ed->_current_node->_nodeType == NT_Begin ||
+		ed->_current_node->_nodeType == NT_Null)
+	{
+		SetCaretPos((*ed->_current_node->_pItem)->_x, 
+			(*ed->_current_node->_pItem)->_y - (*ed->_current_node->_pItem)->_baseLine);
+	}
+	else if (ed->_current_node->_nodeType == NT_End)
+	{
+		SetCaretPos((*ed->_current_node->_pItem)->_x + (*ed->_current_node->_pItem)->_width, 
+			(*ed->_current_node->_pItem)->_y - (*ed->_current_node->_pItem)->_baseLine);
+	}
+	else if (ed->_current_node->_nodeType == NT_Number ||
+		ed->_current_node->_nodeType == NT_Literal)
+	{
+		SIZE s;
+
+		HDC hdc = GetDC(ed->_hWnd);
+		SelectObject(hdc, (*ed->_current_node->_pItem)->_hFont._hfont);
+		GetTextExtentPoint32(hdc, ed->_current_node->_str->_str, ed->_current_node->_index, &s);
+		ReleaseDC(ed->_hWnd, hdc);
+
+		SetCaretPos((*ed->_current_node->_pItem)->_x + s.cx, 
+			(*ed->_current_node->_pItem)->_y - (*ed->_current_node->_pItem)->_baseLine);
+	}
+
+	ShowCaret(ed->_hWnd);
+}
+
+static void OnSetFocus(Editor* ed)
+{
+	UpdateCaret(ed);
+}
+
+static void OnKillFocus(Editor* ed)
+{
+	DestroyCaret();
+}
+
 static void OnKey_LeftArrow(Editor* ed)
 {
 	EditorNode* prevNode = get_prev_node(ed, ed->_current_node);
@@ -228,6 +277,8 @@ static void OnKey_LeftArrow(Editor* ed)
 	(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
 	(*prevNode->_pItem)->_setFocusFunc(*prevNode->_pItem, 1);
 	ed->_current_node = prevNode;
+
+	UpdateCaret(ed);
 }
 
 static void OnKey_RightArrow(Editor* ed)
@@ -240,6 +291,8 @@ static void OnKey_RightArrow(Editor* ed)
 	(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
 	(*nextNode->_pItem)->_setFocusFunc(*nextNode->_pItem, 1);
 	ed->_current_node = nextNode;
+
+	UpdateCaret(ed);
 }
 
 static void OnChar_Default(Editor* ed, wchar_t ch)

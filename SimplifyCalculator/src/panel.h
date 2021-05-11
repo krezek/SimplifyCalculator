@@ -17,6 +17,9 @@ typedef void (*DrawFunc)(Panel* p, HDC hdc);
 typedef void (*PosChangedFunc)(Panel* p);
 typedef void (*FontChangedFunc)(Panel* p);
 
+typedef void (*OnPanelSetFocusFunc)(Panel* p);
+typedef void (*OnPanelKillFocusFunc)(Panel* p);
+
 typedef void (*OnKey_PanelLeftArrowFunc)(Panel* p);
 typedef void (*OnKey_PanelRightArrowFunc)(Panel* p);
 typedef void (*OnChar_PanelDefaultFunc)(Panel* p, wchar_t ch);
@@ -42,6 +45,9 @@ typedef struct _Panel
 	DrawFunc _DrawFunc;
 	PosChangedFunc _PosChangedFunc;
 	FontChangedFunc _FontChangedFunc;
+
+	OnPanelSetFocusFunc _OnSetFocusFunc;
+	OnPanelKillFocusFunc _OnKillFocusFunc;
 	
 	OnKey_PanelLeftArrowFunc _OnKey_LeftArrowFunc;
 	OnKey_PanelRightArrowFunc _OnKey_RightArrowFunc;

@@ -454,17 +454,14 @@ static void OnMouseWheel(MainWindow* mw, WPARAM wParam)
         PostMessage(mw->_baseWindow._hWnd, WM_VSCROLL, MAKEWPARAM(SB_LINEUP, 0), 0);
 }
 
-static void OnFocus(MainWindow* mw)
+static void OnSetFocus(MainWindow* mw)
 {
-    //CreateCaret(mw->_baseWindow._hWnd, (HBITMAP)NULL, 2, g_tmFixed.tmHeight);
-    //ShowCaret(mw->_baseWindow._hWnd);
-
-    //mw->_panels->_selected_panel->_UpdateCaretPosFunc(mw->_panels->_selected_panel);
+    mw->_panels->_selected_panel->_OnSetFocusFunc(mw->_panels->_selected_panel);
 }
 
 static void OnKillFocus(MainWindow* mw)
 {
-    DestroyCaret();
+    mw->_panels->_selected_panel->_OnKillFocusFunc(mw->_panels->_selected_panel);
 }
 
 static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
@@ -656,7 +653,7 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         return 0;
 
     case WM_SETFOCUS:
-        OnFocus(mw);
+        OnSetFocus(mw);
         return 0;
 
     case WM_KILLFOCUS:
