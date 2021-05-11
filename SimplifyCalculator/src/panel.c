@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "panel.h"
 
+static RECT GetRect(Panel* p);
 static void OnInit(Panel* p);
 static void Draw(Panel* p, HDC hdc);
 static void PosChanged(Panel* p);
@@ -38,6 +39,8 @@ Panel* Panel_init(HWND hWnd)
 
 	p->_in_items = NULL;
 	p->_out_items = NULL;
+
+	p->_GetRectFunc = GetRect;
 
 	p->_OnPanelInitFunc = OnInit;
 	p->_DrawFunc = Draw;
@@ -77,6 +80,19 @@ void Panel_free(Panel* p)
 	}
 
 	free(p);
+}
+
+static RECT GetRect(Panel* p)
+{
+	RECT rc;
+
+	rc.left = p->_x0;
+	rc.top = p->_y0;
+
+	rc.right = rc.left + p->_width;
+	rc.bottom = rc.top + p->_height;
+
+	return rc;
 }
 
 static void OnInit(Panel* p)
@@ -244,10 +260,14 @@ static void CalcPanelSize(Panel* p)
 
 static void OnKey_LeftArrow(Panel* p)
 {
+	if (p->_editor)
+		p->_editor->_OnKey_LeftArrowFunc(p->_editor);
 }
 
 static void OnKey_RightArrow(Panel* p)
 {
+	if (p->_editor)
+		p->_editor->_OnKey_RightArrowFunc(p->_editor);
 }
 
 static void OnChar_Default(Panel* p, wchar_t ch)

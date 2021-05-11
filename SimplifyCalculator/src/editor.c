@@ -6,8 +6,17 @@
 static void OnInitialize(Editor* ed);
 static void OnStopEditing(Editor* ed);
 
+static void OnKey_LeftArrow(Editor* ed);
+static void OnKey_RightArrow(Editor* ed);
+static void OnChar_Default(Editor* ed, wchar_t ch);
+static void OnChar_Backspace(Editor* ed);
+static void OnChar_Return(Editor* ed);
+
 static void Update_ItemsOrder(Editor* ed);
 static void TreeWalker(Editor* ed, Item** pItem);
+
+static EditorNode* get_next_node(Editor* ed, EditorNode* node);
+static EditorNode* get_prev_node(Editor* ed, EditorNode* node);
 
 EditorNode* EditorNode_init(Item** pIm, NodeType nt, String* str, int index, EditorNode* n, EditorNode* p)
 {
@@ -90,6 +99,12 @@ Editor* Editor_init(Item** pItems)
 	ed->_OnEditorInitializeFunc = OnInitialize;
 	ed->_OnStopEditingFunc = OnStopEditing;
 
+	ed->_OnKey_LeftArrowFunc = OnKey_LeftArrow;
+	ed->_OnKey_RightArrowFunc = OnKey_RightArrow;
+	ed->_OnChar_DefaultFunc = OnChar_Default;
+	ed->_OnChar_BackspaceFunc = OnChar_Backspace;
+	ed->_OnChar_ReturnFunc = OnChar_Return;
+
 	return ed;
 }
 
@@ -113,6 +128,11 @@ static void OnInitialize(Editor* ed)
 	}
 
 	Update_ItemsOrder(ed);
+	if (ed->_itemsOrder->_front)
+	{
+		ed->_current_node = ed->_itemsOrder->_front;
+		(*ed->_current_node->_pItem)->_setFocusFunc((*ed->_current_node->_pItem), 1);
+	}
 }
 
 static void OnStopEditing(Editor* ed)
@@ -198,3 +218,82 @@ void TreeWalker(Editor* ed, Item** pItem)
 	}
 }
 
+static void OnKey_LeftArrow(Editor* ed)
+{
+	EditorNode* prevNode = get_prev_node(ed, ed->_current_node);
+
+	if (!prevNode)
+		return;
+
+	(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
+	(*prevNode->_pItem)->_setFocusFunc(*prevNode->_pItem, 1);
+	ed->_current_node = prevNode;
+}
+
+static void OnKey_RightArrow(Editor* ed)
+{
+	EditorNode* nextNode = get_next_node(ed, ed->_current_node);
+
+	if (!nextNode)
+		return;
+
+	(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
+	(*nextNode->_pItem)->_setFocusFunc(*nextNode->_pItem, 1);
+	ed->_current_node = nextNode;
+}
+
+static void OnChar_Default(Editor* ed, wchar_t ch)
+{
+}
+
+static void OnChar_Backspace(Editor* ed)
+{
+}
+
+static void OnChar_Return(Editor* ed)
+{
+}
+
+EditorNode* get_next_node(Editor* ed, EditorNode* node)
+{
+	if (ed->_itemsOrder)
+	{
+		if (ed->_itemsOrder->_front)
+		{
+			EditorNode* ln = ed->_itemsOrder->_front;
+			while (ln)
+			{
+				if (ln == node)
+				{
+					return ln->_next;
+				}
+
+				ln = ln->_next;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+EditorNode* get_prev_node(Editor* ed, EditorNode* node)
+{
+	if (ed->_itemsOrder)
+	{
+		if (ed->_itemsOrder->_rear)
+		{
+			EditorNode* ln = ed->_itemsOrder->_rear;
+			while (ln)
+			{
+				if (ln == node)
+				{
+					return ln->_prev;
+				}
+
+				ln = ln->_prev;
+			}
+		}
+	}
+
+	return NULL;
+}

@@ -510,12 +510,20 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         break;
 
     case VK_LEFT:       // Left arrow 
+    {
+        RECT rc = mw->_panels->_selected_panel->_GetRectFunc(mw->_panels->_selected_panel);
         mw->_panels->_selected_panel->_OnKey_LeftArrowFunc(mw->_panels->_selected_panel);
+        InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
         break;
+    }
 
     case VK_RIGHT:      // Right arrow
+    {
+        RECT rc = mw->_panels->_selected_panel->_GetRectFunc(mw->_panels->_selected_panel);
         mw->_panels->_selected_panel->_OnKey_RightArrowFunc(mw->_panels->_selected_panel);
+        InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
         break;
+    }
     case VK_UP:         // Up arrow 
         break;
 

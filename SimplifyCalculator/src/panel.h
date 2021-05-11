@@ -10,16 +10,18 @@
 
 typedef struct _Panel Panel;
 
+typedef RECT(*GetRectFunc)(Panel* p);
+
 typedef void (*OnPanelInitFunc)(Panel* p);
 typedef void (*DrawFunc)(Panel* p, HDC hdc);
 typedef void (*PosChangedFunc)(Panel* p);
 typedef void (*FontChangedFunc)(Panel* p);
 
-typedef void (*OnKey_LeftArrowFunc)(Panel* p);
-typedef void (*OnKey_RightArrowFunc)(Panel* p);
-typedef void (*OnChar_DefaultFunc)(Panel* p, wchar_t ch);
-typedef void (*OnChar_BackspaceFunc)(Panel* p);
-typedef void (*OnChar_ReturnFunc)(Panel* p);
+typedef void (*OnKey_PanelLeftArrowFunc)(Panel* p);
+typedef void (*OnKey_PanelRightArrowFunc)(Panel* p);
+typedef void (*OnChar_PanelDefaultFunc)(Panel* p, wchar_t ch);
+typedef void (*OnChar_PanelBackspaceFunc)(Panel* p);
+typedef void (*OnChar_PanelReturnFunc)(Panel* p);
 
 typedef struct _Panel
 {
@@ -34,16 +36,18 @@ typedef struct _Panel
 
 	Editor* _editor;
 
+	GetRectFunc _GetRectFunc;
+	
 	OnPanelInitFunc _OnPanelInitFunc;
 	DrawFunc _DrawFunc;
 	PosChangedFunc _PosChangedFunc;
 	FontChangedFunc _FontChangedFunc;
 	
-	OnKey_LeftArrowFunc _OnKey_LeftArrowFunc;
-	OnKey_RightArrowFunc _OnKey_RightArrowFunc;
-	OnChar_DefaultFunc _OnChar_DefaultFunc;
-	OnChar_BackspaceFunc _OnChar_BackspaceFunc;
-	OnChar_ReturnFunc _OnChar_ReturnFunc;
+	OnKey_PanelLeftArrowFunc _OnKey_LeftArrowFunc;
+	OnKey_PanelRightArrowFunc _OnKey_RightArrowFunc;
+	OnChar_PanelDefaultFunc _OnChar_DefaultFunc;
+	OnChar_PanelBackspaceFunc _OnChar_BackspaceFunc;
+	OnChar_PanelReturnFunc _OnChar_ReturnFunc;
 } Panel;
 
 Panel* Panel_init(HWND hWnd);

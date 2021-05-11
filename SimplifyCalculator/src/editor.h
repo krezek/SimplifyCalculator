@@ -10,6 +10,12 @@ typedef struct _Editor Editor;
 typedef void (*OnEditorInitializeFunc) (Editor* ed);
 typedef void (*OnStopEditingFunc) (Editor* ed);
 
+typedef void (*OnKey_EditorLeftArrowFunc)(Editor* ed);
+typedef void (*OnKey_EditorRightArrowFunc)(Editor* ed);
+typedef void (*OnChar_EditorDefaultFunc)(Editor* ed, wchar_t ch);
+typedef void (*OnChar_EditorBackspaceFunc)(Editor* ed);
+typedef void (*OnChar_EditorReturnFunc)(Editor* ed);
+
 typedef struct _EditorNode
 {
 	Item** _pItem;
@@ -37,6 +43,12 @@ typedef struct _Editor
 
 	OnEditorInitializeFunc _OnEditorInitializeFunc;
 	OnStopEditingFunc _OnStopEditingFunc;
+
+	OnKey_EditorLeftArrowFunc _OnKey_LeftArrowFunc;
+	OnKey_EditorRightArrowFunc _OnKey_RightArrowFunc;
+	OnChar_EditorDefaultFunc _OnChar_DefaultFunc;
+	OnChar_EditorBackspaceFunc _OnChar_BackspaceFunc;
+	OnChar_EditorReturnFunc _OnChar_ReturnFunc;
 } Editor;
 
 Editor* Editor_init(Item** pitems);
