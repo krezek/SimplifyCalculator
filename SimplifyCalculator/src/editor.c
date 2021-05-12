@@ -3,6 +3,9 @@
 #include "editor.h"
 #include <parser.h>
 
+typedef Item* (*initFunc2param) (Item*, Item*);
+typedef Item* (*initFunc1param) (Item*);
+
 static void OnInitialize(Editor* ed);
 static void OnStopEditing(Editor* ed);
 
@@ -21,6 +24,10 @@ static void TreeWalker(Editor* ed, Item** pItem);
 
 static EditorNode* get_next_node(Editor* ed, EditorNode* node);
 static EditorNode* get_prev_node(Editor* ed, EditorNode* node);
+
+Item* add_item_2param_right(Editor* ed, initFunc2param ifunc);
+Item* add_item_2param_left(Editor* ed, initFunc2param ifunc);
+Item* add_item_1param(Editor* ed, initFunc1param ifunc);
 
 EditorNode* EditorNode_init(Item** pIm, NodeType nt, String* str, int index, EditorNode* n, EditorNode* p)
 {
@@ -372,4 +379,91 @@ EditorNode* get_prev_node(Editor* ed, EditorNode* node)
 	}
 
 	return NULL;
+}
+
+Item* add_item_2param_right(Editor*ed, initFunc2param ifunc)
+{
+	Item* newItem = NULL;
+
+	if (ed->_current_node)
+	{
+		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
+
+		Item* parent = Item_getParent(*ed->_pItems, *ed->_current_node->_pItem);
+		if (parent)
+		{
+			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
+			{
+				newItem = parent->_left = ifunc(parent->_left, NULL);
+			}
+			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
+			{
+				newItem = parent->_right = ifunc(parent->_right, NULL);
+			}
+		}
+		else
+		{
+			newItem = *ed->_pItems = ifunc(*ed->_pItems, NULL);
+		}
+	}
+
+	return newItem;
+}
+
+Item* add_item_2param_left(Editor* ed, initFunc2param ifunc)
+{
+	Item* newItem = NULL;
+
+	if (ed->_current_node)
+	{
+		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
+
+		Item* parent = Item_getParent(*ed->_pItems, *ed->_current_node->_pItem);
+		if (parent)
+		{
+			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
+			{
+				newItem = parent->_left = ifunc(NULL, parent->_left);
+			}
+			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
+			{
+				newItem = parent->_right = ifunc(NULL, parent->_right);
+			}
+		}
+		else
+		{
+			newItem = *ed->_pItems = ifunc(NULL, *ed->_pItems);
+		}
+	}
+
+	return newItem;
+}
+
+Item* add_item_1param(Editor* ed, initFunc1param ifunc)
+{
+	Item* newItem = NULL;
+
+	if (ed->_current_node)
+	{
+		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
+
+		Item* parent = Item_getParent(*ed->_pItems, *ed->_current_node->_pItem);
+		if (parent)
+		{
+			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
+			{
+				newItem = parent->_left = ifunc(parent->_left);
+			}
+			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
+			{
+				newItem = parent->_right = ifunc(parent->_right);
+			}
+		}
+		else
+		{
+			newItem = *ed->_pItems = ifunc(*ed->_pItems);
+		}
+	}
+
+	return newItem;
 }
