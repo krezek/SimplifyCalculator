@@ -332,6 +332,26 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 
 	if (ed->_current_node->_nodeType == NT_Null)
 	{
+		initFunc2param pf2 = NULL;
+		initFunc1param pf1 = NULL;
+
+		pf2 = get_func_2param(ch);
+		if (pf2)
+		{
+			newItem = add_item_2param_right(ed, pf2);
+		}
+		else
+		{
+			pf1 = get_func_1param(ch);
+			if (pf1)
+			{
+				newItem = add_item_1param(ed, pf1);
+			}
+		}
+
+		if (newItem)
+			return;
+
 		wchar_t s[2];
 		s[0] = ch;
 		s[1] = 0;
@@ -660,6 +680,10 @@ initFunc1param get_func_1param(const wchar_t ch)
 	case '(':
 	case ')':
 		return (initFunc1param)ItemParentheses_init;
+	case '$':
+		return (initFunc1param)ItemSignPlus_init;
+	case '#':
+		return (initFunc1param)ItemSignMinus_init;
 
 	default:
 		return NULL;
