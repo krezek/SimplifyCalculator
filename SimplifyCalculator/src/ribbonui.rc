@@ -17,6 +17,71 @@ END
 
 STRINGTABLE 
 BEGIN
+    cmdGroupFunctions_LabelTitle_RESID L"Functions" /* LabelTitle cmdGroupFunctions_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonSin_LabelTitle_RESID L"Sin" /* LabelTitle cmdButtonSin_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonCos_LabelTitle_RESID L"Cos" /* LabelTitle cmdButtonCos_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonTan_LabelTitle_RESID L"Tan" /* LabelTitle cmdButtonTan_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonLog_LabelTitle_RESID L"Log" /* LabelTitle cmdButtonLog_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonExp_LabelTitle_RESID L"Exp" /* LabelTitle cmdButtonExp_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonAsin_LabelTitle_RESID L"Asin" /* LabelTitle cmdButtonAsin_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonAcos_LabelTitle_RESID L"Acos" /* LabelTitle cmdButtonAcos_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonAtan_LabelTitle_RESID L"Atan" /* LabelTitle cmdButtonAtan_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonLn_LabelTitle_RESID L"Ln" /* LabelTitle cmdButtonLn_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdGroupSymbols_LabelTitle_RESID L"Symbols" /* LabelTitle cmdGroupSymbols_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonPi_LabelTitle_RESID L"Pi" /* LabelTitle cmdButtonPi_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
+    cmdButtonEuler_LabelTitle_RESID L"Euler" /* LabelTitle cmdButtonEuler_LabelTitle_RESID: (null) */
+END
+
+STRINGTABLE 
+BEGIN
     IDC_CMD_EXIT_LabelTitle_RESID L"Exit" /* LabelTitle IDC_CMD_EXIT_LabelTitle_RESID: (null) */
 END
 

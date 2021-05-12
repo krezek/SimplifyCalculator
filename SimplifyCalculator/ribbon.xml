@@ -22,15 +22,82 @@
              Symbol="cmdFontOnly"
              Comment="FontOnly"
              Id="50010"/>
+    
+    <Command Name="cmdGroupFunctions">
+      <Command.LabelTitle>
+        <String Id ="201">Functions</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonSin">
+      <Command.LabelTitle>
+        <String Id ="203">Sin</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonCos">
+      <Command.LabelTitle>
+        <String Id ="205">Cos</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonTan">
+      <Command.LabelTitle>
+        <String Id ="207">Tan</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonLog">
+      <Command.LabelTitle>
+        <String Id ="209">Log</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonExp">
+      <Command.LabelTitle>
+        <String Id ="211">Exp</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonAsin">
+      <Command.LabelTitle>
+        <String Id ="213">Asin</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonAcos">
+      <Command.LabelTitle>
+        <String Id ="215">Acos</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonAtan">
+      <Command.LabelTitle>
+        <String Id ="217">Atan</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonLn">
+      <Command.LabelTitle>
+        <String Id ="219">Ln</String>
+      </Command.LabelTitle>
+    </Command>
+
+    <Command Name="cmdGroupSymbols">
+      <Command.LabelTitle>
+        <String Id ="301">Symbols</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonPi">
+      <Command.LabelTitle>
+        <String Id ="303">Pi</String>
+      </Command.LabelTitle>
+    </Command>
+    <Command Name="cmdButtonEuler">
+      <Command.LabelTitle>
+        <String Id ="305">Euler</String>
+      </Command.LabelTitle>
+    </Command>
 
     <Command Name="cmdQat"/>
     <Command Name="cmdFileMenu" />
     <Command Name="cmdExit" Symbol="IDC_CMD_EXIT">
       <Command.LabelTitle>
-        <String Id ="290">Exit</String>
+        <String Id ="100">Exit</String>
       </Command.LabelTitle>
       <Command.LargeImages>
-        <Image Id ="291">res/ExitL.bmp</Image>
+        <Image Id ="102">res/ExitL.bmp</Image>
       </Command.LargeImages>
     </Command>
   </Application.Commands>
@@ -49,6 +116,8 @@
             <ScalingPolicy>
               <ScalingPolicy.IdealSizes>
                 <Scale Group="cmdFontOnlyGroup" Size="Large" />
+                <Scale Group="cmdGroupFunctions" Size="Medium" />
+                <Scale Group="cmdGroupSymbols" Size="Medium" />
               </ScalingPolicy.IdealSizes>
             </ScalingPolicy>
           </Tab.ScalingPolicy>
@@ -59,6 +128,23 @@
                          IsUnderlineButtonVisible="false"
                          IsStrikethroughButtonVisible="false"
                          MinimumFontSize="12"/>
+          </Group>
+          <Group CommandName="cmdGroupFunctions"
+                 SizeDefinition="NineButtons">
+            <Button CommandName="cmdButtonSin" />
+            <Button CommandName="cmdButtonCos" />
+            <Button CommandName="cmdButtonTan" />
+            <Button CommandName="cmdButtonLog" />
+            <Button CommandName="cmdButtonExp" />
+            <Button CommandName="cmdButtonAsin" />
+            <Button CommandName="cmdButtonAcos" />
+            <Button CommandName="cmdButtonAtan" />
+            <Button CommandName="cmdButtonLn" />
+          </Group>
+          <Group CommandName="cmdGroupSymbols"
+                 SizeDefinition="TwoButtons">
+            <Button CommandName="cmdButtonPi" />
+            <Button CommandName="cmdButtonEuler" />
           </Group>
         </Tab>
       </Ribbon.Tabs>
