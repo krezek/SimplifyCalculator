@@ -689,6 +689,8 @@ initFunc1param get_func_1param(const wchar_t ch)
 		return (initFunc1param)ItemSignPlus_init;
 	case '#':
 		return (initFunc1param)ItemSignMinus_init;
+	case ':':
+		return (initFunc1param)ItemSqrt_init;
 
 	default:
 		return NULL;
