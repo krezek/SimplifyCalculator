@@ -336,6 +336,41 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 
 	if (ed->_current_node->_nodeType == NT_Null)
 	{
+		wchar_t s[2];
+		s[0] = ch;
+		s[1] = 0;
+
+		Item* parent = Item_getParent(*ed->_pItems, (*ed->_current_node->_pItem));
+		if (!parent)
+		{
+			ItemTree_free(ed->_pItems);
+
+			if (isdigit(ch))
+				newItem = (Item*)ItemNumber_init(s, 0);
+			else
+				newItem = (Item*)ItemLiteral_init(s);
+
+			*ed->_pItems = newItem;
+		}
+		else
+		{
+			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
+			{
+				ItemTree_free(&parent->_left);
+				if (isdigit(ch))
+					newItem = parent->_left = (Item*)ItemNumber_init(s, 0);
+				else
+					newItem = parent->_left = (Item*)ItemLiteral_init(s);
+			}
+			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
+			{
+				ItemTree_free(&parent->_right);
+				if (isdigit(ch))
+					newItem = parent->_right = (Item*)ItemNumber_init(s, 0);
+				else
+					newItem = parent->_right = (Item*)ItemLiteral_init(s);
+			}
+		}
 	}
 	else if (ed->_current_node->_nodeType == NT_Begin)
 	{
@@ -379,6 +414,32 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 	else if (ed->_current_node->_nodeType == NT_Number ||
 		ed->_current_node->_nodeType == NT_Literal)
 	{
+		initFunc2param pf2 = NULL;
+		initFunc1param pf1 = NULL;
+
+		pf2 = get_func_2param(ch);
+		if (pf2)
+		{
+			newItem = add_item_2param_right(ed, pf2);
+		}
+		else
+		{
+			pf1 = get_func_1param(ch);
+			if (pf1)
+			{
+				newItem = add_item_1param(ed, pf1);
+			}
+		}
+
+		if (!newItem)
+		{
+			wchar_t s[2];
+			s[0] = ch;
+			s[1] = 0;
+
+			String_insert_s(ed->_current_node->_str, ed->_current_node->_index, s);
+			ed->_current_node->_index += 1;
+		}
 	}
 
 	if (newItem)
@@ -387,6 +448,27 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 		EditorNode* en = get_node(ed, newItem);
 		ed->_current_node = en;
 		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+
+		if (ed->_current_node->_nodeType == NT_Number ||
+			ed->_current_node->_nodeType == NT_Literal)
+		{
+			ed->_current_node->_index += 1;
+		}
+
+		Item* i = NULL;
+		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
+			i = newItem->_left;
+
+		if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
+			i = newItem->_right;
+
+		if (i)
+		{
+			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
+			EditorNode* en = get_node(ed, i);
+			ed->_current_node = en;
+			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+		}
 	}
 }
 
