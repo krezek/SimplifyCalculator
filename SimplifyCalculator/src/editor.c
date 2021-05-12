@@ -141,11 +141,7 @@ void Editor_free(Editor* ed)
 
 static void OnInitialize(Editor* ed)
 {
-	int rs = parse(ed->_pItems, L"x_1=(-b+sqrt(b^2-4*a*c))/(2*a),x_2=(-b-sqrt(b^2-4*a*c))/(2*a)");
-	if (rs)
-	{
-		wprintf(L"Editor:OnInitialize:parse Error\n");
-	}
+	*ed->_pItems = Item_init(NULL, NULL);
 
 	Update_ItemsOrder(ed);
 	if (ed->_itemsOrder->_front)
@@ -639,6 +635,16 @@ initFunc2param get_func_2param(const wchar_t ch)
 	{
 	case '+':
 		return (initFunc2param)ItemAdd_init;
+	case '-':
+		return (initFunc2param)ItemSub_init;
+	case '*':
+		return (initFunc2param)ItemMult_init;
+	case '/':
+		return (initFunc2param)ItemFrac_init;
+	case '^':
+		return (initFunc2param)ItemPow_init;
+	case '_':
+		return (initFunc2param)ItemSubscript_init;
 
 	default:
 		return NULL;
@@ -651,6 +657,9 @@ initFunc1param get_func_1param(const wchar_t ch)
 	{
 	case '!':
 		return (initFunc1param)ItemFactorial_init;
+	case '(':
+	case ')':
+		return (initFunc1param)ItemParentheses_init;
 
 	default:
 		return NULL;

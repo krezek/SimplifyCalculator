@@ -669,9 +669,18 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         return 0;
 
     case WM_CHAR:
+    {
+        static int x = 2;
+        if (wParam == L'^')
+        {
+            --x;
+            if (x) return 0;
+            x = 2;
+        }
+
         OnChar(mw, wParam, lParam);
         return 0;
-
+    }
     case WM_COMMAND:
         OnCommand(mw, wParam, lParam);
         return 0;
