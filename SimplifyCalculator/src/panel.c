@@ -286,4 +286,34 @@ static void OnChar_Backspace(Panel* p)
 
 static void OnChar_Return(Panel* p)
 {
+	int rs;
+
+	if (p->_out_items)
+	{
+		ItemTree_free(&p->_out_items);
+	}
+
+	double result;
+	wchar_t str[255];
+
+	rs = calculate((Item**)&p->_out_items, &result);
+	if (rs == 0)
+	{
+		long long lrs = (long long)result;
+
+		if (result == (double)lrs)
+		{
+			swprintf_s(str, 255, L"%lld", lrs);
+		}
+		else
+		{
+			swprintf_s(str, 255, L"%e", result);
+		}
+	}
+	else
+	{
+		swprintf_s(str, 255, L"Invalid value");
+	}
+
+	p->_out_items = (Item*)ItemLiteral_init(str);
 }
