@@ -22,12 +22,17 @@ static void OnChar_Return(Editor* ed);
 static void Update_ItemsOrder(Editor* ed);
 static void TreeWalker(Editor* ed, Item** pItem);
 
+static EditorNode* get_node(Editor* ed, Item* itm);
 static EditorNode* get_next_node(Editor* ed, EditorNode* node);
 static EditorNode* get_prev_node(Editor* ed, EditorNode* node);
 
 Item* add_item_2param_right(Editor* ed, initFunc2param ifunc);
 Item* add_item_2param_left(Editor* ed, initFunc2param ifunc);
 Item* add_item_1param(Editor* ed, initFunc1param ifunc);
+
+initFunc2param get_func_2param(const wchar_t ch);
+initFunc1param get_func_1param(const wchar_t ch);
+
 
 EditorNode* EditorNode_init(Item** pIm, NodeType nt, String* str, int index, EditorNode* n, EditorNode* p)
 {
@@ -327,6 +332,62 @@ static void OnKey_RightArrow(Editor* ed)
 
 static void OnChar_Default(Editor* ed, wchar_t ch)
 {
+	Item* newItem = NULL;
+
+	if (ed->_current_node->_nodeType == NT_Null)
+	{
+	}
+	else if (ed->_current_node->_nodeType == NT_Begin)
+	{
+		initFunc2param pf2 = NULL;
+		initFunc1param pf1 = NULL;
+
+		pf2 = get_func_2param(ch);
+		if (pf2)
+		{
+			newItem = add_item_2param_left(ed, pf2);
+		}
+		else
+		{
+			pf1 = get_func_1param(ch);
+			if (pf1)
+			{
+				newItem = add_item_1param(ed, pf1);
+			}
+		}
+
+	}
+	else if (ed->_current_node->_nodeType == NT_End)
+	{
+		initFunc2param pf2 = NULL;
+		initFunc1param pf1 = NULL;
+
+		pf2 = get_func_2param(ch);
+		if (pf2)
+		{
+			newItem = add_item_2param_right(ed, pf2);
+		}
+		else
+		{
+			pf1 = get_func_1param(ch);
+			if (pf1)
+			{
+				newItem = add_item_1param(ed, pf1);
+			}
+		}
+	}
+	else if (ed->_current_node->_nodeType == NT_Number ||
+		ed->_current_node->_nodeType == NT_Literal)
+	{
+	}
+
+	if (newItem)
+	{
+		Update_ItemsOrder(ed);
+		EditorNode* en = get_node(ed, newItem);
+		ed->_current_node = en;
+		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+	}
 }
 
 static void OnChar_Backspace(Editor* ed)
@@ -335,6 +396,28 @@ static void OnChar_Backspace(Editor* ed)
 
 static void OnChar_Return(Editor* ed)
 {
+}
+
+static EditorNode* get_node(Editor* ed, Item* itm)
+{
+	if (ed->_itemsOrder)
+	{
+		if (ed->_itemsOrder->_front)
+		{
+			EditorNode* ln = ed->_itemsOrder->_front;
+			while (ln)
+			{
+				if (*ln->_pItem == itm)
+				{
+					return ln;
+				}
+
+				ln = ln->_next;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 EditorNode* get_next_node(Editor* ed, EditorNode* node)
@@ -466,4 +549,28 @@ Item* add_item_1param(Editor* ed, initFunc1param ifunc)
 	}
 
 	return newItem;
+}
+
+initFunc2param get_func_2param(const wchar_t ch)
+{
+	switch (ch)
+	{
+	case '+':
+		return (initFunc2param)ItemAdd_init;
+
+	default:
+		return NULL;
+	}
+}
+
+initFunc1param get_func_1param(const wchar_t ch)
+{
+	switch (ch)
+	{
+	case '!':
+		return (initFunc1param)ItemFactorial_init;
+
+	default:
+		return NULL;
+	}
 }

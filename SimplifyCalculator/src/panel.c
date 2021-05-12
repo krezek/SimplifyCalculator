@@ -250,21 +250,6 @@ static void CalcPanelSize(Panel* p)
 	p->_height = max(g_in_str_height, p->_in_height) + max(g_out_str_height, p->_out_height) + 3 * g_margin_h;
 }
 
-/*static void Panel_Update(Panel* p)
-{
-	int row_count = (int)(p->_str_in->_len / p->_cmd_column) + (p->_str_in->_len % p->_cmd_column > 0 ? 1 : 0);
-	row_count = (row_count <= 0) ? 1 : row_count;
-
-	if (row_count == p->_cmd_row_count)
-	{
-		PostMessage(p->_hWndParent, WM_PANEL_REPAINT, (WPARAM)NULL, (LPARAM)p);
-	}
-	else
-	{
-		PostMessage(p->_hWndParent, WM_PANEL_SIZE_CHANGED, (WPARAM)NULL, (LPARAM)p);
-	}
-}*/
-
 static void OnSetFocus(Panel* p)
 {
 	if (p->_editor)
@@ -291,6 +276,8 @@ static void OnKey_RightArrow(Panel* p)
 
 static void OnChar_Default(Panel* p, wchar_t ch)
 {
+	if (p->_editor)
+		p->_editor->_OnChar_DefaultFunc(p->_editor, ch);
 }
 
 static void OnChar_Backspace(Panel* p)

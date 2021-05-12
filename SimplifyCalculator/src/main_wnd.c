@@ -571,36 +571,23 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         break;
 
     default:
-        mw->_panels->_selected_panel->_OnChar_DefaultFunc(mw->_panels->_selected_panel, (wchar_t) wParam);
+    {
+        mw->_panels->_selected_panel->_OnChar_DefaultFunc(mw->_panels->_selected_panel, (wchar_t)wParam);
+
+        mw->_panels->_ParentFontChangedFunc(mw->_panels);
+        WindowPropertyChanged(mw);
+
+        if (mw->_panels->_selected_panel)
+            if (mw->_panels->_selected_panel->_editor)
+                mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+
+        InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
+
         break;
+    }
     }
 
     ShowCaret(mw->_baseWindow._hWnd);
-}
-
-static void OnPanelRepaint(MainWindow* mw, Panel* p)
-{
-    RECT rc;
-    rc.left = p->_x0;
-    rc.top = p->_y0;
-    rc.right = rc.left + p->_width;
-    rc.bottom = rc.top + p->_height;
-
-    InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
-}
-
-static void OnPanelSizeChanged(MainWindow* mw, Panel* p)
-{
-    //mw->_panels->_PanelSizeChangedFunc(mw->_panels, p);
-    SetScrollbarInfo(mw);
-
-    RECT rc;
-    rc.left = 0;
-    rc.top = 0;
-    rc.right = rc.left + mw->_client_width - g_scrollbar_width;
-    rc.bottom = rc.top + mw->_client_height - g_statusbar_height;
-
-    InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
 }
 
 static void OnCommand(MainWindow* mw, WPARAM wParam, LPARAM lParam)
@@ -687,14 +674,6 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_COMMAND:
         OnCommand(mw, wParam, lParam);
-        return 0;
-
-    case WM_PANEL_REPAINT:
-        OnPanelRepaint(mw, (Panel*)lParam);
-        return 0;
-
-    case WM_PANEL_SIZE_CHANGED:
-        OnPanelSizeChanged(mw, (Panel*)lParam);
         return 0;
 
     case WM_RIBBON_HEIGHT_CHANGED:
