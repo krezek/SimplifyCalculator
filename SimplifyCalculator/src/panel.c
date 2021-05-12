@@ -24,6 +24,8 @@ static void OnChar_Default(Panel* p, wchar_t ch);
 static void OnChar_Backspace(Panel* p);
 static void OnChar_Return(Panel* p);
 
+static void OnCmd(Panel* p, int cmd);
+
 static const wchar_t* g_in_str = L"In:";
 static const wchar_t* g_out_str = L"Out:";
 
@@ -58,6 +60,8 @@ Panel* Panel_init(HWND hWnd)
 	p->_OnChar_DefaultFunc = OnChar_Default;
 	p->_OnChar_BackspaceFunc = OnChar_Backspace;
 	p->_OnChar_ReturnFunc = OnChar_Return;
+
+	p->_OnCmdFunc = OnCmd;
 
 	p->_hWndParent = hWnd;
 
@@ -318,4 +322,9 @@ static void OnChar_Return(Panel* p)
 	}
 
 	p->_out_items = (Item*)ItemLiteral_init(str);
+}
+
+static void OnCmd(Panel* p, int cmd)
+{
+	p->_editor->_OnCmdFunc(p->_editor, cmd);
 }

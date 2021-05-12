@@ -1,7 +1,8 @@
 #include "platform.h"
 
 #include "editor.h"
-#include <parser.h>
+#include "ids.h"
+
 
 typedef Item* (*initFunc2param) (Item*, Item*);
 typedef Item* (*initFunc1param) (Item*);
@@ -32,6 +33,8 @@ Item* add_item_1param(Editor* ed, initFunc1param ifunc);
 
 initFunc2param get_func_2param(const wchar_t ch);
 initFunc1param get_func_1param(const wchar_t ch);
+
+static void OnCmd(Editor* ed, int cmd);
 
 
 EditorNode* EditorNode_init(Item** pIm, NodeType nt, String* str, int index, EditorNode* n, EditorNode* p)
@@ -124,6 +127,8 @@ Editor* Editor_init(Item** pItems)
 	ed->_OnChar_DefaultFunc = OnChar_Default;
 	ed->_OnChar_BackspaceFunc = OnChar_Backspace;
 	ed->_OnChar_ReturnFunc = OnChar_Return;
+
+	ed->_OnCmdFunc = OnCmd;
 
 	return ed;
 }
@@ -687,5 +692,72 @@ initFunc1param get_func_1param(const wchar_t ch)
 
 	default:
 		return NULL;
+	}
+}
+
+static void OnCmd(Editor* ed, int cmd)
+{
+	Item* newItem = NULL;
+
+	switch (cmd)
+	{
+	case cmdButtonSin:
+		newItem = add_item_1param(ed, (initFunc1param)ItemSinFunc_init);
+		break;
+	case cmdButtonCos:
+		newItem = add_item_1param(ed, (initFunc1param)ItemCosFunc_init);
+		break;
+	case cmdButtonTan:
+		newItem = add_item_1param(ed, (initFunc1param)ItemTanFunc_init);
+		break;
+	case cmdButtonLog:
+		newItem = add_item_1param(ed, (initFunc1param)ItemLogFunc_init);
+		break;
+	case cmdButtonExp:
+		newItem = add_item_1param(ed, (initFunc1param)ItemExpFunc_init);
+		break;
+	case cmdButtonAsin:
+		newItem = add_item_1param(ed, (initFunc1param)ItemAsinFunc_init);
+		break;
+	case cmdButtonAcos:
+		newItem = add_item_1param(ed, (initFunc1param)ItemAcosFunc_init);
+		break;
+	case cmdButtonAtan:
+		newItem = add_item_1param(ed, (initFunc1param)ItemAtanFunc_init);
+		break;
+	case cmdButtonLn:
+		newItem = add_item_1param(ed, (initFunc1param)ItemLnFunc_init);
+		break;
+	default:
+		break;
+	}
+
+	if (newItem)
+	{
+		Update_ItemsOrder(ed);
+		EditorNode* en = get_node(ed, newItem);
+		ed->_current_node = en;
+		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+
+		if (ed->_current_node->_nodeType == NT_Number ||
+			ed->_current_node->_nodeType == NT_Literal)
+		{
+			ed->_current_node->_index += 1;
+		}
+
+		Item* i = NULL;
+		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
+			i = newItem->_left;
+
+		if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
+			i = newItem->_right;
+
+		if (i)
+		{
+			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
+			EditorNode* en = get_node(ed, i);
+			ed->_current_node = en;
+			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+		}
 	}
 }

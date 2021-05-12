@@ -219,6 +219,16 @@ ItemPow* ItemPow_init(Item* l, Item* r);
 ItemSubscript* ItemSubscript_init(Item* l, Item* r);
 ItemCommFunc* ItemCommFunc_init(Item* l, Item* r, const wchar_t* s);
 
+ItemCommFunc* ItemSinFunc_init(Item* l);
+ItemCommFunc* ItemCosFunc_init(Item* l);
+ItemCommFunc* ItemTanFunc_init(Item* l);
+ItemCommFunc* ItemLogFunc_init(Item* l);
+ItemCommFunc* ItemExpFunc_init(Item* l);
+ItemCommFunc* ItemAsinFunc_init(Item* l);
+ItemCommFunc* ItemAcosFunc_init(Item* l);
+ItemCommFunc* ItemAtanFunc_init(Item* l);
+ItemCommFunc* ItemLnFunc_init(Item* l);
+
 ItemFactorial* ItemFactorial_init(Item* l);
 
 ItemParentheses* ItemParentheses_init(Item* l);

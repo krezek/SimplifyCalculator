@@ -26,6 +26,8 @@ typedef void (*OnChar_PanelDefaultFunc)(Panel* p, wchar_t ch);
 typedef void (*OnChar_PanelBackspaceFunc)(Panel* p);
 typedef void (*OnChar_PanelReturnFunc)(Panel* p);
 
+typedef void (*OnPanel_CmdFunc)(Panel* p, int cmd);
+
 typedef struct _Panel
 {
 	HWND _hWndParent;
@@ -54,6 +56,8 @@ typedef struct _Panel
 	OnChar_PanelDefaultFunc _OnChar_DefaultFunc;
 	OnChar_PanelBackspaceFunc _OnChar_BackspaceFunc;
 	OnChar_PanelReturnFunc _OnChar_ReturnFunc;
+
+	OnPanel_CmdFunc _OnCmdFunc;
 } Panel;
 
 Panel* Panel_init(HWND hWnd);

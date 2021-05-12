@@ -2260,6 +2260,51 @@ ItemCommFunc* ItemCommFunc_init(Item* l, Item* r, const wchar_t* s)
 	return i;
 }
 
+ItemCommFunc* ItemSinFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Sin");
+}
+
+ItemCommFunc* ItemCosFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Cos");
+}
+
+ItemCommFunc* ItemTanFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Tan");
+}
+
+ItemCommFunc* ItemLogFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Log");
+}
+
+ItemCommFunc* ItemExpFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Exp");
+}
+
+ItemCommFunc* ItemAsinFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Asin");
+}
+
+ItemCommFunc* ItemAcosFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Acos");
+}
+
+ItemCommFunc* ItemAtanFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Atan");
+}
+
+ItemCommFunc* ItemLnFunc_init(Item* l)
+{
+	return ItemCommFunc_init(l, NULL, L"Ln");
+}
+
 void ItemFactorial_toString(Item* _this, String* s)
 {
 	String* s1 = String_init();

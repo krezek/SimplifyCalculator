@@ -4,6 +4,7 @@
 #include "items.h"
 #include "main_wnd.h"
 #include "resource.h"
+#include "ids.h"
 
 typedef struct {
     wchar_t _family[1024];
@@ -599,14 +600,18 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     ShowCaret(mw->_baseWindow._hWnd);
 }
 
-static void OnCommand(MainWindow* mw, WPARAM wParam, LPARAM lParam)
+static void OnRibbonCmd(MainWindow* mw, int cmd)
 {
-    switch (LOWORD(wParam))
-    {
-    case ID_FILE_EXIT:
-        PostMessage(mw->_baseWindow._hWnd, WM_CLOSE, 0, 0);
-        break;
-    }
+    mw->_panels->_selected_panel->_OnCmdFunc(mw->_panels->_selected_panel, cmd);
+
+    mw->_panels->_ParentFontChangedFunc(mw->_panels);
+    WindowPropertyChanged(mw);
+
+    if (mw->_panels->_selected_panel)
+        if (mw->_panels->_selected_panel->_editor)
+            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+
+    InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
 
 static void OnPaint(MainWindow* mw)
@@ -690,10 +695,7 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         OnChar(mw, wParam, lParam);
         return 0;
     }
-    case WM_COMMAND:
-        OnCommand(mw, wParam, lParam);
-        return 0;
-
+    
     case WM_RIBBON_HEIGHT_CHANGED:
         OnRibbonHeightChanged(mw, (int)wParam);
         return 0;
@@ -701,7 +703,21 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
     case WM_RIBBON_FONT_CHANGED:
         OnFontChanged(mw);
         return 0;
+    case WM_RIBBON_COMMAND:
+    {
+        switch (wParam)
+        {
+        case IDC_CMD_EXIT:
+            PostMessage(mw->_baseWindow._hWnd, WM_CLOSE, 0, 0);
+            break;
 
+        default:
+            OnRibbonCmd(mw, (int)wParam);
+            break;
+        }
+
+        return 0;
+    }
     case WM_DESTROY:
         OnDestroy(mw);
         return 0;

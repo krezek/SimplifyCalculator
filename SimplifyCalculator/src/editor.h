@@ -20,6 +20,8 @@ typedef void (*OnChar_EditorDefaultFunc)(Editor* ed, wchar_t ch);
 typedef void (*OnChar_EditorBackspaceFunc)(Editor* ed);
 typedef void (*OnChar_EditorReturnFunc)(Editor* ed);
 
+typedef void (*OnEditor_CmdFunc)(Editor* ed, int cmd);
+
 typedef struct _EditorNode
 {
 	Item** _pItem;
@@ -57,6 +59,8 @@ typedef struct _Editor
 	OnChar_EditorDefaultFunc _OnChar_DefaultFunc;
 	OnChar_EditorBackspaceFunc _OnChar_BackspaceFunc;
 	OnChar_EditorReturnFunc _OnChar_ReturnFunc;
+
+	OnEditor_CmdFunc _OnCmdFunc;
 } Editor;
 
 Editor* Editor_init(Item** pitems);
