@@ -125,8 +125,10 @@ static void Draw(Panel* p, HDC hdc)
 	HFONT hOldFont = SelectObject(hdc,  g_math_font);
 
 	{
-		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + g_margin_h + p->_in_baseLine - g_in_str_height / 2, g_in_str, (int)wcslen(g_in_str));
-		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + 2 * g_margin_h + p->_in_height + p->_out_baseLine, g_out_str, (int)wcslen(g_out_str));
+		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + g_margin_h + 
+			max(p->_in_baseLine, g_in_str_height / 2) - g_in_str_height / 2, g_in_str, (int)wcslen(g_in_str));
+		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + 2 * g_margin_h + max(p->_in_height, g_in_str_height) + 
+			max(p->_out_baseLine, g_out_str_height / 2) - g_out_str_height / 2, g_out_str, (int)wcslen(g_out_str));
 	}
 
 	if(p->_in_items)
@@ -154,8 +156,8 @@ static void PosChanged(Panel* p)
 static void FontChanged(Panel* p)
 {
 	SetCntSize(p);
-	SetCoordinate(p);
 	SetItemsSize(p);
+	SetCoordinate(p);
 	CalcPanelSize(p);
 }
 
@@ -228,7 +230,7 @@ static void SetCoordinate(Panel* p)
 		p->_in_items->_setFontFunc(p->_in_items, fh);
 		p->_in_items->_calcCoordinateFunc(p->_in_items, &gfx, 
 			x, 
-			p->_in_baseLine + p->_y0 + g_margin_h);
+			max(p->_in_baseLine, g_in_str_height / 2) + p->_y0 + g_margin_h);
 	}
 	
 	if (p->_out_items)
@@ -238,7 +240,7 @@ static void SetCoordinate(Panel* p)
 		p->_out_items->_setFontFunc(p->_out_items, fh);
 		p->_out_items->_calcCoordinateFunc(p->_out_items, &gfx, 
 			x, 
-			p->_out_baseLine + p->_y0 + g_margin_h);
+			max(p->_out_baseLine, g_out_str_height / 2) + p->_y0 + max(p->_in_height, g_in_str_height) + 2 * g_margin_h);
 	}
 
 	ReleaseDC(p->_hWndParent, hdc);
@@ -296,7 +298,7 @@ static void OnChar_Return(Panel* p)
 	double result;
 	wchar_t str[255];
 
-	rs = calculate((Item**)&p->_out_items, &result);
+	rs = calculate((Item**)&p->_in_items, &result);
 	if (rs == 0)
 	{
 		long long lrs = (long long)result;

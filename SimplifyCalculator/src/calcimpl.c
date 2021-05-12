@@ -9,9 +9,6 @@ static int calc_code;
 
 double calcWolker(Item* item)
 {
-	if (!item)
-		return 0;
-
 	if (item->_objectType == OBJ_Add)
 	{
 		return calcWolker(item->_left) + calcWolker(item->_right);

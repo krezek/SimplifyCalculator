@@ -507,6 +507,15 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         else
         {
             mw->_panels->_selected_panel->_OnChar_ReturnFunc(mw->_panels->_selected_panel);
+
+            mw->_panels->_ParentFontChangedFunc(mw->_panels);
+            WindowPropertyChanged(mw);
+
+            if (mw->_panels->_selected_panel)
+                if (mw->_panels->_selected_panel->_editor)
+                    mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+
+            InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
         }
         
         break;
