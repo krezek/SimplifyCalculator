@@ -185,6 +185,8 @@ static void OnFontChanged(PanelList* pll)
 	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
 	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
 
+	SetCntSize(pll);
+
 	if (pll)
 	{
 		if (pll->_front)

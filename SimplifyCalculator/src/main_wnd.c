@@ -277,6 +277,10 @@ void OnRibbonHeightChanged(MainWindow* mw, int height)
     mw->_panels->_y0 = mw->_ribbon_height;
     mw->_panels->_PosChangedFunc(mw->_panels);
 
+    if (mw->_panels->_selected_panel)
+        if (mw->_panels->_selected_panel->_editor)
+            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+
     InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
 

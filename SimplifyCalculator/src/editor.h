@@ -47,7 +47,7 @@ typedef struct _Editor
 	EditorLinkedList* _itemsOrder;
 	EditorNode* _current_node;
 
-	OnEditorInitializeFunc _OnEditorInitializeFunc;
+	OnEditorInitializeFunc _OnInitFunc;
 	OnStopEditingFunc _OnStopEditingFunc;
 
 	OnEditorSetFocusFunc _OnSetFocusFunc;

@@ -7,7 +7,7 @@
 typedef Item* (*initFunc2param) (Item*, Item*);
 typedef Item* (*initFunc1param) (Item*);
 
-static void OnInitialize(Editor* ed);
+static void OnInit(Editor* ed);
 static void OnStopEditing(Editor* ed);
 
 static void UpdateCaret(Editor* ed);
@@ -115,7 +115,7 @@ Editor* Editor_init(Item** pItems)
 	ed->_itemsOrder = NULL;
 	ed->_current_node = NULL;
 
-	ed->_OnEditorInitializeFunc = OnInitialize;
+	ed->_OnInitFunc = OnInit;
 	ed->_OnStopEditingFunc = OnStopEditing;
 
 	ed->_OnSetFocusFunc = OnSetFocus;
@@ -144,7 +144,7 @@ void Editor_free(Editor* ed)
 	free(ed);
 }
 
-static void OnInitialize(Editor* ed)
+static void OnInit(Editor* ed)
 {
 	*ed->_pItems = Item_init(NULL, NULL);
 

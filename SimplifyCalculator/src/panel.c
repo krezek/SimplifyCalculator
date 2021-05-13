@@ -10,7 +10,7 @@ static void OnPaint(Panel* p, HDC hdc);
 static void PosChanged(Panel* p);
 static void OnFontChanged(Panel* p);
 static void SetItemsSize(Panel* p);
-static void SetCoordinate(Panel* p);
+static void SetItemsCoordinate(Panel* p);
 static void CalcPanelSize(Panel* p);
 
 static void OnSetFocus(Panel* p);
@@ -106,10 +106,10 @@ static RECT GetRect(Panel* p)
 static void OnInit(Panel* p)
 {
 	p->_editor->_hWnd = p->_hWndParent;
-	p->_editor->_OnEditorInitializeFunc(p->_editor);
+	p->_editor->_OnInitFunc(p->_editor);
 
-	SetCoordinate(p);
 	SetItemsSize(p);
+	SetItemsCoordinate(p);
 	CalcPanelSize(p);
 }
 
@@ -151,13 +151,13 @@ static void OnPaint(Panel* p, HDC hdc)
 
 static void PosChanged(Panel* p)
 {
-	SetCoordinate(p);
+	SetItemsCoordinate(p);
 }
 
 static void OnFontChanged(Panel* p)
 {
 	SetItemsSize(p);
-	SetCoordinate(p);
+	SetItemsCoordinate(p);
 	CalcPanelSize(p);
 }
 
@@ -187,7 +187,7 @@ static void SetItemsSize(Panel* p)
 	ReleaseDC(p->_hWndParent, hdc);
 }
 
-static void SetCoordinate(Panel* p)
+static void SetItemsCoordinate(Panel* p)
 {
 	HDC hdc = GetDC(p->_hWndParent);
 	SelectObject(hdc, g_math_font);
