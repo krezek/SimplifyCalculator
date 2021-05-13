@@ -9,6 +9,7 @@ typedef void (*OnPListInitFunc)(PanelList* pll, HWND hWnd);
 typedef Panel* (*AddNewPanelFunc)(PanelList* pll);
 typedef void (*OnPListPosChangedFunc)(PanelList* pll);
 typedef void (*OnPListFontChangedFunc)(PanelList* pll);
+typedef void (*OnPListSelectedPanelChangedFunc)(PanelList* pll);
 typedef int (*GetViewportWidthFunc)(PanelList* pll);
 typedef int (*GetViewportHeightFunc)(PanelList* pll);
 typedef void (*OnPListPaintFunc)(PanelList* pll, HDC hdc, RECT* rcPaint);
@@ -36,6 +37,7 @@ typedef struct _PanelList
 	AddNewPanelFunc _AddNewPanelFunc;
 	OnPListPosChangedFunc _OnPosChangedFunc;
 	OnPListFontChangedFunc _OnFontChangedFunc;
+	OnPListSelectedPanelChangedFunc _OnSelectedPanelChanged;
 	GetViewportWidthFunc _GetViewportWidthFunc;
 	GetViewportHeightFunc _GetViewportHeightFunc;
 	OnPListPaintFunc _OnPaintFunc;

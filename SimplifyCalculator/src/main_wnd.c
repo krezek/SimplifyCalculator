@@ -503,12 +503,18 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         {
             mw->_panels->_selected_panel->_OnChar_ReturnFunc(mw->_panels->_selected_panel);
 
-            mw->_panels->_OnFontChangedFunc(mw->_panels);
+            mw->_panels->_OnSelectedPanelChanged(mw->_panels);
             WindowPropertyChanged(mw);
 
-            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+            RECT rc;
+            rc.left = mw->_panels->_selected_panel->_x0;
+            rc.top = mw->_panels->_selected_panel->_y0;
+            rc.right = rc.left + mw->_client_width;
+            rc.bottom = rc.top + mw->_client_height;
 
-            InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
+            InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+
+            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
         }
         
         break;
@@ -576,13 +582,18 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     {
         mw->_panels->_selected_panel->_OnChar_DefaultFunc(mw->_panels->_selected_panel, (wchar_t)wParam);
 
-        mw->_panels->_OnFontChangedFunc(mw->_panels);
+        mw->_panels->_OnSelectedPanelChanged(mw->_panels);
         WindowPropertyChanged(mw);
 
+        RECT rc;
+        rc.left = mw->_panels->_selected_panel->_x0;
+        rc.top = mw->_panels->_selected_panel->_y0;
+        rc.right = rc.left + mw->_client_width;
+        rc.bottom = rc.top + mw->_client_height;
+
+        InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+
         mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
-
-        InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
-
         break;
     }
     }
@@ -603,12 +614,18 @@ static void OnRibbonCmd(MainWindow* mw, int cmd)
     {
         mw->_panels->_selected_panel->_OnCmdFunc(mw->_panels->_selected_panel, cmd);
 
-        mw->_panels->_OnFontChangedFunc(mw->_panels);
+        mw->_panels->_OnSelectedPanelChanged(mw->_panels);
         WindowPropertyChanged(mw);
 
-        mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+        RECT rc;
+        rc.left = mw->_panels->_selected_panel->_x0;
+        rc.top = mw->_panels->_selected_panel->_y0;
+        rc.right = rc.left + mw->_client_width;
+        rc.bottom = rc.top + mw->_client_height;
 
-        InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
+        InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+
+        mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
     }
         break;
     }

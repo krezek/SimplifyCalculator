@@ -9,6 +9,7 @@ static void OnInit(Panel* p);
 static void OnPaint(Panel* p, HDC hdc);
 static void OnPosChanged(Panel* p);
 static void OnFontChanged(Panel* p);
+static void OnSizeChanged(Panel* p);
 static void SetItemsSize(Panel* p);
 static void SetItemsCoordinate(Panel* p);
 static void CalcPanelSize(Panel* p);
@@ -49,6 +50,7 @@ Panel* Panel_init(HWND hWnd)
 	p->_OnPaintFunc = OnPaint;
 	p->_OnPosChangedFunc = OnPosChanged;
 	p->_OnFontChangedFunc = OnFontChanged;
+	p->_OnSizeChangedFunc = OnSizeChanged;
 	
 	p->_OnSetFocusFunc = OnSetFocus;
 	p->_OnKillFocusFunc = OnKillFocus;
@@ -155,6 +157,13 @@ static void OnPosChanged(Panel* p)
 }
 
 static void OnFontChanged(Panel* p)
+{
+	SetItemsSize(p);
+	SetItemsCoordinate(p);
+	CalcPanelSize(p);
+}
+
+static void OnSizeChanged(Panel* p)
 {
 	SetItemsSize(p);
 	SetItemsCoordinate(p);

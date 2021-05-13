@@ -6,6 +6,7 @@ static void OnInit(PanelList* pll, HWND hWnd);
 static Panel* AddNewPanel(PanelList* pll);
 static void OnPosChanged(PanelList* pll);
 static void OnFontChanged(PanelList* pll);
+static void OnSelectedPanelChanged(PanelList* pll);
 static int GetViewportWidth(PanelList* pll);
 static int GetViewportHeight(PanelList* pll);
 static void OnPaint(PanelList* pll, HDC hdc, RECT* rcPaint);
@@ -61,6 +62,7 @@ PanelList* PanelList_init()
 	pll->_OnInitFunc = OnInit;
 	pll->_OnPosChangedFunc = OnPosChanged;
 	pll->_OnFontChangedFunc = OnFontChanged;
+	pll->_OnSelectedPanelChanged = OnSelectedPanelChanged;
 	pll->_GetViewportWidthFunc = GetViewportWidth;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_OnPaintFunc = OnPaint;
@@ -157,8 +159,8 @@ static Panel* AddNewPanel(PanelList* pll)
 
 static void OnPosChanged(PanelList* pll)
 {
-	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
-	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
+	int x = pll->_x0 + g_margin_v - pll->_x_current_pos;
+	int y = pll->_y0 + g_margin_h - pll->_y_current_pos;
 
 	if (pll)
 	{
@@ -172,7 +174,7 @@ static void OnPosChanged(PanelList* pll)
 
 				pn->_panel->_OnPosChangedFunc(pn->_panel);
 
-				y += pn->_panel->_height + g_margin_v;
+				y += pn->_panel->_height + g_margin_h;
 
 				pn = pn->_next;
 			}
@@ -182,8 +184,8 @@ static void OnPosChanged(PanelList* pll)
 
 static void OnFontChanged(PanelList* pll)
 {
-	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
-	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
+	int x = pll->_x0 + g_margin_v - pll->_x_current_pos;
+	int y = pll->_y0 + g_margin_h - pll->_y_current_pos;
 
 	SetCntSize(pll);
 
@@ -199,7 +201,47 @@ static void OnFontChanged(PanelList* pll)
 
 				pn->_panel->_OnFontChangedFunc(pn->_panel);
 
-				y += pn->_panel->_height + g_margin_v;
+				y += pn->_panel->_height + g_margin_h;
+
+				pn = pn->_next;
+			}
+		}
+	}
+}
+
+static void OnSelectedPanelChanged(PanelList* pll)
+{
+	int x = pll->_x0 + g_margin_v - pll->_x_current_pos;
+	int y = pll->_y0 + g_margin_h - pll->_y_current_pos;
+
+	if (pll)
+	{
+		if (pll->_front)
+		{
+			PanelNode* pn = pll->_front;
+
+			while (pn->_panel != pll->_selected_panel)
+			{
+				y += pn->_panel->_height + g_margin_h;
+				pn = pn->_next;
+			}
+
+			assert(pn->_panel == pll->_selected_panel);
+
+			pn->_panel->_x0 = x;
+			pn->_panel->_y0 = y;
+			pn->_panel->_OnSizeChangedFunc(pn->_panel);
+			y += pn->_panel->_height + g_margin_h;
+			pn = pn->_next;
+
+			while (pn)
+			{
+				pn->_panel->_x0 = x;
+				pn->_panel->_y0 = y;
+
+				pn->_panel->_OnPosChangedFunc(pn->_panel);
+
+				y += pn->_panel->_height + g_margin_h;
 
 				pn = pn->_next;
 			}
