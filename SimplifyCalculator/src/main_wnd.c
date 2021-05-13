@@ -275,7 +275,7 @@ void OnRibbonHeightChanged(MainWindow* mw, int height)
     WindowPropertyChanged(mw);
 
     mw->_panels->_y0 = mw->_ribbon_height;
-    mw->_panels->_PosChangedFunc(mw->_panels);
+    mw->_panels->_OnPosChangedFunc(mw->_panels);
 
     mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
@@ -364,7 +364,7 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
     // Reset the current scroll position. 
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
 
-    mw->_panels->_PosChangedFunc(mw->_panels);
+    mw->_panels->_OnPosChangedFunc(mw->_panels);
     mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
     RECT rc;
@@ -431,7 +431,7 @@ static void OnHScroll(MainWindow* mw, WPARAM wParam)
     // Reset the current scroll position. 
     mw->_panels->_x_current_pos = mw->_x_current_pos = xNewPos;
 
-    mw->_panels->_PosChangedFunc(mw->_panels);
+    mw->_panels->_OnPosChangedFunc(mw->_panels);
     mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
     RECT rc;

@@ -10,8 +10,8 @@ typedef struct _Panel Panel;
 typedef RECT(*GetRectFunc)(Panel* p);
 
 typedef void (*OnPanelInitFunc)(Panel* p);
-typedef void (*PanelOnPaint)(Panel* p, HDC hdc);
-typedef void (*PanelPosChangedFunc)(Panel* p);
+typedef void (*OnPanelPaint)(Panel* p, HDC hdc);
+typedef void (*OnPanelPosChangedFunc)(Panel* p);
 typedef void (*OnPanelFontChangedFunc)(Panel* p);
 
 typedef void (*OnPanelSetFocusFunc)(Panel* p);
@@ -41,8 +41,8 @@ typedef struct _Panel
 	GetRectFunc _GetRectFunc;
 	
 	OnPanelInitFunc _OnInitFunc;
-	PanelOnPaint _OnPaintFunc;
-	PanelPosChangedFunc _PosChangedFunc;
+	OnPanelPaint _OnPaintFunc;
+	OnPanelPosChangedFunc _OnPosChangedFunc;
 	OnPanelFontChangedFunc _OnFontChangedFunc;
 
 	OnPanelSetFocusFunc _OnSetFocusFunc;

@@ -7,7 +7,7 @@
 static RECT GetRect(Panel* p);
 static void OnInit(Panel* p);
 static void OnPaint(Panel* p, HDC hdc);
-static void PosChanged(Panel* p);
+static void OnPosChanged(Panel* p);
 static void OnFontChanged(Panel* p);
 static void SetItemsSize(Panel* p);
 static void SetItemsCoordinate(Panel* p);
@@ -47,7 +47,7 @@ Panel* Panel_init(HWND hWnd)
 
 	p->_OnInitFunc = OnInit;
 	p->_OnPaintFunc = OnPaint;
-	p->_PosChangedFunc = PosChanged;
+	p->_OnPosChangedFunc = OnPosChanged;
 	p->_OnFontChangedFunc = OnFontChanged;
 	
 	p->_OnSetFocusFunc = OnSetFocus;
@@ -149,7 +149,7 @@ static void OnPaint(Panel* p, HDC hdc)
 	SelectObject(hdc, hOldFont);
 }
 
-static void PosChanged(Panel* p)
+static void OnPosChanged(Panel* p)
 {
 	SetItemsCoordinate(p);
 }

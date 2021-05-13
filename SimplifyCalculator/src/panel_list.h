@@ -34,7 +34,7 @@ typedef struct _PanelList
 
 	OnPListInitFunc _OnInitFunc;
 	AddNewPanelFunc _AddNewPanelFunc;
-	PListPosChangedFunc _PosChangedFunc;
+	PListPosChangedFunc _OnPosChangedFunc;
 	OnPListFontChangedFunc _OnFontChangedFunc;
 	GetViewportWidthFunc _GetViewportWidthFunc;
 	GetViewportHeightFunc _GetViewportHeightFunc;

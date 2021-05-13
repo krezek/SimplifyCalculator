@@ -4,7 +4,7 @@
 
 static void OnInit(PanelList* pll, HWND hWnd);
 static Panel* AddNewPanel(PanelList* pll);
-static void PosChanged(PanelList* pll);
+static void OnPosChanged(PanelList* pll);
 static void OnFontChanged(PanelList* pll);
 static int GetViewportWidth(PanelList* pll);
 static int GetViewportHeight(PanelList* pll);
@@ -59,7 +59,7 @@ PanelList* PanelList_init()
 	pll->_x_current_pos = pll->_y_current_pos = 0;
 
 	pll->_OnInitFunc = OnInit;
-	pll->_PosChangedFunc = PosChanged;
+	pll->_OnPosChangedFunc = OnPosChanged;
 	pll->_OnFontChangedFunc = OnFontChanged;
 	pll->_GetViewportWidthFunc = GetViewportWidth;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
@@ -155,7 +155,7 @@ static Panel* AddNewPanel(PanelList* pll)
 	return p;
 }
 
-static void PosChanged(PanelList* pll)
+static void OnPosChanged(PanelList* pll)
 {
 	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
 	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
@@ -170,7 +170,7 @@ static void PosChanged(PanelList* pll)
 				pn->_panel->_x0 = x;
 				pn->_panel->_y0 = y;
 
-				pn->_panel->_PosChangedFunc(pn->_panel);
+				pn->_panel->_OnPosChangedFunc(pn->_panel);
 
 				y += pn->_panel->_height + g_margin_v;
 
