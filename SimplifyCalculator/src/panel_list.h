@@ -7,7 +7,7 @@ typedef struct _PanelList PanelList;
 
 typedef void (*OnPListInitFunc)(PanelList* pll, HWND hWnd);
 typedef Panel* (*AddNewPanelFunc)(PanelList* pll);
-typedef void (*PListPosChangedFunc)(PanelList* pll);
+typedef void (*OnPListPosChangedFunc)(PanelList* pll);
 typedef void (*OnPListFontChangedFunc)(PanelList* pll);
 typedef int (*GetViewportWidthFunc)(PanelList* pll);
 typedef int (*GetViewportHeightFunc)(PanelList* pll);
@@ -34,7 +34,7 @@ typedef struct _PanelList
 
 	OnPListInitFunc _OnInitFunc;
 	AddNewPanelFunc _AddNewPanelFunc;
-	PListPosChangedFunc _OnPosChangedFunc;
+	OnPListPosChangedFunc _OnPosChangedFunc;
 	OnPListFontChangedFunc _OnFontChangedFunc;
 	GetViewportWidthFunc _GetViewportWidthFunc;
 	GetViewportHeightFunc _GetViewportHeightFunc;
