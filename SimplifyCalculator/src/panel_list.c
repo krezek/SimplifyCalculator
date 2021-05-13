@@ -10,6 +10,7 @@ static void OnSelectedPanelChanged(PanelList* pll);
 static int GetViewportWidth(PanelList* pll);
 static int GetViewportHeight(PanelList* pll);
 static void OnPaint(PanelList* pll, HDC hdc, RECT* rcPaint);
+static Panel* GetPanelFromPoint(PanelList* pll, int px, int py);
 
 static void SetCntSize(PanelList* pll);
 
@@ -67,6 +68,7 @@ PanelList* PanelList_init()
 	pll->_GetViewportHeightFunc = GetViewportHeight;
 	pll->_OnPaintFunc = OnPaint;
 	pll->_AddNewPanelFunc = AddNewPanel;
+	pll->_GetPanelFromPointFunc = GetPanelFromPoint;
 
 	return pll;
 }
@@ -247,6 +249,32 @@ static void OnSelectedPanelChanged(PanelList* pll)
 			}
 		}
 	}
+}
+
+static Panel* GetPanelFromPoint(PanelList* pll, int px, int py)
+{
+	if (pll)
+	{
+		if (pll->_front)
+		{
+			PanelNode* pn = pll->_front;
+			while (pn)
+			{
+				POINT pt;
+				pt.x = px;
+				pt.y = py;
+
+				RECT rc = pn->_panel->_GetRectFunc(pn->_panel);
+
+				if (PtInRect(&rc, pt))
+					return pn->_panel;
+
+				pn = pn->_next;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 static int GetViewportWidth(PanelList* pll)

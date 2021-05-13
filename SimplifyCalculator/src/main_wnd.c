@@ -479,21 +479,17 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     case VK_RETURN:
         if (GetKeyState(VK_SHIFT) < 0)
         {
-            RECT rc1, rc2;
-
             // Remove old selection
-            rc1 = mw->_panels->_selected_panel->_GetRectFunc(mw->_panels->_selected_panel);
             (*mw->_panels->_selected_panel->_editor->_current_node->_pItem)->_setFocusFunc(
                 *mw->_panels->_selected_panel->_editor->_current_node->_pItem, 0);
-            InvalidateRect(mw->_baseWindow._hWnd, &rc1, TRUE);
-
 
             // Adding new panel
             Panel* p = mw->_panels->_AddNewPanelFunc(mw->_panels);
-            rc2 = rc1 = mw->_panels->_selected_panel->_GetRectFunc(mw->_panels->_selected_panel);
-            InvalidateRect(mw->_baseWindow._hWnd, &rc2, TRUE);
 
             SetScrollbarInfo(mw);
+
+            mw->_panels->_OnPosChangedFunc(mw->_panels);
+            InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 
             // update caret position
             mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
@@ -568,6 +564,15 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         break;
 
     case 0x09:          // Tab 
+    {
+        // Todo: Implement Tab navigation
+        if (GetKeyState(VK_SHIFT) < 0)
+        {
+        }
+        else
+        {
+        }
+    }
         break;
 
     case 0x0D:          // Carriage return 
@@ -631,6 +636,26 @@ static void OnRibbonCmd(MainWindow* mw, int cmd)
     }
 }
 
+static void OnMousLButtonDown(MainWindow* mw, int x, int y)
+{
+    Panel* p = mw->_panels->_GetPanelFromPointFunc(mw->_panels, x, y);
+    if (p)
+    {
+        RECT rc1 = mw->_panels->_selected_panel->_GetRectFunc(mw->_panels->_selected_panel);
+        (*mw->_panels->_selected_panel->_editor->_current_node->_pItem)->_setFocusFunc(
+            *mw->_panels->_selected_panel->_editor->_current_node->_pItem, 0);
+        InvalidateRect(mw->_baseWindow._hWnd, &rc1, TRUE);
+
+        mw->_panels->_selected_panel = p;
+        mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+
+        rc1 = mw->_panels->_selected_panel->_GetRectFunc(mw->_panels->_selected_panel);
+        (*mw->_panels->_selected_panel->_editor->_current_node->_pItem)->_setFocusFunc(
+            *mw->_panels->_selected_panel->_editor->_current_node->_pItem, 1);
+        InvalidateRect(mw->_baseWindow._hWnd, &rc1, TRUE);
+    }
+}
+
 static void OnPaint(MainWindow* mw)
 {
     PAINTSTRUCT ps;
@@ -685,6 +710,10 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
 
     case WM_MOUSEWHEEL:
         OnMouseWheel(mw, wParam);
+        return 0;
+
+    case WM_LBUTTONDOWN:
+        OnMousLButtonDown(mw, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
         return 0;
 
     case WM_SETFOCUS:

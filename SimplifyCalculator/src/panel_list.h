@@ -13,6 +13,7 @@ typedef void (*OnPListSelectedPanelChangedFunc)(PanelList* pll);
 typedef int (*GetViewportWidthFunc)(PanelList* pll);
 typedef int (*GetViewportHeightFunc)(PanelList* pll);
 typedef void (*OnPListPaintFunc)(PanelList* pll, HDC hdc, RECT* rcPaint);
+typedef Panel* (*GetPanelFromPointFunc)(PanelList* pll, int px, int py);
 
 typedef struct _PanelNode
 {
@@ -41,6 +42,7 @@ typedef struct _PanelList
 	GetViewportWidthFunc _GetViewportWidthFunc;
 	GetViewportHeightFunc _GetViewportHeightFunc;
 	OnPListPaintFunc _OnPaintFunc;
+	GetPanelFromPointFunc _GetPanelFromPointFunc;
 } PanelList;
 
 PanelList* PanelList_init();
