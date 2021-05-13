@@ -277,9 +277,7 @@ void OnRibbonHeightChanged(MainWindow* mw, int height)
     mw->_panels->_y0 = mw->_ribbon_height;
     mw->_panels->_PosChangedFunc(mw->_panels);
 
-    if (mw->_panels->_selected_panel)
-        if (mw->_panels->_selected_panel->_editor)
-            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+    mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
     InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
@@ -316,9 +314,7 @@ void OnFontChanged(MainWindow* mw)
     mw->_panels->_OnFontChangedFunc(mw->_panels);
     WindowPropertyChanged(mw);
 
-    if (mw->_panels->_selected_panel)
-        if (mw->_panels->_selected_panel->_editor)
-            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+    mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
     InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
@@ -369,9 +365,7 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
 
     mw->_panels->_PosChangedFunc(mw->_panels);
-    if (mw->_panels->_selected_panel)
-        if (mw->_panels->_selected_panel->_editor)
-            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+    mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
     RECT rc;
     rc.left = 0;
@@ -438,9 +432,7 @@ static void OnHScroll(MainWindow* mw, WPARAM wParam)
     mw->_panels->_x_current_pos = mw->_x_current_pos = xNewPos;
 
     mw->_panels->_PosChangedFunc(mw->_panels);
-    if (mw->_panels->_selected_panel)
-        if (mw->_panels->_selected_panel->_editor)
-            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+    mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
     RECT rc;
     rc.left = 0;
@@ -504,9 +496,7 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
             SetScrollbarInfo(mw);
 
             // update caret position
-            if (mw->_panels->_selected_panel)
-                if (mw->_panels->_selected_panel->_editor)
-                    mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
         }
         else
@@ -516,9 +506,7 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
             mw->_panels->_OnFontChangedFunc(mw->_panels);
             WindowPropertyChanged(mw);
 
-            if (mw->_panels->_selected_panel)
-                if (mw->_panels->_selected_panel->_editor)
-                    mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
             InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
         }
@@ -591,9 +579,7 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         mw->_panels->_OnFontChangedFunc(mw->_panels);
         WindowPropertyChanged(mw);
 
-        if (mw->_panels->_selected_panel)
-            if (mw->_panels->_selected_panel->_editor)
-                mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+        mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
         InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 
@@ -620,9 +606,7 @@ static void OnRibbonCmd(MainWindow* mw, int cmd)
         mw->_panels->_OnFontChangedFunc(mw->_panels);
         WindowPropertyChanged(mw);
 
-        if (mw->_panels->_selected_panel)
-            if (mw->_panels->_selected_panel->_editor)
-                mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+        mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
 
         InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
     }
