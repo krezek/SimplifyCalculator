@@ -271,6 +271,8 @@ static void OnChar_Default(Panel* p, wchar_t ch)
 
 static void OnChar_Backspace(Panel* p)
 {
+	if (p->_editor)
+		p->_editor->_OnChar_BackspaceFunc(p->_editor);
 }
 
 static void OnChar_Return(Panel* p)

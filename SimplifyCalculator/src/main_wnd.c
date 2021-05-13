@@ -560,8 +560,23 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     switch (wParam)
     {
     case 0x08:          // Backspace 
+    {
         mw->_panels->_selected_panel->_OnChar_BackspaceFunc(mw->_panels->_selected_panel);
+
+        mw->_panels->_OnSelectedPanelChanged(mw->_panels);
+        WindowPropertyChanged(mw);
+
+        RECT rc;
+        rc.left = mw->_panels->_selected_panel->_x0;
+        rc.top = mw->_panels->_selected_panel->_y0;
+        rc.right = rc.left + mw->_client_width;
+        rc.bottom = rc.top + mw->_client_height;
+
+        InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+
+        mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
         break;
+    }
 
     case 0x09:          // Tab 
     {

@@ -495,6 +495,97 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 
 static void OnChar_Backspace(Editor* ed)
 {
+	Item* newItem = NULL;
+
+	if (ed->_current_node->_nodeType == NT_Null)
+	{
+		
+	}
+	else if (ed->_current_node->_nodeType == NT_Begin)
+	{
+		
+	}
+	else if (ed->_current_node->_nodeType == NT_End)
+	{
+		if (ed->_current_node)
+		{
+			Item* parent = Item_getParent(*ed->_pItems, *ed->_current_node->_pItem);
+			if (parent)
+			{
+				if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
+				{
+					ItemTree_free(&parent->_left);
+					newItem = parent->_left = Item_init(NULL, NULL);
+				}
+				else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
+				{
+					ItemTree_free(&parent->_right);
+					newItem = parent->_right = Item_init(NULL, NULL);
+				}
+			}
+			else
+			{
+				ItemTree_free(ed->_pItems);
+				newItem = (*ed->_pItems) = Item_init(NULL, NULL);
+			}
+		}
+	}
+	else if (ed->_current_node->_nodeType == NT_Number ||
+		ed->_current_node->_nodeType == NT_Literal)
+	{
+		if (ed->_current_node->_index > 0)
+		{
+			ed->_current_node->_index -= 1;
+			String_delete_c(ed->_current_node->_str, ed->_current_node->_index);
+		}
+
+		if (ed->_current_node->_str->_len == 0)
+		{
+			Item* parent = Item_getParent(*ed->_pItems, *ed->_current_node->_pItem);
+			if (parent)
+			{
+				if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
+				{
+					ItemTree_free(&parent->_left);
+					newItem = parent->_left = Item_init(NULL, NULL);
+				}
+				else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
+				{
+					ItemTree_free(&parent->_right);
+					newItem = parent->_right = Item_init(NULL, NULL);
+				}
+			}
+			else
+			{
+				ItemTree_free(ed->_pItems);
+				newItem = (*ed->_pItems) = Item_init(NULL, NULL);
+			}
+		}
+		
+	}
+
+	if (newItem)
+	{
+		Update_ItemsOrder(ed);
+		EditorNode* en = get_node(ed, newItem);
+		ed->_current_node = en;
+		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+
+		Item* i = NULL;
+		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
+			i = newItem->_left;
+
+		if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
+			i = newItem->_right;
+
+		if (i)
+		{
+			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
+			EditorNode* en = get_node(ed, i);
+			ed->_current_node = en;
+			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+		}
+	}
 }
 
 static void OnChar_Return(Editor* ed)
