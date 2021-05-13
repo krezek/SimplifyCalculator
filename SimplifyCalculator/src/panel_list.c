@@ -2,16 +2,26 @@
 
 #include "panel_list.h"
 
-static void OnInit(PanelLinkedList* pll, HWND hWnd);
-static Panel* AddNewPanel(PanelLinkedList* pll);
-static void PosChanged(PanelLinkedList* pll);
-static void OnFontChanged(PanelLinkedList* pll);
-static int GetViewportWidth(PanelLinkedList* pll);
-static int GetViewportHeight(PanelLinkedList* pll);
-static void OnPaint(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
+static void OnInit(PanelList* pll, HWND hWnd);
+static Panel* AddNewPanel(PanelList* pll);
+static void PosChanged(PanelList* pll);
+static void OnFontChanged(PanelList* pll);
+static int GetViewportWidth(PanelList* pll);
+static int GetViewportHeight(PanelList* pll);
+static void OnPaint(PanelList* pll, HDC hdc, RECT* rcPaint);
+
+static void SetCntSize(PanelList* pll);
+
+extern HFONT g_math_font;
 
 static const int g_margin_h = 10, g_margin_v = 10;
-extern HFONT g_math_font;
+
+const wchar_t* g_in_str = L"In:";
+const wchar_t* g_out_str = L"Out:";
+
+int g_in_str_width, g_in_str_height;
+int g_out_str_width, g_out_str_height;
+int g_padding;
 
 PanelNode* PanelNode_init(Panel* p, PanelNode* nxt, PanelNode* prv)
 {
@@ -35,9 +45,9 @@ void PanelNode_free(PanelNode* pn)
 	free(pn);
 }
 
-PanelLinkedList* PanelLinkedList_init()
+PanelList* PanelList_init()
 {
-	PanelLinkedList* pll = (PanelLinkedList*)malloc(sizeof(PanelLinkedList));
+	PanelList* pll = (PanelList*)malloc(sizeof(PanelList));
 	assert(pll != NULL);
 
 	pll->_front = NULL;
@@ -59,7 +69,7 @@ PanelLinkedList* PanelLinkedList_init()
 	return pll;
 }
 
-void PanelLinkedList_free(PanelLinkedList* pll)
+void PanelList_free(PanelList* pll)
 {
 	if (pll)
 	{
@@ -81,7 +91,7 @@ void PanelLinkedList_free(PanelLinkedList* pll)
 	}
 }
 
-void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
+void PanelList_pushpack(PanelList* pll, Panel* p)
 {
 	if (pll->_rear == NULL)
 	{
@@ -96,12 +106,35 @@ void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
 	}
 }
 
-static void OnInit(PanelLinkedList* pll, HWND hWnd)
+static void OnInit(PanelList* pll, HWND hWnd)
 {
 	pll->_hWndParent = hWnd;
+	SetCntSize(pll);
 }
 
-static Panel* AddNewPanel(PanelLinkedList* pll)
+static void SetCntSize(PanelList* pll)
+{
+	SIZE sz1, sz2, sz3;
+
+	HDC hdc = GetDC(pll->_hWndParent);
+	SelectObject(hdc, g_math_font);
+
+	GetTextExtentPoint(hdc, g_in_str, (int)wcslen(g_in_str), &sz1);
+	GetTextExtentPoint(hdc, g_out_str, (int)wcslen(g_out_str), &sz2);
+	GetTextExtentPoint(hdc, L"W", 1, &sz3);
+
+	g_in_str_width = sz1.cx;
+	g_in_str_height = sz1.cy;
+
+	g_out_str_width = sz2.cx;
+	g_out_str_height = sz2.cy;
+
+	g_padding = sz3.cx;
+
+	ReleaseDC(pll->_hWndParent, hdc);
+}
+
+static Panel* AddNewPanel(PanelList* pll)
 {
 	int x, y;
 
@@ -111,7 +144,7 @@ static Panel* AddNewPanel(PanelLinkedList* pll)
 	y -= pll->_y_current_pos;
 
 	Panel* p = Panel_init(pll->_hWndParent);
-	PanelLinkedList_pushpack(pll, p);
+	PanelList_pushpack(pll, p);
 	pll->_selected_panel = p;
 
 	p->_x0 = x;
@@ -122,7 +155,7 @@ static Panel* AddNewPanel(PanelLinkedList* pll)
 	return p;
 }
 
-static void PosChanged(PanelLinkedList* pll)
+static void PosChanged(PanelList* pll)
 {
 	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
 	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
@@ -147,7 +180,7 @@ static void PosChanged(PanelLinkedList* pll)
 	}
 }
 
-static void OnFontChanged(PanelLinkedList* pll)
+static void OnFontChanged(PanelList* pll)
 {
 	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
 	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
@@ -172,7 +205,7 @@ static void OnFontChanged(PanelLinkedList* pll)
 	}
 }
 
-static int GetViewportWidth(PanelLinkedList* pll)
+static int GetViewportWidth(PanelList* pll)
 {
 	int w = 0;
 
@@ -194,7 +227,7 @@ static int GetViewportWidth(PanelLinkedList* pll)
 	return w;
 }
 
-static int GetViewportHeight(PanelLinkedList* pll)
+static int GetViewportHeight(PanelList* pll)
 {
 	int y = g_margin_v;
 
@@ -214,7 +247,7 @@ static int GetViewportHeight(PanelLinkedList* pll)
 	return y;
 }
 
-static void OnPaint(PanelLinkedList* pll, HDC hdc, RECT* rcPaint)
+static void OnPaint(PanelList* pll, HDC hdc, RECT* rcPaint)
 {
 	if (pll)
 	{

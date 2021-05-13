@@ -16,7 +16,7 @@ typedef struct
 	int _x_current_pos, _y_current_pos;
 	int _xMaxScroll, _yMaxScroll;
 
-	PanelLinkedList* _panels;
+	PanelList* _panels;
 } MainWindow;
 
 ATOM MainWindow_RegisterClass();

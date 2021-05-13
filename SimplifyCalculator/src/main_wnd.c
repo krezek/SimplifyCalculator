@@ -81,14 +81,14 @@ MainWindow* MainWindow_init()
     mw->_baseWindow._CreateFunc = Create;
     mw->_baseWindow._AfterCreateFunc = AfterCreate;
 
-    mw->_panels = PanelLinkedList_init();
+    mw->_panels = PanelList_init();
 
     return mw;
 }
 
 void MainWindow_free(MainWindow* mw)
 {
-    PanelLinkedList_free(mw->_panels);
+    PanelList_free(mw->_panels);
     free(mw);
 }
 

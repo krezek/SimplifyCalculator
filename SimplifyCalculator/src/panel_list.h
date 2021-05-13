@@ -3,15 +3,15 @@
 
 #include "panel.h"
 
-typedef struct _PanelLinkedList PanelLinkedList;
+typedef struct _PanelList PanelList;
 
-typedef void (*OnPListInitFunc)(PanelLinkedList* pll, HWND hWnd);
-typedef Panel* (*AddNewPanelFunc)(PanelLinkedList* pll);
-typedef void (*PListPosChangedFunc)(PanelLinkedList* pll);
-typedef void (*OnPListFontChangedFunc)(PanelLinkedList* pll);
-typedef int (*GetViewportWidthFunc)(PanelLinkedList* pll);
-typedef int (*GetViewportHeightFunc)(PanelLinkedList* pll);
-typedef void (*OnPListPaintFunc)(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
+typedef void (*OnPListInitFunc)(PanelList* pll, HWND hWnd);
+typedef Panel* (*AddNewPanelFunc)(PanelList* pll);
+typedef void (*PListPosChangedFunc)(PanelList* pll);
+typedef void (*OnPListFontChangedFunc)(PanelList* pll);
+typedef int (*GetViewportWidthFunc)(PanelList* pll);
+typedef int (*GetViewportHeightFunc)(PanelList* pll);
+typedef void (*OnPListPaintFunc)(PanelList* pll, HDC hdc, RECT* rcPaint);
 
 typedef struct _PanelNode
 {
@@ -21,7 +21,7 @@ typedef struct _PanelNode
 	struct _PanelNode* _prev;
 } PanelNode;
 
-typedef struct _PanelLinkedList
+typedef struct _PanelList
 {
 	PanelNode* _front;
 	PanelNode* _rear;
@@ -39,11 +39,11 @@ typedef struct _PanelLinkedList
 	GetViewportWidthFunc _GetViewportWidthFunc;
 	GetViewportHeightFunc _GetViewportHeightFunc;
 	OnPListPaintFunc _OnPaintFunc;
-} PanelLinkedList;
+} PanelList;
 
-PanelLinkedList* PanelLinkedList_init();
-void PanelLinkedList_free(PanelLinkedList* pll);
-void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p);
+PanelList* PanelList_init();
+void PanelList_free(PanelList* pll);
+void PanelList_pushpack(PanelList* pll, Panel* p);
 
 #endif /* _PANEL_LIST_H_ */
 

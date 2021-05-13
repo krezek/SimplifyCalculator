@@ -9,7 +9,6 @@ static void OnInit(Panel* p);
 static void OnPaint(Panel* p, HDC hdc);
 static void PosChanged(Panel* p);
 static void OnFontChanged(Panel* p);
-static void SetCntSize(Panel* p);
 static void SetItemsSize(Panel* p);
 static void SetCoordinate(Panel* p);
 static void CalcPanelSize(Panel* p);
@@ -26,14 +25,13 @@ static void OnChar_Return(Panel* p);
 
 static void OnCmd(Panel* p, int cmd);
 
-static const wchar_t* g_in_str = L"In:";
-static const wchar_t* g_out_str = L"Out:";
-
 static const int g_margin_h = 10, g_margin_v = 10;
 
-static int g_in_str_width, g_in_str_height;
-static int g_out_str_width, g_out_str_height;
-static int g_padding;
+extern const wchar_t* g_in_str;
+extern const wchar_t* g_out_str; 
+extern int g_in_str_width, g_in_str_height;
+extern int g_out_str_width, g_out_str_height;
+extern int g_padding;
 
 extern HFONT g_math_font;
 
@@ -110,7 +108,6 @@ static void OnInit(Panel* p)
 	p->_editor->_hWnd = p->_hWndParent;
 	p->_editor->_OnEditorInitializeFunc(p->_editor);
 
-	SetCntSize(p);
 	SetCoordinate(p);
 	SetItemsSize(p);
 	CalcPanelSize(p);
@@ -159,32 +156,9 @@ static void PosChanged(Panel* p)
 
 static void OnFontChanged(Panel* p)
 {
-	SetCntSize(p);
 	SetItemsSize(p);
 	SetCoordinate(p);
 	CalcPanelSize(p);
-}
-
-static void SetCntSize(Panel* p)
-{
-	SIZE sz1, sz2, sz3;
-
-	HDC hdc = GetDC(p->_hWndParent);
-	SelectObject(hdc, g_math_font);
-
-	GetTextExtentPoint(hdc, g_in_str, (int)wcslen(g_in_str), &sz1);
-	GetTextExtentPoint(hdc, g_out_str, (int)wcslen(g_out_str), &sz2);
-	GetTextExtentPoint(hdc, L"W", 1, &sz3);
-
-	g_in_str_width = sz1.cx;
-	g_in_str_height = sz1.cy;
-
-	g_out_str_width = sz2.cx;
-	g_out_str_height = sz2.cy;
-
-	g_padding = sz3.cx;
-
-	ReleaseDC(p->_hWndParent, hdc);
 }
 
 static void SetItemsSize(Panel* p)
