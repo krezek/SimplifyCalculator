@@ -126,12 +126,28 @@ static void OnPaint(Panel* p, HDC hdc)
 	FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOWFRAME));
 
 	HFONT hOldFont = SelectObject(hdc,  g_math_font);
+	SelectObject(hdc, GetStockObject(DC_PEN));
 
 	{
+		SetDCPenColor(hdc, RGB(255, 0, 0));
+		MoveToEx(hdc, p->_x0, p->_y0, NULL);
+		LineTo(hdc, p->_x0, p->_y0 + p->_height);
+		LineTo(hdc, p->_x0 + 10, p->_y0 + p->_height);
+		LineTo(hdc, p->_x0, p->_y0 + p->_height - p->_x0);
+		MoveToEx(hdc, p->_x0, p->_y0, NULL);
+		LineTo(hdc, p->_x0 + 10, p->_y0);
+		SetDCPenColor(hdc, RGB(0, 0, 0));
+	}
+
+	{
+		SetTextColor(hdc, RGB(255, 0, 0));
+
 		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + g_margin_h + 
 			max(p->_in_baseLine, g_in_str_height / 2) - g_in_str_height / 2, g_in_str, (int)wcslen(g_in_str));
 		TextOut(hdc, p->_x0 + g_margin_v, p->_y0 + 2 * g_margin_h + max(p->_in_height, g_in_str_height) + 
 			max(p->_out_baseLine, g_out_str_height / 2) - g_out_str_height / 2, g_out_str, (int)wcslen(g_out_str));
+
+		SetTextColor(hdc, RGB(0, 0, 0));
 	}
 
 	if(p->_in_items)

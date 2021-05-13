@@ -676,7 +676,7 @@ static void OnPaint(MainWindow* mw)
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(mw->_baseWindow._hWnd, &ps);
 
-    FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW));
+    FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOWFRAME));
 
     mw->_panels->_OnPaintFunc(mw->_panels, hdc, &ps.rcPaint);
     
