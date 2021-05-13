@@ -5,17 +5,14 @@
 #include "items.h"
 #include "editor.h"
 
-#define WM_PANEL_REPAINT WM_USER + 1
-#define WM_PANEL_SIZE_CHANGED WM_USER + 2
-
 typedef struct _Panel Panel;
 
 typedef RECT(*GetRectFunc)(Panel* p);
 
 typedef void (*OnPanelInitFunc)(Panel* p);
-typedef void (*DrawFunc)(Panel* p, HDC hdc);
-typedef void (*PosChangedFunc)(Panel* p);
-typedef void (*FontChangedFunc)(Panel* p);
+typedef void (*PanelOnPaint)(Panel* p, HDC hdc);
+typedef void (*PanelPosChangedFunc)(Panel* p);
+typedef void (*OnPanelFontChangedFunc)(Panel* p);
 
 typedef void (*OnPanelSetFocusFunc)(Panel* p);
 typedef void (*OnPanelKillFocusFunc)(Panel* p);
@@ -43,10 +40,10 @@ typedef struct _Panel
 
 	GetRectFunc _GetRectFunc;
 	
-	OnPanelInitFunc _OnPanelInitFunc;
-	DrawFunc _DrawFunc;
-	PosChangedFunc _PosChangedFunc;
-	FontChangedFunc _FontChangedFunc;
+	OnPanelInitFunc _OnInitFunc;
+	PanelOnPaint _OnPaintFunc;
+	PanelPosChangedFunc _PosChangedFunc;
+	OnPanelFontChangedFunc _OnFontChangedFunc;
 
 	OnPanelSetFocusFunc _OnSetFocusFunc;
 	OnPanelKillFocusFunc _OnKillFocusFunc;

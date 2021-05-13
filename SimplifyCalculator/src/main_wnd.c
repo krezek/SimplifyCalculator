@@ -275,7 +275,7 @@ void OnRibbonHeightChanged(MainWindow* mw, int height)
     WindowPropertyChanged(mw);
 
     mw->_panels->_y0 = mw->_ribbon_height;
-    mw->_panels->_ParentPosChangedFunc(mw->_panels);
+    mw->_panels->_PosChangedFunc(mw->_panels);
 
     InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
 }
@@ -289,7 +289,7 @@ void AfterCreate(BaseWindow* _this)
     mw->_panels->_width = mw->_client_width;
     mw->_panels->_height = mw->_client_height;
 
-    mw->_panels->_OnInitializeFunc(mw->_panels, mw->_baseWindow._hWnd);
+    mw->_panels->_OnInitFunc(mw->_panels, mw->_baseWindow._hWnd);
     
     mw->_panels->_AddNewPanelFunc(mw->_panels);
 }
@@ -309,7 +309,7 @@ void OnFontChanged(MainWindow* mw)
     fh._hfont = g_math_font;
     Graphics_fontList_init(fh);
 
-    mw->_panels->_ParentFontChangedFunc(mw->_panels);
+    mw->_panels->_OnFontChangedFunc(mw->_panels);
     WindowPropertyChanged(mw);
 
     if (mw->_panels->_selected_panel)
@@ -364,7 +364,7 @@ static void OnVScroll(MainWindow* mw, WPARAM wParam)
     // Reset the current scroll position. 
     mw->_panels->_y_current_pos = mw->_y_current_pos = yNewPos;
 
-    mw->_panels->_ParentPosChangedFunc(mw->_panels);
+    mw->_panels->_PosChangedFunc(mw->_panels);
     if (mw->_panels->_selected_panel)
         if (mw->_panels->_selected_panel->_editor)
             mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
@@ -433,7 +433,7 @@ static void OnHScroll(MainWindow* mw, WPARAM wParam)
     // Reset the current scroll position. 
     mw->_panels->_x_current_pos = mw->_x_current_pos = xNewPos;
 
-    mw->_panels->_ParentPosChangedFunc(mw->_panels);
+    mw->_panels->_PosChangedFunc(mw->_panels);
     if (mw->_panels->_selected_panel)
         if (mw->_panels->_selected_panel->_editor)
             mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
@@ -509,7 +509,7 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         {
             mw->_panels->_selected_panel->_OnChar_ReturnFunc(mw->_panels->_selected_panel);
 
-            mw->_panels->_ParentFontChangedFunc(mw->_panels);
+            mw->_panels->_OnFontChangedFunc(mw->_panels);
             WindowPropertyChanged(mw);
 
             if (mw->_panels->_selected_panel)
@@ -584,7 +584,7 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
     {
         mw->_panels->_selected_panel->_OnChar_DefaultFunc(mw->_panels->_selected_panel, (wchar_t)wParam);
 
-        mw->_panels->_ParentFontChangedFunc(mw->_panels);
+        mw->_panels->_OnFontChangedFunc(mw->_panels);
         WindowPropertyChanged(mw);
 
         if (mw->_panels->_selected_panel)
@@ -602,16 +602,28 @@ static void OnChar(MainWindow* mw, WPARAM wParam, LPARAM lParam)
 
 static void OnRibbonCmd(MainWindow* mw, int cmd)
 {
-    mw->_panels->_selected_panel->_OnCmdFunc(mw->_panels->_selected_panel, cmd);
+    switch (cmd)
 
-    mw->_panels->_ParentFontChangedFunc(mw->_panels);
-    WindowPropertyChanged(mw);
+    {
+    case IDC_CMD_EXIT:
+        PostMessage(mw->_baseWindow._hWnd, WM_CLOSE, 0, 0);
+        return;
 
-    if (mw->_panels->_selected_panel)
-        if (mw->_panels->_selected_panel->_editor)
-            mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+    default:
+    {
+        mw->_panels->_selected_panel->_OnCmdFunc(mw->_panels->_selected_panel, cmd);
 
-    InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
+        mw->_panels->_OnFontChangedFunc(mw->_panels);
+        WindowPropertyChanged(mw);
+
+        if (mw->_panels->_selected_panel)
+            if (mw->_panels->_selected_panel->_editor)
+                mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+
+        InvalidateRect(mw->_baseWindow._hWnd, NULL, TRUE);
+    }
+        break;
+    }
 }
 
 static void OnPaint(MainWindow* mw)
@@ -621,7 +633,7 @@ static void OnPaint(MainWindow* mw)
 
     FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW));
 
-    mw->_panels->_DrawListFunc(mw->_panels, hdc, &ps.rcPaint);
+    mw->_panels->_OnPaintFunc(mw->_panels, hdc, &ps.rcPaint);
     
     EndPaint(mw->_baseWindow._hWnd, &ps);
 }
@@ -704,20 +716,9 @@ static LRESULT HandleMessage(BaseWindow* _this, UINT uMsg, WPARAM wParam, LPARAM
         OnFontChanged(mw);
         return 0;
     case WM_RIBBON_COMMAND:
-    {
-        switch (wParam)
-        {
-        case IDC_CMD_EXIT:
-            PostMessage(mw->_baseWindow._hWnd, WM_CLOSE, 0, 0);
-            break;
-
-        default:
-            OnRibbonCmd(mw, (int)wParam);
-            break;
-        }
-
+        OnRibbonCmd(mw, (int)wParam);
         return 0;
-    }
+
     case WM_DESTROY:
         OnDestroy(mw);
         return 0;

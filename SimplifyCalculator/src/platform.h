@@ -28,5 +28,14 @@
 #include <crtdbg.h>
 #endif
 
+#define WM_PANEL_REPAINT WM_USER + 1
+#define WM_PANEL_SIZE_CHANGED WM_USER + 2
+
+#define WM_RIBBON_HEIGHT_CHANGED WM_USER + 10
+#define WM_RIBBON_FONT_CHANGED WM_USER + 11
+#define WM_RIBBON_COMMAND WM_USER + 12
+
+
+
 #endif /* PLATFORM_H_ */
 

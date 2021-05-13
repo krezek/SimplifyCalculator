@@ -2,13 +2,13 @@
 
 #include "panel_list.h"
 
-static void OnInitialze(PanelLinkedList* pll, HWND hWnd);
+static void OnInit(PanelLinkedList* pll, HWND hWnd);
 static Panel* AddNewPanel(PanelLinkedList* pll);
-static void ParentPosChanged(PanelLinkedList* pll);
-static void ParentFontChanged(PanelLinkedList* pll);
+static void PosChanged(PanelLinkedList* pll);
+static void OnFontChanged(PanelLinkedList* pll);
 static int GetViewportWidth(PanelLinkedList* pll);
 static int GetViewportHeight(PanelLinkedList* pll);
-static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
+static void OnPaint(PanelLinkedList* pll, HDC hdc, RECT* rcPaint);
 
 static const int g_margin_h = 10, g_margin_v = 10;
 extern HFONT g_math_font;
@@ -48,12 +48,12 @@ PanelLinkedList* PanelLinkedList_init()
 	pll->_width = pll->_height = 0;
 	pll->_x_current_pos = pll->_y_current_pos = 0;
 
-	pll->_OnInitializeFunc = OnInitialze;
-	pll->_ParentPosChangedFunc = ParentPosChanged;
-	pll->_ParentFontChangedFunc = ParentFontChanged;
+	pll->_OnInitFunc = OnInit;
+	pll->_PosChangedFunc = PosChanged;
+	pll->_OnFontChangedFunc = OnFontChanged;
 	pll->_GetViewportWidthFunc = GetViewportWidth;
 	pll->_GetViewportHeightFunc = GetViewportHeight;
-	pll->_DrawListFunc = DrawList;
+	pll->_OnPaintFunc = OnPaint;
 	pll->_AddNewPanelFunc = AddNewPanel;
 
 	return pll;
@@ -96,7 +96,7 @@ void PanelLinkedList_pushpack(PanelLinkedList* pll, Panel* p)
 	}
 }
 
-static void OnInitialze(PanelLinkedList* pll, HWND hWnd)
+static void OnInit(PanelLinkedList* pll, HWND hWnd)
 {
 	pll->_hWndParent = hWnd;
 }
@@ -117,12 +117,12 @@ static Panel* AddNewPanel(PanelLinkedList* pll)
 	p->_x0 = x;
 	p->_y0 = y;
 
-	p->_OnPanelInitFunc(p);
+	p->_OnInitFunc(p);
 	
 	return p;
 }
 
-static void ParentPosChanged(PanelLinkedList* pll)
+static void PosChanged(PanelLinkedList* pll)
 {
 	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
 	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
@@ -147,7 +147,7 @@ static void ParentPosChanged(PanelLinkedList* pll)
 	}
 }
 
-static void ParentFontChanged(PanelLinkedList* pll)
+static void OnFontChanged(PanelLinkedList* pll)
 {
 	int x = pll->_x0 + g_margin_h - pll->_x_current_pos;
 	int y = pll->_y0 + g_margin_v - pll->_y_current_pos;
@@ -162,7 +162,7 @@ static void ParentFontChanged(PanelLinkedList* pll)
 				pn->_panel->_x0 = x;
 				pn->_panel->_y0 = y;
 
-				pn->_panel->_FontChangedFunc(pn->_panel);
+				pn->_panel->_OnFontChangedFunc(pn->_panel);
 
 				y += pn->_panel->_height + g_margin_v;
 
@@ -214,7 +214,7 @@ static int GetViewportHeight(PanelLinkedList* pll)
 	return y;
 }
 
-static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint)
+static void OnPaint(PanelLinkedList* pll, HDC hdc, RECT* rcPaint)
 {
 	if (pll)
 	{
@@ -233,7 +233,7 @@ static void DrawList(PanelLinkedList* pll, HDC hdc, RECT* rcPaint)
 
 				if (IntersectRect(&rc, rcPaint, &pRect))
 				{
-					p->_DrawFunc(pn->_panel, hdc);
+					p->_OnPaintFunc(pn->_panel, hdc);
 				}
 
 				pn = pn->_next;

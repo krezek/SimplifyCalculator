@@ -6,9 +6,9 @@
 
 static RECT GetRect(Panel* p);
 static void OnInit(Panel* p);
-static void Draw(Panel* p, HDC hdc);
+static void OnPaint(Panel* p, HDC hdc);
 static void PosChanged(Panel* p);
-static void FontChanged(Panel* p);
+static void OnFontChanged(Panel* p);
 static void SetCntSize(Panel* p);
 static void SetItemsSize(Panel* p);
 static void SetCoordinate(Panel* p);
@@ -47,10 +47,10 @@ Panel* Panel_init(HWND hWnd)
 
 	p->_GetRectFunc = GetRect;
 
-	p->_OnPanelInitFunc = OnInit;
-	p->_DrawFunc = Draw;
+	p->_OnInitFunc = OnInit;
+	p->_OnPaintFunc = OnPaint;
 	p->_PosChangedFunc = PosChanged;
-	p->_FontChangedFunc = FontChanged;
+	p->_OnFontChangedFunc = OnFontChanged;
 	
 	p->_OnSetFocusFunc = OnSetFocus;
 	p->_OnKillFocusFunc = OnKillFocus;
@@ -116,7 +116,7 @@ static void OnInit(Panel* p)
 	CalcPanelSize(p);
 }
 
-static void Draw(Panel* p, HDC hdc)
+static void OnPaint(Panel* p, HDC hdc)
 {
 	RECT rc;
 	rc.left = p->_x0;
@@ -157,7 +157,7 @@ static void PosChanged(Panel* p)
 	SetCoordinate(p);
 }
 
-static void FontChanged(Panel* p)
+static void OnFontChanged(Panel* p)
 {
 	SetCntSize(p);
 	SetItemsSize(p);
