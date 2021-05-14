@@ -334,33 +334,39 @@ static void OnKey_RightArrow(Editor* ed)
 static void OnChar_Default(Editor* ed, wchar_t ch)
 {
 	Item* newItem = NULL;
+	initFunc2param pf2 = NULL;
+	initFunc1param pf1 = NULL;
 
-	if (ed->_current_node->_nodeType == NT_Null)
+	pf2 = get_func_2param(ch);
+	if (pf2)
 	{
-		initFunc2param pf2 = NULL;
-		initFunc1param pf1 = NULL;
-
-		pf2 = get_func_2param(ch);
-		if (pf2)
+		if ((ed->_current_node->_nodeType == NT_Null) ||
+			(ed->_current_node->_nodeType == NT_End) ||
+			(ed->_current_node->_nodeType == NT_Number) ||
+			(ed->_current_node->_nodeType == NT_Literal))
 		{
 			newItem = add_item_2param_right(ed, pf2);
 		}
-		else
+		else if (ed->_current_node->_nodeType == NT_Begin)
 		{
-			pf1 = get_func_1param(ch);
-			if (pf1)
-			{
-				newItem = add_item_1param(ed, pf1);
-			}
+			newItem = add_item_2param_left(ed, pf2);
 		}
+	}
+	else
+	{
+		pf1 = get_func_1param(ch);
+		if (pf1)
+		{
+			newItem = add_item_1param(ed, pf1);
+		}
+	}
 
-		if (newItem)
-			return;
+	wchar_t s[2];
+	s[0] = ch;
+	s[1] = 0;
 
-		wchar_t s[2];
-		s[0] = ch;
-		s[1] = 0;
-
+	if (!newItem && ed->_current_node->_nodeType == NT_Null)
+	{
 		Item* parent = Item_getParent(*ed->_pItems, (*ed->_current_node->_pItem));
 		if (!parent)
 		{
@@ -393,74 +399,11 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 			}
 		}
 	}
-	else if (ed->_current_node->_nodeType == NT_Begin)
+	else if (!newItem && (ed->_current_node->_nodeType == NT_Number ||
+		ed->_current_node->_nodeType == NT_Literal))
 	{
-		initFunc2param pf2 = NULL;
-		initFunc1param pf1 = NULL;
-
-		pf2 = get_func_2param(ch);
-		if (pf2)
-		{
-			newItem = add_item_2param_left(ed, pf2);
-		}
-		else
-		{
-			pf1 = get_func_1param(ch);
-			if (pf1)
-			{
-				newItem = add_item_1param(ed, pf1);
-			}
-		}
-
-	}
-	else if (ed->_current_node->_nodeType == NT_End)
-	{
-		initFunc2param pf2 = NULL;
-		initFunc1param pf1 = NULL;
-
-		pf2 = get_func_2param(ch);
-		if (pf2)
-		{
-			newItem = add_item_2param_right(ed, pf2);
-		}
-		else
-		{
-			pf1 = get_func_1param(ch);
-			if (pf1)
-			{
-				newItem = add_item_1param(ed, pf1);
-			}
-		}
-	}
-	else if (ed->_current_node->_nodeType == NT_Number ||
-		ed->_current_node->_nodeType == NT_Literal)
-	{
-		initFunc2param pf2 = NULL;
-		initFunc1param pf1 = NULL;
-
-		pf2 = get_func_2param(ch);
-		if (pf2)
-		{
-			newItem = add_item_2param_right(ed, pf2);
-		}
-		else
-		{
-			pf1 = get_func_1param(ch);
-			if (pf1)
-			{
-				newItem = add_item_1param(ed, pf1);
-			}
-		}
-
-		if (!newItem)
-		{
-			wchar_t s[2];
-			s[0] = ch;
-			s[1] = 0;
-
-			String_insert_s(ed->_current_node->_str, ed->_current_node->_index, s);
-			ed->_current_node->_index += 1;
-		}
+		String_insert_s(ed->_current_node->_str, ed->_current_node->_index, s);
+		ed->_current_node->_index += 1;
 	}
 
 	if (newItem)
@@ -479,8 +422,7 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 		Item* i = NULL;
 		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
 			i = newItem->_left;
-
-		if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
+		else if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
 			i = newItem->_right;
 
 		if (i)
@@ -497,15 +439,7 @@ static void OnChar_Backspace(Editor* ed)
 {
 	Item* newItem = NULL;
 
-	if (ed->_current_node->_nodeType == NT_Null)
-	{
-		
-	}
-	else if (ed->_current_node->_nodeType == NT_Begin)
-	{
-		
-	}
-	else if (ed->_current_node->_nodeType == NT_End)
+	if (ed->_current_node->_nodeType == NT_End)
 	{
 		if (ed->_current_node)
 		{
@@ -561,7 +495,6 @@ static void OnChar_Backspace(Editor* ed)
 				newItem = (*ed->_pItems) = Item_init(NULL, NULL);
 			}
 		}
-		
 	}
 
 	if (newItem)
@@ -574,8 +507,7 @@ static void OnChar_Backspace(Editor* ed)
 		Item* i = NULL;
 		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
 			i = newItem->_left;
-
-		if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
+		else if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
 			i = newItem->_right;
 
 		if (i)
@@ -841,8 +773,7 @@ static void OnCmd(Editor* ed, int cmd)
 		Item* i = NULL;
 		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
 			i = newItem->_left;
-
-		if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
+		else if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
 			i = newItem->_right;
 
 		if (i)
