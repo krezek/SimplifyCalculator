@@ -588,6 +588,18 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 				(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
 			}
 		}
+
+		if ((*newItem)->_objectType == OBJ_Pow)
+		{
+			if ((*newItem)->_left == (*origin))
+			{
+				(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
+			}
+			else if ((*newItem)->_right == (*origin))
+			{
+				(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
+			}
+		}
 	}
 	
 	if (*parent && (*parent)->_procLevel > (*newItem)->_procLevel)
@@ -695,6 +707,18 @@ void add_necessary_parentheses_1param(Item** parent, Item** origin, Item** newIt
 	if (*origin && (*origin)->_procLevel < PROC_L_6 && (*newItem)->_objectType == OBJ_Factorial)
 	{
 		(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
+	}
+
+	if ((*newItem)->_objectType == OBJ_Sign)
+	{
+		if (*parent && (*parent)->_objectType == OBJ_Pow)
+		{
+			*newItem = (Item*)ItemParentheses_init(*newItem);
+		}
+		else
+		{
+			(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
+		}
 	}
 }
 
