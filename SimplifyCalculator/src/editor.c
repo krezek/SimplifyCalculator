@@ -596,6 +596,11 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 		{
 			*newItem = (Item*)ItemParentheses_init(*newItem);
 		}
+
+		if ((*parent)->_objectType == OBJ_Sign)
+		{
+			*newItem = (Item*)ItemParentheses_init(*newItem);
+		}
 	}
 
 	if (*parent && (*parent)->_procLevel == (*newItem)->_procLevel)
