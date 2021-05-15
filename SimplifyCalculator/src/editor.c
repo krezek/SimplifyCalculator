@@ -27,9 +27,11 @@ static EditorNode* get_node(Editor* ed, Item* itm);
 static EditorNode* get_next_node(Editor* ed, EditorNode* node);
 static EditorNode* get_prev_node(Editor* ed, EditorNode* node);
 
-Item* add_item_2param_right(Editor* ed, initFunc2param ifunc);
-Item* add_item_2param_left(Editor* ed, initFunc2param ifunc);
-Item* add_item_1param(Editor* ed, initFunc1param ifunc);
+Item* add_item_2param_right(Editor* ed, initFunc2param ifunc, Item** blank);
+Item* add_item_2param_left(Editor* ed, initFunc2param ifunc, Item** blank);
+Item* add_item_1param(Editor* ed, initFunc1param ifunc, Item** blank);
+void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newItem);
+void add_necessary_parentheses_1param(Item** parent, Item** origin, Item** newItem);
 
 initFunc2param get_func_2param(const wchar_t ch);
 initFunc1param get_func_1param(const wchar_t ch);
@@ -334,6 +336,7 @@ static void OnKey_RightArrow(Editor* ed)
 static void OnChar_Default(Editor* ed, wchar_t ch)
 {
 	Item* newItem = NULL;
+	Item* blank = NULL;
 	initFunc2param pf2 = NULL;
 	initFunc1param pf1 = NULL;
 
@@ -345,11 +348,11 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 			(ed->_current_node->_nodeType == NT_Number) ||
 			(ed->_current_node->_nodeType == NT_Literal))
 		{
-			newItem = add_item_2param_right(ed, pf2);
+			newItem = add_item_2param_right(ed, pf2, &blank);
 		}
 		else if (ed->_current_node->_nodeType == NT_Begin)
 		{
-			newItem = add_item_2param_left(ed, pf2);
+			newItem = add_item_2param_left(ed, pf2, &blank);
 		}
 	}
 	else
@@ -357,7 +360,7 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 		pf1 = get_func_1param(ch);
 		if (pf1)
 		{
-			newItem = add_item_1param(ed, pf1);
+			newItem = add_item_1param(ed, pf1, &blank);
 		}
 	}
 
@@ -419,16 +422,10 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 			ed->_current_node->_index += 1;
 		}
 
-		Item* i = NULL;
-		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
-			i = newItem->_left;
-		else if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
-			i = newItem->_right;
-
-		if (i)
+		if (blank)
 		{
 			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
-			EditorNode* en = get_node(ed, i);
+			EditorNode* en = get_node(ed, blank);
 			ed->_current_node = en;
 			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
 		}
@@ -503,20 +500,6 @@ static void OnChar_Backspace(Editor* ed)
 		EditorNode* en = get_node(ed, newItem);
 		ed->_current_node = en;
 		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
-
-		Item* i = NULL;
-		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
-			i = newItem->_left;
-		else if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
-			i = newItem->_right;
-
-		if (i)
-		{
-			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
-			EditorNode* en = get_node(ed, i);
-			ed->_current_node = en;
-			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
-		}
 	}
 }
 
@@ -590,7 +573,42 @@ EditorNode* get_prev_node(Editor* ed, EditorNode* node)
 	return NULL;
 }
 
-Item* add_item_2param_right(Editor*ed, initFunc2param ifunc)
+void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newItem)
+{
+	if (*origin && (*origin)->_procLevel < (*newItem)->_procLevel)
+	{
+		if ((*newItem)->_objectType == OBJ_Mult)
+		{
+			if ((*newItem)->_left == (*origin))
+			{
+				(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
+			}
+			else if ((*newItem)->_right == (*origin))
+			{
+				(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
+			}
+		}
+	}
+	
+	if (*parent && (*parent)->_procLevel > (*newItem)->_procLevel)
+	{
+		if ((*parent)->_objectType == OBJ_Mult)
+		{
+			*newItem = (Item*)ItemParentheses_init(*newItem);
+		}
+	}
+
+	if (*parent && (*parent)->_procLevel == (*newItem)->_procLevel)
+	{
+		if ((*parent)->_objectType == OBJ_Sub &&
+			(*newItem)->_objectType == OBJ_Add)
+		{
+			*newItem = (Item*)ItemParentheses_init(*newItem);
+		}
+	}
+}
+
+Item* add_item_2param_right(Editor*ed, initFunc2param ifunc, Item** blank)
 {
 	Item* newItem = NULL;
 
@@ -603,23 +621,33 @@ Item* add_item_2param_right(Editor*ed, initFunc2param ifunc)
 		{
 			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
 			{
-				newItem = parent->_left = ifunc(parent->_left, NULL);
+				Item* i = ifunc(parent->_left, NULL);
+				*blank = i->_right;
+				add_necessary_parentheses_2param(&parent, &parent->_left, &i);
+				newItem = parent->_left = i;
 			}
 			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
 			{
-				newItem = parent->_right = ifunc(parent->_right, NULL);
+				Item* i = ifunc(parent->_right, NULL);
+				*blank = i->_right;
+				add_necessary_parentheses_2param(&parent, &parent->_right, &i);
+				newItem = parent->_right = i;
 			}
 		}
 		else
 		{
-			newItem = *ed->_pItems = ifunc(*ed->_pItems, NULL);
+			Item* i = ifunc(*ed->_pItems, NULL);
+			*blank = i->_right;
+			add_necessary_parentheses_2param(&parent, ed->_pItems, &i);
+			newItem = *ed->_pItems = i;
+			
 		}
 	}
 
 	return newItem;
 }
 
-Item* add_item_2param_left(Editor* ed, initFunc2param ifunc)
+Item* add_item_2param_left(Editor* ed, initFunc2param ifunc, Item** blank)
 {
 	Item* newItem = NULL;
 
@@ -632,23 +660,40 @@ Item* add_item_2param_left(Editor* ed, initFunc2param ifunc)
 		{
 			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
 			{
-				newItem = parent->_left = ifunc(NULL, parent->_left);
+				Item* i = ifunc(NULL, parent->_left);
+				*blank = i->_left;
+				add_necessary_parentheses_2param(&parent, &parent->_left, &i);
+				newItem = parent->_left = i;
 			}
 			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
 			{
-				newItem = parent->_right = ifunc(NULL, parent->_right);
+				Item* i = ifunc(NULL, parent->_right);
+				*blank = i->_left;
+				add_necessary_parentheses_2param(&parent, &parent->_right, &i);
+				newItem = parent->_right = i;
 			}
 		}
 		else
 		{
-			newItem = *ed->_pItems = ifunc(NULL, *ed->_pItems);
+			Item* i = ifunc(NULL, *ed->_pItems);
+			*blank = i->_left;
+			add_necessary_parentheses_2param(&parent, ed->_pItems, &i);
+			newItem = *ed->_pItems = i;
 		}
 	}
 
 	return newItem;
 }
 
-Item* add_item_1param(Editor* ed, initFunc1param ifunc)
+void add_necessary_parentheses_1param(Item** parent, Item** origin, Item** newItem)
+{
+	if (*origin && (*origin)->_procLevel < PROC_L_6 && (*newItem)->_objectType == OBJ_Factorial)
+	{
+		(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
+	}
+}
+
+Item* add_item_1param(Editor* ed, initFunc1param ifunc, Item** blank)
 {
 	Item* newItem = NULL;
 
@@ -661,16 +706,25 @@ Item* add_item_1param(Editor* ed, initFunc1param ifunc)
 		{
 			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
 			{
-				newItem = parent->_left = ifunc(parent->_left);
+				Item* i = ifunc(parent->_left);
+				*blank = i->_left;
+				add_necessary_parentheses_1param(&parent, &parent->_left, &i);
+				newItem = parent->_left = i;
 			}
 			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
 			{
-				newItem = parent->_right = ifunc(parent->_right);
+				Item* i = ifunc(parent->_right);
+				*blank = i->_left;
+				add_necessary_parentheses_1param(&parent, &parent->_right, &i);
+				newItem = parent->_right = i;
 			}
 		}
 		else
 		{
-			newItem = *ed->_pItems = ifunc(*ed->_pItems);
+			Item* i = ifunc(*ed->_pItems);
+			*blank = i->_left;
+			add_necessary_parentheses_1param(&parent, ed->_pItems, &i);
+			newItem = *ed->_pItems = i;			
 		}
 	}
 
@@ -723,35 +777,36 @@ initFunc1param get_func_1param(const wchar_t ch)
 static void OnCmd(Editor* ed, int cmd)
 {
 	Item* newItem = NULL;
+	Item* blank = NULL;
 
 	switch (cmd)
 	{
 	case cmdButtonSin:
-		newItem = add_item_1param(ed, (initFunc1param)ItemSinFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemSinFunc_init, &blank);
 		break;
 	case cmdButtonCos:
-		newItem = add_item_1param(ed, (initFunc1param)ItemCosFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemCosFunc_init, &blank);
 		break;
 	case cmdButtonTan:
-		newItem = add_item_1param(ed, (initFunc1param)ItemTanFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemTanFunc_init, &blank);
 		break;
 	case cmdButtonLog:
-		newItem = add_item_1param(ed, (initFunc1param)ItemLogFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemLogFunc_init, &blank);
 		break;
 	case cmdButtonExp:
-		newItem = add_item_1param(ed, (initFunc1param)ItemExpFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemExpFunc_init, &blank);
 		break;
 	case cmdButtonAsin:
-		newItem = add_item_1param(ed, (initFunc1param)ItemAsinFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemAsinFunc_init, &blank);
 		break;
 	case cmdButtonAcos:
-		newItem = add_item_1param(ed, (initFunc1param)ItemAcosFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemAcosFunc_init, &blank);
 		break;
 	case cmdButtonAtan:
-		newItem = add_item_1param(ed, (initFunc1param)ItemAtanFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemAtanFunc_init, &blank);
 		break;
 	case cmdButtonLn:
-		newItem = add_item_1param(ed, (initFunc1param)ItemLnFunc_init);
+		newItem = add_item_1param(ed, (initFunc1param)ItemLnFunc_init, &blank);
 		break;
 	default:
 		break;
@@ -770,16 +825,10 @@ static void OnCmd(Editor* ed, int cmd)
 			ed->_current_node->_index += 1;
 		}
 
-		Item* i = NULL;
-		if (newItem->_left && newItem->_left->_objectType == OBJ_Base)
-			i = newItem->_left;
-		else if (newItem->_right && newItem->_right->_objectType == OBJ_Base)
-			i = newItem->_right;
-
-		if (i)
+		if (blank)
 		{
 			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 0);
-			EditorNode* en = get_node(ed, i);
+			EditorNode* en = get_node(ed, blank);
 			ed->_current_node = en;
 			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
 		}
