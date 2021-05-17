@@ -406,6 +406,15 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 					newItem = parent->_right = (Item*)ItemLiteral_init(s);
 			}
 		}
+
+		if (newItem && newItem->_objectType == OBJ_Number)
+		{
+			((ItemNumber*)newItem)->_str->_index += 1;
+		}
+		else if (newItem && newItem->_objectType == OBJ_Literal)
+		{
+			((ItemLiteral*)newItem)->_str->_index += 1;
+		}
 	}
 	else if (!newItem && (ed->_current_node->_nodeType == NT_Number ||
 		ed->_current_node->_nodeType == NT_Literal))
@@ -420,12 +429,6 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 		EditorNode* en = get_node(ed, newItem);
 		ed->_current_node = en;
 		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
-
-		if (ed->_current_node->_nodeType == NT_Number ||
-			ed->_current_node->_nodeType == NT_Literal)
-		{
-			ed->_current_node->_str->_index += 1;
-		}
 
 		if (blank)
 		{
@@ -847,12 +850,6 @@ static void OnCmd(Editor* ed, int cmd)
 		EditorNode* en = get_node(ed, newItem);
 		ed->_current_node = en;
 		(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
-
-		if (ed->_current_node->_nodeType == NT_Number ||
-			ed->_current_node->_nodeType == NT_Literal)
-		{
-			ed->_current_node->_str->_index += 1;
-		}
 
 		if (blank)
 		{
