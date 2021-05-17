@@ -614,7 +614,7 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 		}
 	}
 	
-	if (*origin && (*origin)->_procLevel < (*newItem)->_procLevel)
+	if (*origin && (*origin)->_procLevel <= (*newItem)->_procLevel)
 	{
 		if ((*newItem)->_procLevel >= PROC_L_4)
 		{
@@ -627,7 +627,7 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 				else if ((*newItem)->_right == (*origin))
 				{
 					if ((*newItem)->_objectType != OBJ_Pow)
-(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
+						(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
 				}
 			}
 		}
