@@ -641,14 +641,14 @@ Item* add_item_2param_right(Editor*ed, initFunc2param ifunc, Item** blank)
 			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
 			{
 				Item* i = ifunc(parent->_left, NULL);
-				*blank = i->_right;
+				*blank = i->_left->_objectType == OBJ_Base ? i->_left : i->_right;
 				add_necessary_parentheses_2param(&parent, &parent->_left, &i);
 				newItem = parent->_left = i;
 			}
 			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
 			{
 				Item* i = ifunc(parent->_right, NULL);
-				*blank = i->_right;
+				*blank = i->_left->_objectType == OBJ_Base ? i->_left : i->_right;
 				add_necessary_parentheses_2param(&parent, &parent->_right, &i);
 				newItem = parent->_right = i;
 			}
@@ -656,7 +656,7 @@ Item* add_item_2param_right(Editor*ed, initFunc2param ifunc, Item** blank)
 		else
 		{
 			Item* i = ifunc(*ed->_pItems, NULL);
-			*blank = i->_right;
+			*blank = i->_left->_objectType == OBJ_Base ? i->_left : i->_right;
 			add_necessary_parentheses_2param(&parent, ed->_pItems, &i);
 			newItem = *ed->_pItems = i;
 			
@@ -680,14 +680,14 @@ Item* add_item_2param_left(Editor* ed, initFunc2param ifunc, Item** blank)
 			if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
 			{
 				Item* i = ifunc(NULL, parent->_left);
-				*blank = i->_left;
+				*blank = i->_right->_objectType == OBJ_Base ? i->_right : i->_left;
 				add_necessary_parentheses_2param(&parent, &parent->_left, &i);
 				newItem = parent->_left = i;
 			}
 			else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
 			{
 				Item* i = ifunc(NULL, parent->_right);
-				*blank = i->_left;
+				*blank = i->_right->_objectType == OBJ_Base ? i->_right : i->_left;
 				add_necessary_parentheses_2param(&parent, &parent->_right, &i);
 				newItem = parent->_right = i;
 			}
@@ -695,7 +695,7 @@ Item* add_item_2param_left(Editor* ed, initFunc2param ifunc, Item** blank)
 		else
 		{
 			Item* i = ifunc(NULL, *ed->_pItems);
-			*blank = i->_left;
+			*blank = i->_right->_objectType == OBJ_Base ? i->_right : i->_left;
 			add_necessary_parentheses_2param(&parent, ed->_pItems, &i);
 			newItem = *ed->_pItems = i;
 		}
