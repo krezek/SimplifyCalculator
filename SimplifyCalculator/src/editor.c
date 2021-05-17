@@ -885,14 +885,105 @@ static void OnCmd(Editor* ed, int cmd)
 	}
 }
 
+// Todo: simplifying code
 static void OnChar_Delete(Editor* ed)
 {
+	Item* newItem = NULL;
+
 	if (GetKeyState(VK_SHIFT) < 0)
 	{
-		
+		if (ed->_current_node)
+		{
+			Item* parent = Item_getParent(*ed->_pItems, *ed->_current_node->_pItem);
+			if (parent)
+			{
+				if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
+				{
+					if (parent->_left->_right)
+					{
+						Item* l = parent->_left;
+						newItem = parent->_left = parent->_left->_right;
+						l->_right = NULL;
+						ItemTree_free(&l);
+					}
+				}
+				else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
+				{
+					if (parent->_right->_right)
+					{
+						Item* r = parent->_right;
+						newItem = parent->_right = parent->_right->_right;
+						r->_right = NULL;
+						ItemTree_free(&r);
+					}
+				}
+			}
+			else
+			{
+				if ((*ed->_pItems)->_right)
+				{
+					Item* l = *ed->_pItems;
+					newItem = *ed->_pItems = (*ed->_pItems)->_right;
+					l->_right = NULL;
+					ItemTree_free(&l);
+				}
+			}
+
+			if (newItem)
+			{
+				Update_ItemsOrder(ed);
+				EditorNode* en = get_node(ed, newItem);
+				ed->_current_node = en;
+				(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+			}
+		}
 	}
 	else
 	{
-		
+		if (ed->_current_node)
+		{
+			Item* parent = Item_getParent(*ed->_pItems, *ed->_current_node->_pItem);
+			if (parent)
+			{
+				if (parent->_left && (parent->_left == *ed->_current_node->_pItem))
+				{
+					if (parent->_left->_left)
+					{
+						Item* l = parent->_left;
+						newItem = parent->_left = parent->_left->_left;
+						l->_left = NULL;
+						ItemTree_free(&l);
+					}
+				}
+				else if (parent->_right && (parent->_right == *ed->_current_node->_pItem))
+				{
+					if (parent->_right->_left)
+					{
+						Item* r = parent->_right;
+						newItem = parent->_right = parent->_right->_left;
+						r->_left = NULL;
+						ItemTree_free(&r);
+					}
+				}
+			}
+			else
+			{
+				if ((*ed->_pItems)->_left)
+				{
+					Item* l = *ed->_pItems;
+					newItem = *ed->_pItems = (*ed->_pItems)->_left;
+					l->_left = NULL;
+					ItemTree_free(&l);
+				}
+			}
+
+			if (newItem)
+			{
+				Update_ItemsOrder(ed);
+				EditorNode* en = get_node(ed, newItem);
+				ed->_current_node = en;
+				(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
+			}
+		}
 	}
 }
