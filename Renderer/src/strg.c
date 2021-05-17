@@ -10,6 +10,7 @@ String* String_init()
 
 	s->_len = wcslen(L"");
 	s->_capacity = EXPAND + 1;
+	s->_index = 0;
 
 	s->_str = (wchar_t*)malloc(sizeof(wchar_t) * (s->_capacity));
 	assert(s->_str != NULL);
@@ -66,7 +67,7 @@ void String_cat(String* s, const wchar_t* ws)
 	wcscat_s(s->_str, s->_capacity, ws);
 }
 
-void String_insert_s(String* s, int idx, const wchar_t* ws)
+void String_insert_s(String* s, size_t idx, const wchar_t* ws)
 {
 	assert((idx >= 0) && (idx <= s->_len));
 
@@ -88,7 +89,7 @@ void String_insert_s(String* s, int idx, const wchar_t* ws)
 	s->_str = str;
 }
 
-void String_insert_c(String* s, int idx, const wchar_t ch)
+void String_insert_c(String* s, size_t idx, const wchar_t ch)
 {
 	wchar_t str[2];
 	str[0] = ch;
@@ -97,7 +98,7 @@ void String_insert_c(String* s, int idx, const wchar_t ch)
 	String_insert_s(s, idx, str);
 }
 
-void String_delete_s(String* s, int idx1, int idx2)
+void String_delete_s(String* s, size_t idx1, size_t idx2)
 {
 	assert((idx1 >= 0) && (idx1 <= s->_len));
 	assert((idx2 >= 0) && (idx2 <= s->_len));
@@ -118,7 +119,7 @@ void String_delete_s(String* s, int idx1, int idx2)
 	s->_len = len;
 }
 
-void String_delete_c(String* s, int idx)
+void String_delete_c(String* s, size_t idx)
 {
 	String_delete_s(s, idx, idx + 1);
 }

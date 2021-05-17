@@ -28,7 +28,6 @@ typedef struct _EditorNode
 
 	NodeType _nodeType;
 	String* _str;
-	int _index;
 
 	struct _EditorNode* _next;
 	struct _EditorNode* _prev;

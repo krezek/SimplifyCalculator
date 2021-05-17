@@ -39,7 +39,7 @@ initFunc1param get_func_1param(const wchar_t ch);
 static void OnCmd(Editor* ed, int cmd);
 
 
-EditorNode* EditorNode_init(Item** pIm, NodeType nt, String* str, int index, EditorNode* n, EditorNode* p)
+EditorNode* EditorNode_init(Item** pIm, NodeType nt, String* str, EditorNode* n, EditorNode* p)
 {
 	EditorNode* en = (EditorNode*)malloc(sizeof(EditorNode));
 	assert(en);
@@ -47,7 +47,6 @@ EditorNode* EditorNode_init(Item** pIm, NodeType nt, String* str, int index, Edi
 	en->_pItem = pIm;
 	en->_nodeType = nt;
 	en->_str = str;
-	en->_index = index;
 	en->_next = n;
 	en->_prev = p;
 
@@ -70,16 +69,16 @@ EditorLinkedList* LinkedList_init()
 	return ll;
 }
 
-void LinkedList_pushpack(EditorLinkedList* ll, Item** pIm, NodeType nt, String* str, int index)
+void LinkedList_pushpack(EditorLinkedList* ll, Item** pIm, NodeType nt, String* str)
 {
 	if (ll->_rear == NULL)
 	{
 		assert(ll->_front == NULL);
-		ll->_front = ll->_rear = EditorNode_init(pIm, nt, str, index, NULL, NULL);
+		ll->_front = ll->_rear = EditorNode_init(pIm, nt, str, NULL, NULL);
 	}
 	else
 	{
-		EditorNode* i = EditorNode_init(pIm, nt, str, index, NULL, ll->_rear);
+		EditorNode* i = EditorNode_init(pIm, nt, str, NULL, ll->_rear);
 		ll->_rear->_next = i;
 		ll->_rear = i;
 	}
@@ -186,10 +185,10 @@ void TreeWalker(Editor* ed, Item** pItem)
 		(*pItem)->_objectType == OBJ_List ||
 		(*pItem)->_objectType == OBJ_Equ)
 	{
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Begin, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Begin, NULL);
 		TreeWalker(ed, &(*pItem)->_left);
 		TreeWalker(ed, &(*pItem)->_right);
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_End, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_End, NULL);
 	}
 	else if ((*pItem)->_objectType == OBJ_Parentheses ||
 		(*pItem)->_objectType == OBJ_Sign ||
@@ -197,43 +196,43 @@ void TreeWalker(Editor* ed, Item** pItem)
 		(*pItem)->_objectType == OBJ_Sqrt ||
 		(*pItem)->_objectType == OBJ_CommFunc)
 	{
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Begin, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Begin, NULL);
 		TreeWalker(ed, &(*pItem)->_left);
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_End, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_End, NULL);
 	}
 	else if ((*pItem)->_objectType == OBJ_Sigma)
 	{
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Begin, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Begin, NULL);
 		if (((ItemSigma*)((*pItem)))->_bottom)
 			TreeWalker(ed, &((ItemSigma*)((*pItem)))->_bottom);
 		if (((ItemSigma*)((*pItem)))->_top)
 			TreeWalker(ed, &((ItemSigma*)((*pItem)))->_top);
 		TreeWalker(ed, &(*pItem)->_left);
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_End, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_End, NULL);
 	}
 	else if ((*pItem)->_objectType == OBJ_Integrate)
 	{
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Begin, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Begin, NULL);
 		if (((ItemIntegrate*)((*pItem)))->_bottom)
 			TreeWalker(ed, &((ItemIntegrate*)((*pItem)))->_bottom);
 		if (((ItemIntegrate*)((*pItem)))->_top)
 			TreeWalker(ed, &((ItemIntegrate*)((*pItem)))->_top);
 		TreeWalker(ed, &(*pItem)->_left);
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_End, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_End, NULL);
 	}
 	else if ((*pItem)->_objectType == OBJ_Number)
 	{
 		ItemNumber* i = (ItemNumber*)(*pItem);
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Number, i->_str, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Number, i->_str);
 	}
 	else if ((*pItem)->_objectType == OBJ_Literal)
 	{
 		ItemLiteral* i = (ItemLiteral*)(*pItem);
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Literal, i->_str, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Literal, i->_str);
 	}
 	else if ((*pItem)->_objectType == OBJ_Base)
 	{
-		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Null, NULL, 0);
+		LinkedList_pushpack(ed->_itemsOrder, pItem, NT_Null, NULL);
 	}
 	else
 	{
@@ -263,7 +262,7 @@ static void UpdateCaret(Editor* ed)
 
 		HDC hdc = GetDC(ed->_hWnd);
 		SelectObject(hdc, (*ed->_current_node->_pItem)->_hFont._hfont);
-		GetTextExtentPoint32(hdc, ed->_current_node->_str->_str, ed->_current_node->_index, &s);
+		GetTextExtentPoint32(hdc, ed->_current_node->_str->_str, (int)ed->_current_node->_str->_index, &s);
 		ReleaseDC(ed->_hWnd, hdc);
 
 		SetCaretPos((*ed->_current_node->_pItem)->_x + s.cx, 
@@ -288,9 +287,9 @@ static void OnKey_LeftArrow(Editor* ed)
 	if (ed->_current_node->_nodeType == NT_Number ||
 		ed->_current_node->_nodeType == NT_Literal)
 	{
-		if (ed->_current_node->_index > 0)
+		if (ed->_current_node->_str->_index > 0)
 		{
-			ed->_current_node->_index -= 1;
+			ed->_current_node->_str->_index -= 1;
 			UpdateCaret(ed);
 			return;
 		}
@@ -313,9 +312,9 @@ static void OnKey_RightArrow(Editor* ed)
 	if (ed->_current_node->_nodeType == NT_Number ||
 		ed->_current_node->_nodeType == NT_Literal)
 	{
-		if (ed->_current_node->_index < (int)ed->_current_node->_str->_len)
+		if (ed->_current_node->_str->_index < (int)ed->_current_node->_str->_len)
 		{
-			ed->_current_node->_index += 1;
+			ed->_current_node->_str->_index += 1;
 			UpdateCaret(ed);
 			return;
 		}
@@ -351,7 +350,7 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 		else if ((ed->_current_node->_nodeType == NT_Number) ||
 			(ed->_current_node->_nodeType == NT_Literal))
 		{
-			if(ed->_current_node->_str > 0 && ed->_current_node->_index == 0)
+			if(ed->_current_node->_str > 0 && ed->_current_node->_str->_index == 0)
 				newItem = add_item_2param_left(ed, pf2, &blank);
 			else
 				newItem = add_item_2param_right(ed, pf2, &blank);
@@ -411,8 +410,8 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 	else if (!newItem && (ed->_current_node->_nodeType == NT_Number ||
 		ed->_current_node->_nodeType == NT_Literal))
 	{
-		String_insert_s(ed->_current_node->_str, ed->_current_node->_index, s);
-		ed->_current_node->_index += 1;
+		String_insert_s(ed->_current_node->_str, ed->_current_node->_str->_index, s);
+		ed->_current_node->_str->_index += 1;
 	}
 
 	if (newItem)
@@ -425,7 +424,7 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 		if (ed->_current_node->_nodeType == NT_Number ||
 			ed->_current_node->_nodeType == NT_Literal)
 		{
-			ed->_current_node->_index += 1;
+			ed->_current_node->_str->_index += 1;
 		}
 
 		if (blank)
@@ -471,10 +470,10 @@ static void OnChar_Backspace(Editor* ed)
 	else if (ed->_current_node->_nodeType == NT_Number ||
 		ed->_current_node->_nodeType == NT_Literal)
 	{
-		if (ed->_current_node->_index > 0)
+		if (ed->_current_node->_str->_index > 0)
 		{
-			ed->_current_node->_index -= 1;
-			String_delete_c(ed->_current_node->_str, ed->_current_node->_index);
+			ed->_current_node->_str->_index -= 1;
+			String_delete_c(ed->_current_node->_str, ed->_current_node->_str->_index);
 		}
 
 		if (ed->_current_node->_str->_len == 0)
@@ -852,7 +851,7 @@ static void OnCmd(Editor* ed, int cmd)
 		if (ed->_current_node->_nodeType == NT_Number ||
 			ed->_current_node->_nodeType == NT_Literal)
 		{
-			ed->_current_node->_index += 1;
+			ed->_current_node->_str->_index += 1;
 		}
 
 		if (blank)
