@@ -630,7 +630,7 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 		{
 			if ((*newItem)->_objectType != OBJ_Frac)
 			{
-				if ((*newItem)->_left == (*origin))
+				if ((*newItem)->_left == (*origin) && (*origin)->_objectType != OBJ_Frac)
 				{
 					(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
 				}
