@@ -584,29 +584,52 @@ EditorNode* get_prev_node(Editor* ed, EditorNode* node)
 
 void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newItem)
 {
-	if (*origin && (*origin)->_procLevel < (*newItem)->_procLevel && (*newItem)->_procLevel >= PROC_L_4)
+	if (*parent)
 	{
-		if ((*newItem)->_left == (*origin))
+		if ((*parent)->_procLevel > (*newItem)->_procLevel)
 		{
-			(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
+			if ((*parent)->_procLevel >= PROC_L_4)
+			{
+				if ((*parent)->_objectType == OBJ_Frac)
+				{
+				}
+				else if ((*parent)->_objectType == OBJ_Pow)
+				{
+					if((*newItem)->_procLevel < PROC_R_7)
+						*newItem = (Item*)ItemParentheses_init(*newItem);
+				}
+				else
+				{
+					*newItem = (Item*)ItemParentheses_init(*newItem);
+				}
+			}
 		}
-		else if ((*newItem)->_right == (*origin))
+		else if ((*parent)->_procLevel == (*newItem)->_procLevel)
 		{
-			(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
+			if ((*parent)->_objectType == OBJ_Sub &&
+				((*newItem)->_objectType == OBJ_Add || (*newItem)->_objectType == OBJ_Sub))
+			{
+				*newItem = (Item*)ItemParentheses_init(*newItem);
+			}
 		}
 	}
 	
-	if (*parent && (*parent)->_procLevel > (*newItem)->_procLevel && (*parent)->_procLevel >= PROC_L_4)
+	if (*origin && (*origin)->_procLevel < (*newItem)->_procLevel)
 	{
-		if((*newItem)->_objectType != OBJ_Frac)
-			*newItem = (Item*)ItemParentheses_init(*newItem);
-	}
-	else if (*parent && (*parent)->_procLevel == (*newItem)->_procLevel)
-	{
-		if ((*parent)->_objectType == OBJ_Sub &&
-			((*newItem)->_objectType == OBJ_Add) || (*newItem)->_objectType == OBJ_Sub)
+		if ((*newItem)->_procLevel >= PROC_L_4)
 		{
-			*newItem = (Item*)ItemParentheses_init(*newItem);
+			if ((*newItem)->_objectType != OBJ_Frac)
+			{
+				if ((*newItem)->_left == (*origin))
+				{
+					(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
+				}
+				else if ((*newItem)->_right == (*origin))
+				{
+					if ((*newItem)->_objectType != OBJ_Pow)
+						(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
+				}
+			}
 		}
 	}
 }
