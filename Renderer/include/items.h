@@ -15,7 +15,8 @@
 typedef enum {OBJ_Base = 0, OBJ_Literal, OBJ_Number, OBJ_Symbol, OBJ_List, OBJ_Equ, OBJ_Add, OBJ_Sub, OBJ_Mult, OBJ_Frac,
 				OBJ_Sign, OBJ_Sqrt, OBJ_CommFunc, OBJ_Pow, OBJ_Subscript, OBJ_Factorial, OBJ_Parentheses, OBJ_Sigma,
 				OBJ_Integrate, OBJ_Derivative} ObjectType;
-typedef enum { PROC_L_0 = 0, PROC_L_1, PROC_L_2, PROC_L_3, PROC_L_4, PROC_L_5, PROC_L_6, PROC_R_7, PROC_R_8, PROC_L_9} ProcLevel;
+typedef enum { PROC_L_0 = 0, PROC_L_1, PROC_L_2, PROC_L_3, PROC_L_4, PROC_L_5, PROC_L_6
+				, PROC_R_7, PROC_R_8, PROC_L_9, PROC_L_10, PROC_L_11 } ProcLevel;
 
 typedef struct _Item Item;
 

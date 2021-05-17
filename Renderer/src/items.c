@@ -265,7 +265,7 @@ ItemLiteral* ItemLiteral_init(const wchar_t* s)
 	i->_item._getFocusFunc = Item_getFocus;
 
 	i->_item._objectType = OBJ_Literal;
-	i->_item._procLevel = PROC_L_9;
+	i->_item._procLevel = PROC_L_11;
 
 	i->_item._hasFocus = 0;
 
@@ -369,7 +369,7 @@ ItemNumber* ItemNumber_init(const wchar_t* s, int sign)
 	i->_item._getFocusFunc = Item_getFocus;
 
 	i->_item._objectType = OBJ_Number;
-	i->_item._procLevel = PROC_L_9;
+	i->_item._procLevel = PROC_L_11;
 
 	i->_item._hasFocus = 0;
 
@@ -476,7 +476,7 @@ ItemSymbol* ItemSymbol_init(const wchar_t ch)
 	i->_item._getFocusFunc = Item_getFocus;
 
 	i->_item._objectType = OBJ_Symbol;
-	i->_item._procLevel = PROC_L_9;
+	i->_item._procLevel = PROC_L_11;
 
 	i->_item._hasFocus = 0;
 
@@ -2536,7 +2536,7 @@ ItemParentheses* ItemParentheses_init(Item* l)
 	i->_item._getFocusFunc = Item_getFocus;
 
 	i->_item._objectType = OBJ_Parentheses;
-	i->_item._procLevel = PROC_L_6;
+	i->_item._procLevel = PROC_L_10;
 
 	i->_item._hasFocus = 0;
 
