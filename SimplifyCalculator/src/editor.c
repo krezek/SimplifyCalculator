@@ -605,7 +605,7 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 				}
 				else if ((*parent)->_objectType == OBJ_Pow)
 				{
-					if((*newItem)->_procLevel < PROC_R_7)
+					if((*parent)->_left == (*origin))
 						*newItem = (Item*)ItemParentheses_init(*newItem);
 				}
 				else
@@ -624,13 +624,13 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 		}
 	}
 	
-	if (*origin && (*origin)->_procLevel <= (*newItem)->_procLevel)
+	if (*origin && (*origin)->_procLevel < (*newItem)->_procLevel)
 	{
 		if ((*newItem)->_procLevel >= PROC_L_4 && (*newItem)->_procLevel < PROC_L_10)
 		{
 			if ((*newItem)->_objectType != OBJ_Frac)
 			{
-				if ((*newItem)->_left == (*origin) && (*origin)->_objectType != OBJ_Frac)
+				if ((*newItem)->_left == (*origin))
 				{
 					(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
 				}
@@ -639,6 +639,16 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 					if ((*newItem)->_objectType != OBJ_Pow)
 						(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
 				}
+			}
+		}
+	}
+	else if (*origin && (*origin)->_procLevel == (*newItem)->_procLevel)
+	{
+		if ((*newItem)->_objectType == OBJ_Pow)
+		{
+			if ((*newItem)->_left == (*origin))
+			{
+				(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
 			}
 		}
 	}
