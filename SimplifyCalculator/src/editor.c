@@ -344,11 +344,17 @@ static void OnChar_Default(Editor* ed, wchar_t ch)
 	if (pf2)
 	{
 		if ((ed->_current_node->_nodeType == NT_Null) ||
-			(ed->_current_node->_nodeType == NT_End) ||
-			(ed->_current_node->_nodeType == NT_Number) ||
-			(ed->_current_node->_nodeType == NT_Literal))
+			(ed->_current_node->_nodeType == NT_End))
 		{
 			newItem = add_item_2param_right(ed, pf2, &blank);
+		}
+		else if ((ed->_current_node->_nodeType == NT_Number) ||
+			(ed->_current_node->_nodeType == NT_Literal))
+		{
+			if(ed->_current_node->_str > 0 && ed->_current_node->_index == 0)
+				newItem = add_item_2param_left(ed, pf2, &blank);
+			else
+				newItem = add_item_2param_right(ed, pf2, &blank);
 		}
 		else if (ed->_current_node->_nodeType == NT_Begin)
 		{
@@ -436,7 +442,8 @@ static void OnChar_Backspace(Editor* ed)
 {
 	Item* newItem = NULL;
 
-	if (ed->_current_node->_nodeType == NT_End)
+	if (ed->_current_node->_nodeType == NT_Begin ||
+		ed->_current_node->_nodeType == NT_End)
 	{
 		if (ed->_current_node)
 		{
@@ -594,10 +601,6 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 			{
 				(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
 			}
-			else if ((*newItem)->_right == (*origin))
-			{
-				(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
-			}
 		}
 	}
 	
@@ -612,8 +615,7 @@ void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newIt
 			*newItem = (Item*)ItemParentheses_init(*newItem);
 		}
 	}
-
-	if (*parent && (*parent)->_procLevel == (*newItem)->_procLevel)
+	else if (*parent && (*parent)->_procLevel == (*newItem)->_procLevel)
 	{
 		if ((*parent)->_objectType == OBJ_Sub &&
 			((*newItem)->_objectType == OBJ_Add) || (*newItem)->_objectType == OBJ_Sub)
