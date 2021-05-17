@@ -584,25 +584,15 @@ EditorNode* get_prev_node(Editor* ed, EditorNode* node)
 
 void add_necessary_parentheses_2param(Item** parent, Item** origin, Item** newItem)
 {
-	if (*origin && (*origin)->_procLevel < (*newItem)->_procLevel)
+	if (*origin && (*origin)->_procLevel < (*newItem)->_procLevel && (*newItem)->_procLevel >= PROC_L_4)
 	{
-		if ((*newItem)->_objectType == OBJ_Mult)
+		if ((*newItem)->_left == (*origin))
 		{
-			if ((*newItem)->_left == (*origin))
-			{
-				(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
-			}
-			else if ((*newItem)->_right == (*origin))
-			{
-				(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
-			}
+			(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
 		}
-		else if ((*newItem)->_objectType == OBJ_Pow)
+		else if ((*newItem)->_right == (*origin))
 		{
-			if ((*newItem)->_left == (*origin))
-			{
-				(*newItem)->_left = (Item*)ItemParentheses_init(*origin);
-			}
+			(*newItem)->_right = (Item*)ItemParentheses_init(*origin);
 		}
 	}
 	
