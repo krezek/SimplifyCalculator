@@ -19,6 +19,7 @@ static void OnKey_RightArrow(Editor* ed);
 static void OnChar_Default(Editor* ed, wchar_t ch);
 static void OnChar_Backspace(Editor* ed);
 static void OnChar_Return(Editor* ed);
+static void OnChar_Delete(Editor* ed);
 
 static void Update_ItemsOrder(Editor* ed);
 static void TreeWalker(Editor* ed, Item** pItem);
@@ -128,6 +129,7 @@ Editor* Editor_init(Item** pItems)
 	ed->_OnChar_DefaultFunc = OnChar_Default;
 	ed->_OnChar_BackspaceFunc = OnChar_Backspace;
 	ed->_OnChar_ReturnFunc = OnChar_Return;
+	ed->_OnChar_DeleteFunc = OnChar_Delete;
 
 	ed->_OnCmdFunc = OnCmd;
 
@@ -880,5 +882,17 @@ static void OnCmd(Editor* ed, int cmd)
 			ed->_current_node = en;
 			(*ed->_current_node->_pItem)->_setFocusFunc(*ed->_current_node->_pItem, 1);
 		}
+	}
+}
+
+static void OnChar_Delete(Editor* ed)
+{
+	if (GetKeyState(VK_SHIFT) < 0)
+	{
+		
+	}
+	else
+	{
+		
 	}
 }

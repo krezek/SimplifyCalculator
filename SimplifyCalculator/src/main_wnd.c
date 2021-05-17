@@ -549,6 +549,22 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
         break;
 
     case VK_DELETE:     // Delete 
+    {
+        mw->_panels->_selected_panel->_OnChar_DeleteFunc(mw->_panels->_selected_panel);
+
+        mw->_panels->_OnSelectedPanelChanged(mw->_panels);
+        WindowPropertyChanged(mw);
+
+        RECT rc;
+        rc.left = mw->_panels->_selected_panel->_x0;
+        rc.top = mw->_panels->_selected_panel->_y0;
+        rc.right = rc.left + mw->_client_width;
+        rc.bottom = rc.top + mw->_client_height;
+
+        InvalidateRect(mw->_baseWindow._hWnd, &rc, TRUE);
+
+        mw->_panels->_selected_panel->_editor->_OnUpdateCaret(mw->_panels->_selected_panel->_editor);
+    }
         break;
     }
 }

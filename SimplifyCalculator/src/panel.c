@@ -23,6 +23,7 @@ static void OnKey_RightArrow(Panel* p);
 static void OnChar_Default(Panel* p, wchar_t ch);
 static void OnChar_Backspace(Panel* p);
 static void OnChar_Return(Panel* p);
+static void OnChar_Delete(Panel* p);
 
 static void OnCmd(Panel* p, int cmd);
 
@@ -60,6 +61,7 @@ Panel* Panel_init(HWND hWnd)
 	p->_OnChar_DefaultFunc = OnChar_Default;
 	p->_OnChar_BackspaceFunc = OnChar_Backspace;
 	p->_OnChar_ReturnFunc = OnChar_Return;
+	p->_OnChar_DeleteFunc = OnChar_Delete;
 
 	p->_OnCmdFunc = OnCmd;
 
@@ -328,4 +330,9 @@ static void OnChar_Return(Panel* p)
 static void OnCmd(Panel* p, int cmd)
 {
 	p->_editor->_OnCmdFunc(p->_editor, cmd);
+}
+
+static void OnChar_Delete(Panel* p)
+{
+	p->_editor->_OnChar_DeleteFunc(p->_editor);
 }
