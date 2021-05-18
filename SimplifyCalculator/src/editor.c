@@ -759,8 +759,19 @@ void add_necessary_parentheses_1param(Item** parent, Item** origin, Item** newIt
 			(*parent)->_procLevel < PROC_L_10 &&
 			(*parent)->_procLevel != PROC_L_9)
 		{
-			if ((*parent)->_objectType != OBJ_Pow)
+			if ((*parent)->_objectType == OBJ_Pow)
+			{
+				if((*parent)->_left == *origin)
+					*newItem = (Item*)ItemParentheses_init(*newItem);
+			}
+			else
+			{
 				*newItem = (Item*)ItemParentheses_init(*newItem);
+			}
+		}
+		else if (*parent && (*parent)->_procLevel <= PROC_L_5)
+		{
+			*newItem = (Item*)ItemParentheses_init(*newItem);
 		}
 	}
 }
