@@ -476,6 +476,17 @@ static void OnKeyDown(MainWindow* mw, WPARAM wParam, LPARAM lParam)
 {
     switch (wParam)
     {
+    case VK_F1:
+    {
+        HINSTANCE r = ShellExecute(NULL, L"open", L"https://krezek.github.io/SimplifyCalculator/index.html", NULL, NULL, SW_SHOWNORMAL);
+
+        if (r <= (HINSTANCE)32)
+        {
+            ShowError(L"Could not open help file.");
+        }
+    }
+        break;
+
     case VK_RETURN:
         if (GetKeyState(VK_SHIFT) < 0)
         {
