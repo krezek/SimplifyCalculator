@@ -105,6 +105,11 @@ section h3 {
 	//text-indent: 1.5em;
 }
 
+section table , section th, section td
+{
+	border: 1px solid black;
+}
+
 aside {
 	background-color: gray;
 	flex: 0;
