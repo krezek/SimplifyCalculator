@@ -9,9 +9,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimplifyCalculator", "Simpl
 	ProjectSection(ProjectDependencies) = postProject
 		{82D3B96E-FD11-42EE-B427-22D9EA6BCB15} = {82D3B96E-FD11-42EE-B427-22D9EA6BCB15}
 		{2D08BFAC-7055-453D-8B15-002CC9939354} = {2D08BFAC-7055-453D-8B15-002CC9939354}
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A} = {779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BigInteger", "BigInteger\BigInteger.vcxproj", "{2D08BFAC-7055-453D-8B15-002CC9939354}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Math", "Math\Math.vcxproj", "{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +48,14 @@ Global
 		{2D08BFAC-7055-453D-8B15-002CC9939354}.Release|x64.Build.0 = Release|x64
 		{2D08BFAC-7055-453D-8B15-002CC9939354}.Release|x86.ActiveCfg = Release|Win32
 		{2D08BFAC-7055-453D-8B15-002CC9939354}.Release|x86.Build.0 = Release|Win32
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}.Debug|x64.ActiveCfg = Debug|x64
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}.Debug|x64.Build.0 = Debug|x64
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}.Debug|x86.ActiveCfg = Debug|Win32
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}.Debug|x86.Build.0 = Debug|Win32
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}.Release|x64.ActiveCfg = Release|x64
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}.Release|x64.Build.0 = Release|x64
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}.Release|x86.ActiveCfg = Release|Win32
+		{779D5CCF-C4F0-4702-8BDC-7E9C65108A2A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

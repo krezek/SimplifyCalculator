@@ -1,5 +1,6 @@
 #include "platform.h"
 
+#include <amath.h>
 #include "calcimpl.h"
 
 #define _USE_MATH_DEFINES

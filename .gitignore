@@ -25,3 +25,7 @@
 /BigInteger/Debug
 /BigInteger/Release
 /BigInteger/x64
+/Math/Debug
+/Math/Release
+/Math/x64
+/Math/Math.vcxproj.user
