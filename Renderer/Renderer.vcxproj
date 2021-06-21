@@ -19,23 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\graphics.c" />
     <ClCompile Include="src\image.c" />
-    <ClCompile Include="src\items.c" />
     <ClCompile Include="src\lexer.c" />
     <ClCompile Include="src\parser.c" />
     <ClCompile Include="src\pch.c" />
     <ClCompile Include="src\rewrite.c" />
-    <ClCompile Include="src\strg.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\image.h" />
-    <ClInclude Include="include\items.h" />
     <ClInclude Include="include\lexer.h" />
     <ClInclude Include="include\parser.h" />
     <ClInclude Include="include\rewrite.h" />
-    <ClInclude Include="include\strg.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\platform.h" />
   </ItemGroup>
@@ -112,7 +106,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(SolutionDir)\types\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -131,7 +125,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(SolutionDir)\types\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -150,7 +144,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(SolutionDir)\types\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -169,7 +163,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;$(SolutionDir)\types\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>

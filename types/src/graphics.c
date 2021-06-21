@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "platform.h"
 
 #include "graphics.h"

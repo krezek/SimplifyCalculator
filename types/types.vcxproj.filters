@@ -15,40 +15,31 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\image.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\lexer.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\parser.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pch.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\rewrite.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\image.h">
+    <ClInclude Include="include\graphics.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\lexer.h">
+    <ClInclude Include="include\graphics_linux.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="include\parser.h">
+    <ClInclude Include="include\items.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\pch.h">
+    <ClInclude Include="include\strg.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\platform.h">
-      <Filter>Quelldateien</Filter>
-    </ClInclude>
-    <ClInclude Include="include\rewrite.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\graphics.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\items.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\strg.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

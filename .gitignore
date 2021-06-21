@@ -33,3 +33,7 @@
 /wc/Release
 /wc/x64
 /wc/wc.vcxproj.user
+/types/Debug
+/types/Release
+/types/x64
+/types/types.vcxproj.user
