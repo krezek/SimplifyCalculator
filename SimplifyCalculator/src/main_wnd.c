@@ -62,6 +62,8 @@ BOOL Create(BaseWindow* _this)
 
     _this->_hWnd = hWnd;
 
+    AfterCreate(_this);
+
     return _this->_hWnd ? TRUE : FALSE;
 }
 
@@ -79,7 +81,6 @@ MainWindow* MainWindow_init()
 
     mw->_baseWindow._HandleMessageFunc = HandleMessage;
     mw->_baseWindow._CreateFunc = Create;
-    mw->_baseWindow._AfterCreateFunc = AfterCreate;
 
     mw->_panels = PanelList_init();
 
