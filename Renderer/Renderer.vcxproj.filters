@@ -30,6 +30,12 @@
     <ClCompile Include="src\rewrite.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\items_rndr.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\image.h">

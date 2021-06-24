@@ -26,7 +26,6 @@
     <ClInclude Include="src\platform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\graphics.c" />
     <ClCompile Include="src\items.c" />
     <ClCompile Include="src\strg.c" />
   </ItemGroup>

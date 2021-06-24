@@ -32,9 +32,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\graphics.c">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="src\items.c">
       <Filter>Quelldateien</Filter>
     </ClCompile>

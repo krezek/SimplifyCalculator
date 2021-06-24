@@ -19,7 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\graphics.c" />
     <ClCompile Include="src\image.c" />
+    <ClCompile Include="src\items_rndr.c" />
     <ClCompile Include="src\lexer.c" />
     <ClCompile Include="src\parser.c" />
     <ClCompile Include="src\pch.c" />
